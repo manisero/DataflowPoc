@@ -29,7 +29,7 @@ namespace Dataflow.Pipelines.PeopleStream
                     Start = readBlock.Start,
                     Output = writeBlock.Processor,
                     EstimatedOutputCount = writeBlock.EstimatedOutputCount,
-                    Completion = TaskExtensions.CreateCommonCompletion(cancellationSource,
+                    Completion = TaskExtensions.CreateGlobalCompletion(cancellationSource,
                                                                        readBlock.Completion, writeBlock.Completion)
                 };
         }

@@ -39,7 +39,7 @@ namespace Dataflow
             throwBlock.Processor.IgnoreOutput();
 
             // Handle completion
-            var completion = TaskExtensions.CreateCommonCompletion(cancellationSource,
+            var completion = TaskExtensions.CreateGlobalCompletion(cancellationSource,
                                                                    peopleStreamBlock.Completion,
                                                                    throwBlock.Completion).ContinueWith(
                                                                        x =>
