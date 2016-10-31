@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks.Dataflow;
 
-namespace Dataflow.PipelineConstruction
+namespace Dataflow.Pipelines
 {
     public class EmptyBlockFactory
     {

@@ -7,7 +7,8 @@ using System.Threading.Tasks.Dataflow;
 using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
-using Dataflow.PipelineConstruction;
+using Dataflow.Pipelines;
+using Dataflow.Pipelines.PeopleStream;
 
 namespace Dataflow
 {
@@ -32,7 +33,7 @@ namespace Dataflow
             // Create blocks
             // TODO: Progress reporting approach 1: before anything
             var readBlock = readingBlockFactory.Create(PEOPLE_JSON_FILE_PATH, cancellationSource.Token);
-            var processBlock = writingBlockFactory.Create(PEOPLE_RESULT_FILE_PATH, cancellationSource.Token);
+            var processBlock = writingBlockFactory.Create(PEOPLE_RESULT_FILE_PATH, readBlock.EstimatedOutputCount, cancellationSource.Token);
             var throwBlock = THROW ? throwingBlockFactory.Create<Data>(cancellationSource.Token) : emptyBlockFactory.Create<Data>(cancellationSource.Token);
             // TODO: Data-level error handling (reporting / logging)
             // TODO: Progress reporting approach 2: after everything

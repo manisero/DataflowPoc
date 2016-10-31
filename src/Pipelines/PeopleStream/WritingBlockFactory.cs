@@ -5,7 +5,7 @@ using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
 
-namespace Dataflow.PipelineConstruction
+namespace Dataflow.Pipelines.PeopleStream
 {
     public class WritingBlockFactory
     {
@@ -16,7 +16,7 @@ namespace Dataflow.PipelineConstruction
             _dataWriter = dataWriter;
         }
 
-        public ProcessingBlock<Data> Create(string targetFilePath, CancellationToken cancellation)
+        public ProcessingBlock<Data> Create(string targetFilePath, int estimatedInputCount, CancellationToken cancellation)
         {
             var writer = new StreamWriter(targetFilePath);
 
@@ -35,6 +35,7 @@ namespace Dataflow.PipelineConstruction
             return new ProcessingBlock<Data>
                 {
                     Processor = writingBlock,
+                    EstimatedOutputCount = estimatedInputCount,
                     Completion = completion
                 };
         }

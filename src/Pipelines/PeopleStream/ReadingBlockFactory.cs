@@ -5,7 +5,7 @@ using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
 
-namespace Dataflow.PipelineConstruction
+namespace Dataflow.Pipelines.PeopleStream
 {
     public class ReadingBlockFactory
     {
@@ -62,12 +62,12 @@ namespace Dataflow.PipelineConstruction
                 };
         }
 
-        public IPropagatorBlock<int, Data> UseDataReader(StreamReader peopleJsonStream, CancellationToken cancellation)
+        private IPropagatorBlock<int, Data> UseDataReader(StreamReader peopleJsonStream, CancellationToken cancellation)
         {
             return new TransformManyBlock<int, Data>(x => _dataReader.Read(peopleJsonStream, x), new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
         }
 
-        public IPropagatorBlock<int, Data> UseLinesReaderAndParser(StreamReader peopleJsonStream, CancellationToken cancellation)
+        private IPropagatorBlock<int, Data> UseLinesReaderAndParser(StreamReader peopleJsonStream, CancellationToken cancellation)
         {
             // Create blocks
             

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace Dataflow.PipelineConstruction
+namespace Dataflow.Pipelines
 {
     public class StartableBlock<TOutput>
     {
@@ -18,6 +18,8 @@ namespace Dataflow.PipelineConstruction
     public class ProcessingBlock<TData>
     {
         public IPropagatorBlock<TData, TData> Processor { get; set; }
+
+        public int EstimatedOutputCount { get; set; }
 
         public Task Completion { get; set; }
     }
