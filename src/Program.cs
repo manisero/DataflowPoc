@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
@@ -21,8 +18,8 @@ namespace Dataflow
 
         static void Main(string[] args)
         {
-            var readingBlockFactory = new ReadingBlockFactory(true, new FileLinesCounter(), new DataReader(), new StreamLinesReader(), new DataParser());
-            var writingBlockFactory = new WritingBlockFactory(new DataWriter());
+            var peopleStreamFactory = new PeopleStreamFactory(new ReadingBlockFactory(true, new FileLinesCounter(), new DataReader(), new StreamLinesReader(), new DataParser()),
+                                                              new WritingBlockFactory(new DataWriter()));
             var throwingBlockFactory = new ThrowingBlockFactory();
             var emptyBlockFactory = new EmptyBlockFactory();
 
@@ -32,46 +29,42 @@ namespace Dataflow
 
             // Create blocks
             // TODO: Progress reporting approach 1: before anything
-            var readBlock = readingBlockFactory.Create(PEOPLE_JSON_FILE_PATH, cancellationSource.Token);
-            var processBlock = writingBlockFactory.Create(PEOPLE_RESULT_FILE_PATH, readBlock.EstimatedOutputCount, cancellationSource.Token);
+            var peopleStreamBlock = peopleStreamFactory.Create(PEOPLE_JSON_FILE_PATH, PEOPLE_RESULT_FILE_PATH, cancellationSource);
             var throwBlock = THROW ? throwingBlockFactory.Create<Data>(cancellationSource.Token) : emptyBlockFactory.Create<Data>(cancellationSource.Token);
             // TODO: Data-level error handling (reporting / logging)
             // TODO: Progress reporting approach 2: after everything
-            var terminateBlock = DataflowBlock.NullTarget<Data>();  // Never completes
 
             // Link blocks
-            readBlock.Output.LinkWithCompletion(processBlock.Processor);
-            processBlock.Processor.LinkWithCompletion(throwBlock.Processor);
-            throwBlock.Processor.LinkWithCompletion(terminateBlock);
+            peopleStreamBlock.Output.LinkWithCompletion(throwBlock.Processor);
+            throwBlock.Processor.IgnoreOutput();
 
             // Handle completion
-            var completion = CreateCompletion(cancellationSource,
-                                              readBlock.Completion,
-                                              processBlock.Completion,
-                                              throwBlock.Completion).ContinueWith(
-                                                  x =>
-                                                      {
-                                                          duration = stopwatch.Elapsed;
+            var completion = TaskExtensions.CreateCommonCompletion(cancellationSource,
+                                                                   peopleStreamBlock.Completion,
+                                                                   throwBlock.Completion).ContinueWith(
+                                                                       x =>
+                                                                           {
+                                                                               duration = stopwatch.Elapsed;
 
-                                                          if (x.IsFaulted)
-                                                          {
-                                                              // TODO: Handle error
-                                                          }
-                                                          else if (x.IsCanceled)
-                                                          {
-                                                              Console.WriteLine("Cancelled.");
-                                                          }
-                                                          else
-                                                          {
-                                                              Console.WriteLine("Complete.");
-                                                          }
+                                                                               if (x.IsFaulted)
+                                                                               {
+                                                                                   // TODO: Handle error
+                                                                               }
+                                                                               else if (x.IsCanceled)
+                                                                               {
+                                                                                   Console.WriteLine("Cancelled.");
+                                                                               }
+                                                                               else
+                                                                               {
+                                                                                   Console.WriteLine("Complete.");
+                                                                               }
 
-                                                          Console.WriteLine($"Took {duration.TotalMilliseconds}ms.");
-                                                      });
-            
+                                                                               Console.WriteLine($"Took {duration.TotalMilliseconds}ms.");
+                                                                           });
+           
             // Start
             stopwatch.Start();
-            readBlock.Start();
+            peopleStreamBlock.Start();
 
             var input = (char)Console.Read();
 
@@ -93,19 +86,6 @@ namespace Dataflow
             }
 
             cancellationSource.Dispose();
-        }
-
-        private static Task CreateCompletion(CancellationTokenSource cancellationSource, params Task[] tasks)
-        {
-            var faultHandlers = tasks.Select(x => x.ContinueWithStatusPropagation(t =>
-                                                                                      {
-                                                                                          if (t.IsFaulted && !cancellationSource.IsCancellationRequested)
-                                                                                          {
-                                                                                              cancellationSource.Cancel();
-                                                                                          }
-                                                                                      }));
-
-            return Task.WhenAll(faultHandlers);
         }
     }
 }

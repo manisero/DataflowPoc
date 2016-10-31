@@ -9,5 +9,12 @@ namespace Dataflow.Extensions
         {
             return source.LinkTo(target, new DataflowLinkOptions { PropagateCompletion = true });
         }
+
+        public static IDisposable IgnoreOutput<TData>(this ISourceBlock<TData> source)
+        {
+            var terminateBlock = DataflowBlock.NullTarget<TData>(); // Never completes
+
+            return source.LinkWithCompletion(terminateBlock);
+        }
     }
 }

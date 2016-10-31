@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dataflow.Extensions
@@ -35,6 +37,20 @@ namespace Dataflow.Extensions
                                   });
 
             return completionSource.Task;
+        }
+
+        public static Task CreateCommonCompletion(CancellationTokenSource cancellationSource, params Task[] tasks)
+        {
+            var faultHandlers = tasks.Select(x => x.ContinueWithStatusPropagation(
+                t =>
+                    {
+                        if (t.IsFaulted && !cancellationSource.IsCancellationRequested)
+                        {
+                            cancellationSource.Cancel();
+                        }
+                    }));
+
+            return Task.WhenAll(faultHandlers);
         }
     }
 }

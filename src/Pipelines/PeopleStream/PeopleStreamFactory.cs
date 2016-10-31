@@ -15,11 +15,11 @@ namespace Dataflow.Pipelines.PeopleStream
             _writingBlockFactory = writingBlockFactory;
         }
 
-        public StartableBlock<Data> Create(string peopleJsonFilePath, string targetFilePath, CancellationToken cancellation)
+        public StartableBlock<Data> Create(string peopleJsonFilePath, string targetFilePath, CancellationTokenSource cancellationSource)
         {
             // Create blocks
-            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellation);
-            var writeBlock = _writingBlockFactory.Create(targetFilePath, readBlock.EstimatedOutputCount, cancellation);
+            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
+            var writeBlock = _writingBlockFactory.Create(targetFilePath, readBlock.EstimatedOutputCount, cancellationSource.Token);
 
             // Link blocks
             readBlock.Output.LinkWithCompletion(writeBlock.Processor);
@@ -29,7 +29,8 @@ namespace Dataflow.Pipelines.PeopleStream
                     Start = readBlock.Start,
                     Output = writeBlock.Processor,
                     EstimatedOutputCount = writeBlock.EstimatedOutputCount,
-                    Completion = null // TODO: Merge read & write completion
+                    Completion = TaskExtensions.CreateCommonCompletion(cancellationSource,
+                                                                       readBlock.Completion, writeBlock.Completion)
                 };
         }
     }
