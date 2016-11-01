@@ -14,6 +14,7 @@ namespace Dataflow.Pipelines
         private readonly WritingBlockFactory _writingBlockFactory;
         private readonly ThrowingBlockFactory _throwingBlockFactory;
         private readonly EmptyBlockFactory _emptyBlockFactory;
+        private readonly HandleErrorBlockFactory _handleErrorBlockFactory;
         private readonly ProgressReportingBlockFactory _progressReportingBlockFactory;
         private readonly PipelineFactory _pipelineFactory;
 
@@ -23,6 +24,7 @@ namespace Dataflow.Pipelines
                                      WritingBlockFactory writingBlockFactory,
                                      ThrowingBlockFactory throwingBlockFactory,
                                      EmptyBlockFactory emptyBlockFactory,
+                                     HandleErrorBlockFactory handleErrorBlockFactory,
                                      ProgressReportingBlockFactory progressReportingBlockFactory,
                                      PipelineFactory pipelineFactory)
         {
@@ -32,6 +34,7 @@ namespace Dataflow.Pipelines
             _writingBlockFactory = writingBlockFactory;
             _throwingBlockFactory = throwingBlockFactory;
             _emptyBlockFactory = emptyBlockFactory;
+            _handleErrorBlockFactory = handleErrorBlockFactory;
             _progressReportingBlockFactory = progressReportingBlockFactory;
             _pipelineFactory = pipelineFactory;
         }
@@ -67,11 +70,15 @@ namespace Dataflow.Pipelines
             var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create<Data>(cancellationSource.Token)
                                  : _emptyBlockFactory.Create<Data>(writeBlock.EstimatedOutputCount, cancellationSource.Token);
-            // TODO: Data-level error handling (reporting / logging)
+            var handleErrorBlock = _handleErrorBlockFactory.Create(cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create<Data>(progress, throwBlock.EstimatedOutputCount, cancellationSource.Token);
 
             return _pipelineFactory.Create(cancellationSource,
-                                           readBlock, validateBlock, computeFieldsBlock, writeBlock, throwBlock, progressBlock);
+                                           readBlock,
+                                           new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock },
+                                           handleErrorBlock,
+                                           progressBlock,
+                                           x => x.IsValid);
         }
     }
 }

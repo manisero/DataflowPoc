@@ -21,6 +21,7 @@ namespace Dataflow
                                                                   new WritingBlockFactory(new DataWriter()),
                                                                   new ThrowingBlockFactory(),
                                                                   new EmptyBlockFactory(),
+                                                                  new HandleErrorBlockFactory(),
                                                                   new ProgressReportingBlockFactory(),
                                                                   new PipelineFactory());
             var pipelineExecutor = new PipelineExecutor();
