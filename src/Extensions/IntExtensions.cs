@@ -8,5 +8,10 @@ namespace Dataflow.Extensions
         {
             return (int)Math.Ceiling((decimal)number / dividor);
         }
+
+        public static byte PercentageOf(this int number, int total)
+        {
+            return (byte)(number * 100 / total);
+        }
     }
 }

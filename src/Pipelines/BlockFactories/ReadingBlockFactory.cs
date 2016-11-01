@@ -27,7 +27,7 @@ namespace Dataflow.Pipelines.BlockFactories
 
         public StartableBlock<Data> Create(string peopleJsonFilePath, CancellationToken cancellation)
         {
-            var batchSize = Settings.BatchSize;
+            var batchSize = Settings.ReadingBatchSize;
             var peopleCount = _fileLinesCounter.Count(peopleJsonFilePath);
             var batchesCount = peopleCount.CeilingOfDivisionBy(batchSize);
 

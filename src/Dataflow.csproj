@@ -63,6 +63,8 @@
     <Compile Include="Models\Person.cs" />
     <Compile Include="Logic\DataReader.cs" />
     <Compile Include="Models\PipelineExecutionResult.cs" />
+    <Compile Include="Models\PipelineProgress.cs" />
+    <Compile Include="Pipelines\BlockFactories\ProgressReportingBlockFactory.cs" />
     <Compile Include="Pipelines\Blocks.cs" />
     <Compile Include="Pipelines\BlockFactories\EmptyBlockFactory.cs" />
     <Compile Include="Pipelines\BlockFactories\ReadingBlockFactory.cs" />

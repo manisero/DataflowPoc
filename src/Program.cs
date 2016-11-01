@@ -19,12 +19,15 @@ namespace Dataflow
                                                                   new WritingBlockFactory(new DataWriter()),
                                                                   new ThrowingBlockFactory(),
                                                                   new EmptyBlockFactory(),
+                                                                  new ProgressReportingBlockFactory(),
                                                                   new PipelineFactory());
             var pipelineExecutor = new PipelineExecutor();
 
             using (var cancellationSource = new CancellationTokenSource())
             {
-                var pipeline = peoplePipelineFactory.Create(Settings.PeopleJsonFilePath, Settings.PeopleTargetFilePath, cancellationSource);
+                var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
+
+                var pipeline = peoplePipelineFactory.Create(Settings.PeopleJsonFilePath, Settings.PeopleTargetFilePath, progress, cancellationSource);
 
                 Task.Run(() => WaitForCancellation(cancellationSource));
 
