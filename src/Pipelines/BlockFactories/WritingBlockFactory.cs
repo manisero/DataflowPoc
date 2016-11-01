@@ -18,6 +18,13 @@ namespace Dataflow.Pipelines.BlockFactories
 
         public ProcessingBlock<Data> Create(string targetFilePath, int estimatedInputCount, CancellationToken cancellation)
         {
+            var targetDirectoryPath = Path.GetDirectoryName(targetFilePath);
+
+            if (!Directory.Exists(targetDirectoryPath))
+            {
+                Directory.CreateDirectory(targetDirectoryPath);
+            }
+
             var writer = new StreamWriter(targetFilePath);
 
             // Create blocks
