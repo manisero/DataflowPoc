@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
 using Dataflow.Pipelines;
@@ -22,6 +21,7 @@ namespace Dataflow
                                                               new WritingBlockFactory(new DataWriter()));
             var throwingBlockFactory = new ThrowingBlockFactory();
             var emptyBlockFactory = new EmptyBlockFactory();
+            var pipelineFactory = new PipelineFactory();
             var pipelineExecutor = new PipelineExecutor();
 
             var cancellationSource = new CancellationTokenSource();
@@ -33,23 +33,8 @@ namespace Dataflow
             // TODO: Data-level error handling (reporting / logging)
             // TODO: Progress reporting approach 2: after everything
 
-            // Link blocks
-            peopleStreamBlock.Output.LinkWithCompletion(throwBlock.Processor);
-
-            // Handle completion
-            var completion = Extensions.TaskExtensions.CreateGlobalCompletion(cancellationSource,
-                                                                              peopleStreamBlock.Completion,
-                                                                              throwBlock.Completion);
-           
-            // Start
-            var pipeline = new StartableBlock<Data>
-                {
-                    Start = peopleStreamBlock.Start,
-                    Output = throwBlock.Processor,
-                    EstimatedOutputCount = throwBlock.EstimatedOutputCount,
-                    Completion = completion
-                };
-
+            // Execute pipeline
+            var pipeline = pipelineFactory.Create(peopleStreamBlock, new[] { throwBlock }, cancellationSource);
             var pipelineCompletion = pipelineExecutor.Execute(pipeline);
 
             //WaitForCancellation(pipelineCompletion, cancellationSource);

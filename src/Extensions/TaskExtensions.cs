@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,14 +42,19 @@ namespace Dataflow.Extensions
 
         public static Task CreateGlobalCompletion(CancellationTokenSource cancellationSource, params Task[] tasks)
         {
+            return CreateGlobalCompletion(tasks, cancellationSource);
+        }
+
+        public static Task CreateGlobalCompletion(IEnumerable<Task> tasks, CancellationTokenSource cancellationSource)
+        {
             var faultHandlers = tasks.Select(x => x.ContinueWithStatusPropagation(
                 t =>
+                {
+                    if (t.IsFaulted && !cancellationSource.IsCancellationRequested)
                     {
-                        if (t.IsFaulted && !cancellationSource.IsCancellationRequested)
-                        {
-                            cancellationSource.Cancel();
-                        }
-                    }));
+                        cancellationSource.Cancel();
+                    }
+                }));
 
             return Task.WhenAll(faultHandlers);
         }
