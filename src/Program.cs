@@ -10,40 +10,36 @@ namespace Dataflow
 {
     class Program
     {
-        private const bool THROW = false;
+        private const bool THROW_TEST = true;
+        private const bool OPTIMIZE_READING = false;
 
         private const string PEOPLE_JSON_FILE_PATH = @"\\VBOXSVR\temp\people.json";
         private const string PEOPLE_RESULT_FILE_PATH = @"\\VBOXSVR\temp\people_result.txt";
 
         static void Main(string[] args)
         {
-            var readingBlockFactory = new ReadingBlockFactory(false, new FileLinesCounter(), new DataReader(), new StreamLinesReader(), new DataParser());
-            var writingBlockFactory = new WritingBlockFactory(new DataWriter());
-            var throwingBlockFactory = new ThrowingBlockFactory();
-            var emptyBlockFactory = new EmptyBlockFactory();
-            var pipelineFactory = new PipelineFactory();
+            var peoplePipelineFactory = new PeoplePipelineFactory(THROW_TEST,
+                                                                  new ReadingBlockFactory(OPTIMIZE_READING,
+                                                                                          new FileLinesCounter(),
+                                                                                          new DataReader(),
+                                                                                          new StreamLinesReader(),
+                                                                                          new DataParser()),
+                                                                  new WritingBlockFactory(new DataWriter()),
+                                                                  new ThrowingBlockFactory(),
+                                                                  new EmptyBlockFactory(),
+                                                                  new PipelineFactory());
             var pipelineExecutor = new PipelineExecutor();
 
-            var cancellationSource = new CancellationTokenSource();
+            using (var cancellationSource = new CancellationTokenSource())
+            {
+                var pipeline = peoplePipelineFactory.Create(PEOPLE_JSON_FILE_PATH, PEOPLE_RESULT_FILE_PATH, cancellationSource);
+                var pipelineCompletion = pipelineExecutor.Execute(pipeline);
 
-            // Create blocks
-            // TODO: Progress reporting approach 1: before anything
-            var readBlock = readingBlockFactory.Create(PEOPLE_JSON_FILE_PATH, cancellationSource.Token);
-            var writeBlock = writingBlockFactory.Create(PEOPLE_RESULT_FILE_PATH, readBlock.EstimatedOutputCount, cancellationSource.Token);
-            var throwBlock = THROW ? throwingBlockFactory.Create<Data>(cancellationSource.Token) : emptyBlockFactory.Create<Data>(writeBlock.EstimatedOutputCount, cancellationSource.Token);
-            // TODO: Data-level error handling (reporting / logging)
-            // TODO: Progress reporting approach 2: after everything
+                //WaitForCancellation(pipelineCompletion, cancellationSource);
 
-            // Execute pipeline
-            var pipeline = pipelineFactory.Create(readBlock, new[] { writeBlock, throwBlock }, cancellationSource);
-            var pipelineCompletion = pipelineExecutor.Execute(pipeline);
-
-            //WaitForCancellation(pipelineCompletion, cancellationSource);
-
-            var executionResult = pipelineCompletion.Result;
-            HandleExecutionResult(executionResult);
-
-            cancellationSource.Dispose();
+                var executionResult = pipelineCompletion.Result;
+                HandleExecutionResult(executionResult);
+            }
         }
 
         private static void WaitForCancellation(Task completion, CancellationTokenSource cancellationSource)
