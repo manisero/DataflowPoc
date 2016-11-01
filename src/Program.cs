@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
@@ -22,6 +23,7 @@ namespace Dataflow
                                                               new WritingBlockFactory(new DataWriter()));
             var throwingBlockFactory = new ThrowingBlockFactory();
             var emptyBlockFactory = new EmptyBlockFactory();
+            var pipelineExecutor = new PipelineExecutor();
 
             var cancellationSource = new CancellationTokenSource();
             var stopwatch = new Stopwatch();
@@ -36,36 +38,39 @@ namespace Dataflow
 
             // Link blocks
             peopleStreamBlock.Output.LinkWithCompletion(throwBlock.Processor);
-            throwBlock.Processor.IgnoreOutput();
 
             // Handle completion
-            var completion = TaskExtensions.CreateGlobalCompletion(cancellationSource,
-                                                                   peopleStreamBlock.Completion,
-                                                                   throwBlock.Completion).ContinueWith(
-                                                                       x =>
-                                                                           {
-                                                                               duration = stopwatch.Elapsed;
-
-                                                                               if (x.IsFaulted)
-                                                                               {
-                                                                                   // TODO: Handle error
-                                                                               }
-                                                                               else if (x.IsCanceled)
-                                                                               {
-                                                                                   Console.WriteLine("Cancelled.");
-                                                                               }
-                                                                               else
-                                                                               {
-                                                                                   Console.WriteLine("Complete.");
-                                                                               }
-
-                                                                               Console.WriteLine($"Took {duration.TotalMilliseconds}ms.");
-                                                                           });
+            var completion = Extensions.TaskExtensions.CreateGlobalCompletion(cancellationSource,
+                                                                              peopleStreamBlock.Completion,
+                                                                              throwBlock.Completion);
            
             // Start
-            stopwatch.Start();
-            peopleStreamBlock.Start();
+            var pipeline = new StartableBlock<Data>
+                {
+                    Start = peopleStreamBlock.Start,
+                    Output = throwBlock.Processor,
+                    EstimatedOutputCount = throwBlock.EstimatedOutputCount,
+                    Completion = completion
+                };
 
+            var pipelineCompletion = pipelineExecutor.Execute(pipeline);
+
+            WaitForCancellation(pipelineCompletion, cancellationSource);
+
+            try
+            {
+                pipelineCompletion.Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            cancellationSource.Dispose();
+        }
+
+        private static void WaitForCancellation(Task completion, CancellationTokenSource cancellationSource)
+        {
             var input = (char)Console.Read();
 
             if (input == 'c')
@@ -75,17 +80,6 @@ namespace Dataflow
                     cancellationSource.Cancel();
                 }
             }
-
-            try
-            {
-                completion.Wait();
-            }
-            catch (Exception e)
-            {
-                var stackTrace = e.StackTrace;
-            }
-
-            cancellationSource.Dispose();
         }
     }
 }
