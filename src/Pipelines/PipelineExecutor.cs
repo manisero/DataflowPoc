@@ -7,7 +7,7 @@ namespace Dataflow.Pipelines
 {
     public class PipelineExecutor
     {
-        public async Task<PipelineExecutionResult> Execute(StartableBlock<Data> pipeline)
+        public async Task<PipelineExecutionResult> Execute<TData>(StartableBlock<TData> pipeline)
         {
             var pipelineExecutionResult = new PipelineExecutionResult();
 

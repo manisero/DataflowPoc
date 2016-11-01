@@ -40,8 +40,6 @@ namespace Dataflow.Extensions
             return completionSource.Task;
         }
 
-        public static Task CreateGlobalCompletion(CancellationTokenSource cancellationSource, params Task[] tasks) => CreateGlobalCompletion(tasks, cancellationSource);
-
         public static Task CreateGlobalCompletion(IEnumerable<Task> tasks, CancellationTokenSource cancellationSource)
         {
             var faultHandlers = tasks.Select(x => x.ContinueWithStatusPropagation(

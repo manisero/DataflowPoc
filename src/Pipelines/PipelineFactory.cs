@@ -3,13 +3,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dataflow.Extensions;
-using Dataflow.Models;
 
 namespace Dataflow.Pipelines
 {
     public class PipelineFactory
     {
-        public StartableBlock<Data> Create(StartableBlock<Data> source, ProcessingBlock<Data>[] processors, CancellationTokenSource cancellationSource)
+        public StartableBlock<TData> Create<TData>(StartableBlock<TData> source, ProcessingBlock<TData>[] processors, CancellationTokenSource cancellationSource)
         {
             // Link blocks
             source.Output.LinkWithCompletion(processors[0].Processor);
@@ -28,7 +27,7 @@ namespace Dataflow.Pipelines
             // Create pipeline
             var outputBlock = processors.Last();
 
-            return new StartableBlock<Data>
+            return new StartableBlock<TData>
                 {
                     Start = source.Start,
                     Output = outputBlock.Processor,
