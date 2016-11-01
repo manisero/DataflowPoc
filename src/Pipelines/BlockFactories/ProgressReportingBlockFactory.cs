@@ -20,6 +20,7 @@ namespace Dataflow.Pipelines.BlockFactories
             
             // Create blocks
             var reportBlock = DataflowFacade.TransformBlock<TData>(
+                "ReportProgress",
                 x =>
                     {
                         TryReport(state, batchSize, estimatedInputCount, progress);

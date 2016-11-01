@@ -45,15 +45,11 @@ namespace Dataflow.Pipelines
             // Create blocks
             // TODO: Progress reporting approach 1: before anything
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
-            var validateBlock = ProcessingBlock<Data>.Create(x =>
-                                                                 {
-                                                                     _personValidator.Validate(x);
-                                                                 },
+            var validateBlock = ProcessingBlock<Data>.Create("Validate",
+                                                             x => _personValidator.Validate(x),
                                                              cancellationSource.Token);
-            var computeFieldsBlock = ProcessingBlock<Data>.Create(x =>
-                                                                      {
-                                                                          _personFieldsComputer.Compute(x);
-                                                                      },
+            var computeFieldsBlock = ProcessingBlock<Data>.Create("ComputeFields",
+                                                                  x => _personFieldsComputer.Compute(x),
                                                                   cancellationSource.Token);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest

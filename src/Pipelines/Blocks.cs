@@ -23,19 +23,21 @@ namespace Dataflow.Pipelines
 
         public Task Completion { get; set; }
 
-        public static ProcessingBlock<TData> Create(Action<TData> process, CancellationToken cancellation)
+        public static ProcessingBlock<TData> Create(string name, Action<TData> process, CancellationToken cancellation)
         {
-            return Create(x =>
-                              {
-                                  process(x);
-                                  return x;
-                              },
-                          cancellation);
+            return Create(
+                name,
+                x =>
+                    {
+                        process(x);
+                        return x;
+                    },
+                cancellation);
         }
 
-        public static ProcessingBlock<TData> Create(Func<TData, TData> process, CancellationToken cancellation)
+        public static ProcessingBlock<TData> Create(string name, Func<TData, TData> process, CancellationToken cancellation)
         {
-            var processor = DataflowFacade.TransformBlock<TData>(process, cancellation);
+            var processor = DataflowFacade.TransformBlock<TData>(name, process, cancellation);
 
             return new ProcessingBlock<TData>
                 {

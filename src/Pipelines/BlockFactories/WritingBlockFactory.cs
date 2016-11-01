@@ -27,7 +27,8 @@ namespace Dataflow.Pipelines.BlockFactories
             var writer = new StreamWriter(targetFilePath);
 
             // Create blocks
-            var writingBlock = DataflowFacade.TransformBlock<Data>(
+            var writeBlock = DataflowFacade.TransformBlock<Data>(
+                "WriteData",
                 x =>
                     {
                         _dataWriter.Write(writer, x);
@@ -36,11 +37,11 @@ namespace Dataflow.Pipelines.BlockFactories
                 cancellation);
 
             // Handle completion
-            var completion = writingBlock.Completion.ContinueWithStatusPropagation(x => writer.Dispose());
+            var completion = writeBlock.Completion.ContinueWithStatusPropagation(x => writer.Dispose());
 
             return new ProcessingBlock<Data>
                 {
-                    Processor = writingBlock,
+                    Processor = writeBlock,
                     Completion = completion
                 };
         }

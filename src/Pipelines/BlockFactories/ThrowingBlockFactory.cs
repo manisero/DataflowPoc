@@ -10,6 +10,7 @@ namespace Dataflow.Pipelines.BlockFactories
         {
             // Create blocks
             var throwBlock = DataflowFacade.TransformBlock<TData>(
+                "Throw",
                 x =>
                     {
                         throw new InvalidOperationException();

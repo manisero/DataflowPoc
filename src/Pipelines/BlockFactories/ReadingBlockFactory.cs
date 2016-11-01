@@ -65,10 +65,8 @@ namespace Dataflow.Pipelines.BlockFactories
         private IPropagatorBlock<int, Data> UseDataReader(StreamReader peopleJsonStream, CancellationToken cancellation)
         {
             return DataflowFacade.TransformManyBlock<int, Data>(
-                x =>
-                    {
-                        return _dataReader.Read(peopleJsonStream, x);
-                    },
+                "ReadData",
+                x => _dataReader.Read(peopleJsonStream, x),
                 cancellation);
         }
 
@@ -79,10 +77,16 @@ namespace Dataflow.Pipelines.BlockFactories
             // NOTE:
             // - extract part which must be single-thread
             // - ability to replace just reading (e.g. from db)
-            var readLinesBlock = DataflowFacade.TransformManyBlock<int, string>(x => _streamLinesReader.Read(peopleJsonStream, x), cancellation);
+            var readLinesBlock = DataflowFacade.TransformManyBlock<int, string>(
+                "ReadLines",
+                x => _streamLinesReader.Read(peopleJsonStream, x),
+                cancellation);
 
             // NOTE: can be multi-thread
-            var parseDataBlock = DataflowFacade.TransformBlock<string, Data>(x => _dataParser.Parse(x), cancellation);
+            var parseDataBlock = DataflowFacade.TransformBlock<string, Data>(
+                "ParseData",
+                x => _dataParser.Parse(x),
+                cancellation);
 
             // Link blocks
             readLinesBlock.LinkWithCompletion(parseDataBlock);

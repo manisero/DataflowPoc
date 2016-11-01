@@ -1,0 +1,29 @@
+Event Name                     	Time MSec	Process Name          	blockName     	elapsedTicks
+Manisero.DataflowPoc/BlockEnter	2 229,373	Dataflow.vshost (7384)	ReadData      	            
+Manisero.DataflowPoc/BlockExit 	2 229,963	Dataflow.vshost (7384)	ReadData      	 1 193      
+Manisero.DataflowPoc/BlockEnter	2 367,386	Dataflow.vshost (7384)	Validate      	            
+Manisero.DataflowPoc/BlockExit 	2 368,076	Dataflow.vshost (7384)	Validate      	 1 730      
+Manisero.DataflowPoc/BlockEnter	2 368,243	Dataflow.vshost (7384)	Validate      	            
+Manisero.DataflowPoc/BlockExit 	2 368,317	Dataflow.vshost (7384)	Validate      	   174      
+Manisero.DataflowPoc/BlockEnter	2 368,484	Dataflow.vshost (7384)	WriteData     	            
+Manisero.DataflowPoc/BlockExit 	2 398,750	Dataflow.vshost (7384)	WriteData     	76 639      
+Manisero.DataflowPoc/BlockEnter	2 398,786	Dataflow.vshost (7384)	ReportProgress	            
+Manisero.DataflowPoc/BlockExit 	2 399,324	Dataflow.vshost (7384)	ReportProgress	 1 349      
+Manisero.DataflowPoc/BlockEnter	2 399,342	Dataflow.vshost (7384)	ComputeFields 	            
+Manisero.DataflowPoc/BlockExit 	2 404,084	Dataflow.vshost (7384)	ComputeFields 	11 995      
+Manisero.DataflowPoc/BlockEnter	2 404,103	Dataflow.vshost (7384)	WriteData     	            
+Manisero.DataflowPoc/BlockExit 	2 404,673	Dataflow.vshost (7384)	WriteData     	 1 412      
+Manisero.DataflowPoc/BlockEnter	2 404,699	Dataflow.vshost (7384)	ReportProgress	            
+Manisero.DataflowPoc/BlockExit 	2 404,703	Dataflow.vshost (7384)	ReportProgress	     3      
+Manisero.DataflowPoc/BlockEnter	2 404,712	Dataflow.vshost (7384)	Validate      	            
+Manisero.DataflowPoc/BlockExit 	2 404,716	Dataflow.vshost (7384)	Validate      	     3      
+Manisero.DataflowPoc/BlockEnter	2 404,720	Dataflow.vshost (7384)	ComputeFields 	            
+Manisero.DataflowPoc/BlockExit 	2 404,725	Dataflow.vshost (7384)	ComputeFields 	     7      
+Manisero.DataflowPoc/BlockEnter	2 404,731	Dataflow.vshost (7384)	WriteData     	            
+Manisero.DataflowPoc/BlockExit 	2 404,735	Dataflow.vshost (7384)	WriteData     	     5      
+Manisero.DataflowPoc/BlockEnter	2 404,746	Dataflow.vshost (7384)	WriteData     	            
+Manisero.DataflowPoc/BlockExit 	2 404,750	Dataflow.vshost (7384)	WriteData     	     3      
+Manisero.DataflowPoc/BlockEnter	2 404,754	Dataflow.vshost (7384)	ReportProgress	            
+Manisero.DataflowPoc/BlockExit 	2 404,757	Dataflow.vshost (7384)	ReportProgress	     3      
+Manisero.DataflowPoc/BlockEnter	2 404,764	Dataflow.vshost (7384)	ReportProgress	            
+Manisero.DataflowPoc/BlockExit 	2 405,747	Dataflow.vshost (7384)	ReportProgress	 2 476      

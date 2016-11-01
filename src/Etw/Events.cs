@@ -11,20 +11,20 @@ namespace Dataflow.Etw
         public const int BlockExitId = 2;
 
         [Event(BlockEnterId, Level = EventLevel.Informational)]
-        public void BlockEnter()
+        public void BlockEnter(string blockName)
         {
             if (IsEnabled())
             {
-                WriteEvent(BlockEnterId);
+                WriteEvent(BlockEnterId, blockName);
             }
         }
 
         [Event(BlockExitId, Level = EventLevel.Informational)]
-        public void BlockExit()
+        public void BlockExit(string blockName, long elapsedTicks)
         {
             if (IsEnabled())
             {
-                WriteEvent(BlockExitId);
+                WriteEvent(BlockExitId, blockName, elapsedTicks);
             }
         }
     }
