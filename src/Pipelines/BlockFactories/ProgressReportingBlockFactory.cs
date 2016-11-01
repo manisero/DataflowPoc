@@ -8,31 +8,31 @@ namespace Dataflow.Pipelines.BlockFactories
 {
     public class ProgressReportingBlockFactory
     {
+        private class State
+        {
+            public int ItemsProcessed { get; set; }
+            public bool Reported100 { get; set; } 
+        }
+
         public ProcessingBlock<TData> Create<TData>(IProgress<PipelineProgress> progress, int estimatedInputCount, CancellationToken cancellation)
         {
             var batchSize = Settings.ProgressBatchSize;
-            var itemsProcessed = 0;
+            var state = new State();
             
             // Create blocks
-            var reportBlock = new TransformBlock<TData, TData>(x =>
-                                                                   {
-                                                                       itemsProcessed++;
-
-                                                                       if (itemsProcessed % batchSize == 0)
-                                                                       {
-                                                                           var percentage = itemsProcessed.PercentageOf(estimatedInputCount);
-                                                                           progress.Report(new PipelineProgress { Percentage = percentage });
-                                                                       }
-
-                                                                       return x;
-                                                                   },
-                                                               new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+            var reportBlock = new TransformBlock<TData, TData>(
+                x =>
+                    {
+                        TryReport(state, batchSize, estimatedInputCount, progress);
+                        return x;
+                    },
+                new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
 
             // Handle completion
             var completion = reportBlock.Completion.ContinueWithStatusPropagation(
                 x =>
                     {
-                        if (!x.IsFaulted && !x.IsCanceled)
+                        if (!x.IsFaulted && !x.IsCanceled && !state.Reported100)
                         {
                             progress.Report(new PipelineProgress { Percentage = 100 });
                         }
@@ -44,6 +44,31 @@ namespace Dataflow.Pipelines.BlockFactories
                     EstimatedOutputCount = estimatedInputCount,
                     Completion = completion
                 };
+        }
+
+        private void TryReport(State state, int batchSize, int estimatedItemsCount, IProgress<PipelineProgress> progress)
+        {
+            if (state.Reported100)
+            {
+                return;
+            }
+
+            state.ItemsProcessed++;
+
+            if (state.ItemsProcessed % batchSize != 0)
+            {
+                return;
+            }
+
+            var percentage = state.ItemsProcessed.PercentageOf(estimatedItemsCount);
+
+            if (percentage >= 100)
+            {
+                percentage = 100;
+                state.Reported100 = true;
+            }
+
+            progress.Report(new PipelineProgress { Percentage = percentage });
         }
     }
 }
