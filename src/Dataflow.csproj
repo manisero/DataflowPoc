@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Etw\Events.cs" />
     <Compile Include="Extensions\DataflowExtensions.cs" />
     <Compile Include="Extensions\DataflowFacade.cs" />
     <Compile Include="Extensions\IntExtensions.cs" />

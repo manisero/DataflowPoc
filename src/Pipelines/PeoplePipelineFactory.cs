@@ -42,9 +42,6 @@ namespace Dataflow.Pipelines
                                            IProgress<PipelineProgress> progress,
                                            CancellationTokenSource cancellationSource)
         {
-            // TODO: Unified Dataflow blocks creation (BoundedCapacity etc.)
-            // TODO: Performance measurement
-
             // Create blocks
             // TODO: Progress reporting approach 1: before anything
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);

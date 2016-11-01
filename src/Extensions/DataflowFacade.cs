@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
+using Dataflow.Etw;
 
 namespace Dataflow.Extensions
 {
@@ -23,7 +24,16 @@ namespace Dataflow.Extensions
         public static TransformBlock<TInput, TOutput> TransformBlock<TInput, TOutput>(Func<TInput, TOutput> transform,
                                                                                       CancellationToken cancellationToken)
         {
-            return new TransformBlock<TInput, TOutput>(transform,
+            return new TransformBlock<TInput, TOutput>(x =>
+                                                           {
+                                                               Events.Write.BlockEnter();
+
+                                                               var o = transform(x);
+
+                                                               Events.Write.BlockExit();
+
+                                                               return o;
+                                                           },
                                                        new ExecutionDataflowBlockOptions
                                                            {
                                                                CancellationToken = cancellationToken,
