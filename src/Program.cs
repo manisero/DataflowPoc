@@ -16,6 +16,7 @@ namespace Dataflow
                                                                                           new DataReader(),
                                                                                           new StreamLinesReader(),
                                                                                           new DataParser()),
+                                                                  new ComputePersonFieldsBlockFactory(new PersonFieldsComputer()),
                                                                   new WritingBlockFactory(new DataWriter()),
                                                                   new ThrowingBlockFactory(),
                                                                   new EmptyBlockFactory(),
