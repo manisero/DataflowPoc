@@ -25,25 +25,21 @@ namespace Dataflow
             using (var cancellationSource = new CancellationTokenSource())
             {
                 var pipeline = peoplePipelineFactory.Create(Settings.PeopleJsonFilePath, Settings.PeopleTargetFilePath, cancellationSource);
-                var pipelineCompletion = pipelineExecutor.Execute(pipeline);
 
-                Task.Run(() => WaitForCancellation(pipelineCompletion, cancellationSource));
+                Task.Run(() => WaitForCancellation(cancellationSource));
 
-                var executionResult = pipelineCompletion.Result;
+                var executionResult = pipelineExecutor.Execute(pipeline).Result;
                 HandleExecutionResult(executionResult);
             }
         }
 
-        private static void WaitForCancellation(Task completion, CancellationTokenSource cancellationSource)
+        private static void WaitForCancellation(CancellationTokenSource cancellationSource)
         {
             var input = (char)Console.Read();
 
             if (input == 'c')
             {
-                if (!completion.IsCompleted) // IsCompleted is true even in case of exception
-                {
-                    cancellationSource.Cancel();
-                }
+                cancellationSource.Cancel();
             }
         }
 
