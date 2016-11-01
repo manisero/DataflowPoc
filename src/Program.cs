@@ -27,7 +27,7 @@ namespace Dataflow
                 var pipeline = peoplePipelineFactory.Create(Settings.PeopleJsonFilePath, Settings.PeopleTargetFilePath, cancellationSource);
                 var pipelineCompletion = pipelineExecutor.Execute(pipeline);
 
-                //WaitForCancellation(pipelineCompletion, cancellationSource);
+                Task.Run(() => WaitForCancellation(pipelineCompletion, cancellationSource));
 
                 var executionResult = pipelineCompletion.Result;
                 HandleExecutionResult(executionResult);
