@@ -41,7 +41,6 @@ namespace Dataflow.Pipelines.BlockFactories
             return new ProcessingBlock<TData>
                 {
                     Processor = reportBlock,
-                    EstimatedOutputCount = estimatedInputCount,
                     Completion = completion
                 };
         }

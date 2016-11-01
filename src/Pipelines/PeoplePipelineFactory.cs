@@ -52,20 +52,18 @@ namespace Dataflow.Pipelines
                                                                  {
                                                                      _personValidator.Validate(x);
                                                                  },
-                                                             readBlock.EstimatedOutputCount,
                                                              cancellationSource.Token);
             var computeFieldsBlock = ProcessingBlock<Data>.Create(x =>
                                                                       {
                                                                           _personFieldsComputer.Compute(x);
                                                                       },
-                                                                  validateBlock.EstimatedOutputCount,
                                                                   cancellationSource.Token);
-            var writeBlock = _writingBlockFactory.Create(targetFilePath, computeFieldsBlock.EstimatedOutputCount, cancellationSource.Token);
+            var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create<Data>(cancellationSource.Token)
-                                 : _emptyBlockFactory.Create<Data>(writeBlock.EstimatedOutputCount, cancellationSource.Token);
-            var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, 0, cancellationSource.Token);
-            var progressBlock = _progressReportingBlockFactory.Create<Data>(progress, throwBlock.EstimatedOutputCount, cancellationSource.Token);
+                                 : _emptyBlockFactory.Create<Data>(cancellationSource.Token);
+            var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, cancellationSource.Token);
+            var progressBlock = _progressReportingBlockFactory.Create<Data>(progress, readBlock.EstimatedOutputCount, cancellationSource.Token);
 
             return _pipelineFactory.Create(cancellationSource,
                                            readBlock,

@@ -16,7 +16,7 @@ namespace Dataflow.Pipelines.BlockFactories
             _dataWriter = dataWriter;
         }
 
-        public ProcessingBlock<Data> Create(string targetFilePath, int estimatedInputCount, CancellationToken cancellation)
+        public ProcessingBlock<Data> Create(string targetFilePath, CancellationToken cancellation)
         {
             var targetDirectoryPath = Path.GetDirectoryName(targetFilePath);
 
@@ -42,7 +42,6 @@ namespace Dataflow.Pipelines.BlockFactories
             return new ProcessingBlock<Data>
                 {
                     Processor = writingBlock,
-                    EstimatedOutputCount = estimatedInputCount,
                     Completion = completion
                 };
         }

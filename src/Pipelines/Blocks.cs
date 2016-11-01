@@ -20,29 +20,25 @@ namespace Dataflow.Pipelines
     {
         public IPropagatorBlock<TData, TData> Processor { get; set; }
 
-        public int EstimatedOutputCount { get; set; }
-
         public Task Completion { get; set; }
 
-        public static ProcessingBlock<TData> Create(Action<TData> process, int estimatedOutputCount, CancellationToken cancellation)
+        public static ProcessingBlock<TData> Create(Action<TData> process, CancellationToken cancellation)
         {
             return Create(x =>
                               {
                                   process(x);
                                   return x;
                               },
-                          estimatedOutputCount,
                           cancellation);
         }
 
-        public static ProcessingBlock<TData> Create(Func<TData, TData> process, int estimatedOutputCount, CancellationToken cancellation)
+        public static ProcessingBlock<TData> Create(Func<TData, TData> process, CancellationToken cancellation)
         {
             var processor = new TransformBlock<TData, TData>(process, new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
 
             return new ProcessingBlock<TData>
                 {
                     Processor = processor,
-                    EstimatedOutputCount = estimatedOutputCount,
                     Completion = processor.Completion
                 };
         }

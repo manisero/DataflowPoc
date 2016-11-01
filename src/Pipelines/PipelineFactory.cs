@@ -59,7 +59,7 @@ namespace Dataflow.Pipelines
                 {
                     Start = source.Start,
                     Output = output.Processor,
-                    EstimatedOutputCount = output.EstimatedOutputCount,
+                    EstimatedOutputCount = source.EstimatedOutputCount,
                     Completion = completion
                 };
         }
