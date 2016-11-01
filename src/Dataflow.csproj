@@ -70,7 +70,6 @@
     <Compile Include="Pipelines\Blocks.cs" />
     <Compile Include="Pipelines\BlockFactories\EmptyBlockFactory.cs" />
     <Compile Include="Pipelines\BlockFactories\ReadingBlockFactory.cs" />
-    <Compile Include="Pipelines\HandleErrorBlockFactory.cs" />
     <Compile Include="Pipelines\PeoplePipelineFactory.cs" />
     <Compile Include="Pipelines\PipelineExecutor.cs" />
     <Compile Include="Pipelines\PipelineFactory.cs" />

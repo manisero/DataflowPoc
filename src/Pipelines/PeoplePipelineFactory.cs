@@ -14,7 +14,6 @@ namespace Dataflow.Pipelines
         private readonly WritingBlockFactory _writingBlockFactory;
         private readonly ThrowingBlockFactory _throwingBlockFactory;
         private readonly EmptyBlockFactory _emptyBlockFactory;
-        private readonly HandleErrorBlockFactory _handleErrorBlockFactory;
         private readonly ProgressReportingBlockFactory _progressReportingBlockFactory;
         private readonly PipelineFactory _pipelineFactory;
 
@@ -24,7 +23,6 @@ namespace Dataflow.Pipelines
                                      WritingBlockFactory writingBlockFactory,
                                      ThrowingBlockFactory throwingBlockFactory,
                                      EmptyBlockFactory emptyBlockFactory,
-                                     HandleErrorBlockFactory handleErrorBlockFactory,
                                      ProgressReportingBlockFactory progressReportingBlockFactory,
                                      PipelineFactory pipelineFactory)
         {
@@ -34,35 +32,31 @@ namespace Dataflow.Pipelines
             _writingBlockFactory = writingBlockFactory;
             _throwingBlockFactory = throwingBlockFactory;
             _emptyBlockFactory = emptyBlockFactory;
-            _handleErrorBlockFactory = handleErrorBlockFactory;
             _progressReportingBlockFactory = progressReportingBlockFactory;
             _pipelineFactory = pipelineFactory;
         }
 
-        public StartableBlock<Data> Create(string peopleJsonFilePath, string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellationSource)
+        public StartableBlock<Data> Create(string peopleJsonFilePath,
+                                           string targetFilePath,
+                                           string errorsFilePath,
+                                           IProgress<PipelineProgress> progress,
+                                           CancellationTokenSource cancellationSource)
         {
-            // Create blocks
-
             // TODO: Unified Dataflow blocks creation (BoundedCapacity etc.)
             // TODO: Performance measurement
 
+            // Create blocks
             // TODO: Progress reporting approach 1: before anything
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
             var validateBlock = ProcessingBlock<Data>.Create(x =>
                                                                  {
-                                                                     if (x.IsValid)
-                                                                     {
-                                                                         _personValidator.Validate(x);
-                                                                     }
+                                                                     _personValidator.Validate(x);
                                                                  },
                                                              readBlock.EstimatedOutputCount,
                                                              cancellationSource.Token);
             var computeFieldsBlock = ProcessingBlock<Data>.Create(x =>
                                                                       {
-                                                                          if (x.IsValid)
-                                                                          {
-                                                                              _personFieldsComputer.Compute(x);
-                                                                          }
+                                                                          _personFieldsComputer.Compute(x);
                                                                       },
                                                                   validateBlock.EstimatedOutputCount,
                                                                   cancellationSource.Token);
@@ -70,7 +64,7 @@ namespace Dataflow.Pipelines
             var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create<Data>(cancellationSource.Token)
                                  : _emptyBlockFactory.Create<Data>(writeBlock.EstimatedOutputCount, cancellationSource.Token);
-            var handleErrorBlock = _handleErrorBlockFactory.Create(cancellationSource.Token);
+            var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, 0, cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create<Data>(progress, throwBlock.EstimatedOutputCount, cancellationSource.Token);
 
             return _pipelineFactory.Create(cancellationSource,

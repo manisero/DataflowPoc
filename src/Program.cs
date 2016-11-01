@@ -21,7 +21,6 @@ namespace Dataflow
                                                                   new WritingBlockFactory(new DataWriter()),
                                                                   new ThrowingBlockFactory(),
                                                                   new EmptyBlockFactory(),
-                                                                  new HandleErrorBlockFactory(),
                                                                   new ProgressReportingBlockFactory(),
                                                                   new PipelineFactory());
             var pipelineExecutor = new PipelineExecutor();
@@ -30,7 +29,11 @@ namespace Dataflow
             {
                 var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
 
-                var pipeline = peoplePipelineFactory.Create(Settings.PeopleJsonFilePath, Settings.PeopleTargetFilePath, progress, cancellationSource);
+                var pipeline = peoplePipelineFactory.Create(Settings.PeopleJsonFilePath,
+                                                            Settings.PeopleTargetFilePath,
+                                                            Settings.ErrorsFilePath,
+                                                            progress,
+                                                            cancellationSource);
 
                 Task.Run(() => WaitForCancellation(cancellationSource));
 
