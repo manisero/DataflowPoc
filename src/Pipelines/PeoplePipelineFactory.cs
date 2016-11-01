@@ -6,21 +6,18 @@ namespace Dataflow.Pipelines
 {
     public class PeoplePipelineFactory
     {
-        private readonly bool _throwTest;
         private readonly ReadingBlockFactory _readingBlockFactory;
         private readonly WritingBlockFactory _writingBlockFactory;
         private readonly ThrowingBlockFactory _throwingBlockFactory;
         private readonly EmptyBlockFactory _emptyBlockFactory;
         private readonly PipelineFactory _pipelineFactory;
 
-        public PeoplePipelineFactory(bool throwTest,
-                                     ReadingBlockFactory readingBlockFactory,
+        public PeoplePipelineFactory(ReadingBlockFactory readingBlockFactory,
                                      WritingBlockFactory writingBlockFactory,
                                      ThrowingBlockFactory throwingBlockFactory,
                                      EmptyBlockFactory emptyBlockFactory,
                                      PipelineFactory pipelineFactory)
         {
-            _throwTest = throwTest;
             _readingBlockFactory = readingBlockFactory;
             _writingBlockFactory = writingBlockFactory;
             _throwingBlockFactory = throwingBlockFactory;
@@ -34,7 +31,7 @@ namespace Dataflow.Pipelines
             // TODO: Progress reporting approach 1: before anything
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, readBlock.EstimatedOutputCount, cancellationSource.Token);
-            var throwBlock = _throwTest
+            var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create<Data>(cancellationSource.Token)
                                  : _emptyBlockFactory.Create<Data>(writeBlock.EstimatedOutputCount, cancellationSource.Token);
             // TODO: Data-level error handling (reporting / logging)

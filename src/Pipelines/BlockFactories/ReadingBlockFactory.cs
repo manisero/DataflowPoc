@@ -9,17 +9,16 @@ namespace Dataflow.Pipelines.BlockFactories
 {
     public class ReadingBlockFactory
     {
-        private const int BATCH_SIZE = 1000;
-
-        private readonly bool _optimize;
         private readonly FileLinesCounter _fileLinesCounter;
         private readonly DataReader _dataReader;
         private readonly StreamLinesReader _streamLinesReader;
         private readonly DataParser _dataParser;
 
-        public ReadingBlockFactory(bool optimize, FileLinesCounter fileLinesCounter, DataReader dataReader, StreamLinesReader streamLinesReader, DataParser dataParser)
+        public ReadingBlockFactory(FileLinesCounter fileLinesCounter,
+                                   DataReader dataReader,
+                                   StreamLinesReader streamLinesReader,
+                                   DataParser dataParser)
         {
-            _optimize = optimize;
             _fileLinesCounter = fileLinesCounter;
             _dataReader = dataReader;
             _streamLinesReader = streamLinesReader;
@@ -28,14 +27,15 @@ namespace Dataflow.Pipelines.BlockFactories
 
         public StartableBlock<Data> Create(string peopleJsonFilePath, CancellationToken cancellation)
         {
+            var batchSize = Settings.BatchSize;
             var peopleCount = _fileLinesCounter.Count(peopleJsonFilePath);
-            var batchesCount = peopleCount.CeilingOfDivisionBy(BATCH_SIZE);
+            var batchesCount = peopleCount.CeilingOfDivisionBy(batchSize);
 
             var peopleJsonStream = File.OpenText(peopleJsonFilePath);
 
             // Create blocks
             var bufferBlock = new BufferBlock<int>(new DataflowBlockOptions { CancellationToken = cancellation });
-            var readBlock = _optimize
+            var readBlock = Settings.OptimizeReading
                                 ? UseLinesReaderAndParser(peopleJsonStream, cancellation)
                                 : UseDataReader(peopleJsonStream, cancellation);
 
@@ -51,7 +51,7 @@ namespace Dataflow.Pipelines.BlockFactories
                                 {
                                     for (var i = 0; i < batchesCount; i++)
                                     {
-                                        bufferBlock.Post(BATCH_SIZE);
+                                        bufferBlock.Post(batchSize);
                                     }
 
                                     bufferBlock.Complete();
@@ -70,7 +70,7 @@ namespace Dataflow.Pipelines.BlockFactories
         private IPropagatorBlock<int, Data> UseLinesReaderAndParser(StreamReader peopleJsonStream, CancellationToken cancellation)
         {
             // Create blocks
-            
+
             // NOTE:
             // - extract part which must be single-thread
             // - ability to replace just reading (e.g. from db)

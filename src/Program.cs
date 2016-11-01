@@ -10,17 +10,9 @@ namespace Dataflow
 {
     class Program
     {
-        private const bool THROW_TEST = true;
-        private const bool OPTIMIZE_READING = false;
-
-        private const string PEOPLE_JSON_FILE_PATH = @"\\VBOXSVR\temp\people.json";
-        private const string PEOPLE_RESULT_FILE_PATH = @"\\VBOXSVR\temp\people_result.txt";
-
         static void Main(string[] args)
         {
-            var peoplePipelineFactory = new PeoplePipelineFactory(THROW_TEST,
-                                                                  new ReadingBlockFactory(OPTIMIZE_READING,
-                                                                                          new FileLinesCounter(),
+            var peoplePipelineFactory = new PeoplePipelineFactory(new ReadingBlockFactory(new FileLinesCounter(),
                                                                                           new DataReader(),
                                                                                           new StreamLinesReader(),
                                                                                           new DataParser()),
@@ -32,7 +24,7 @@ namespace Dataflow
 
             using (var cancellationSource = new CancellationTokenSource())
             {
-                var pipeline = peoplePipelineFactory.Create(PEOPLE_JSON_FILE_PATH, PEOPLE_RESULT_FILE_PATH, cancellationSource);
+                var pipeline = peoplePipelineFactory.Create(Settings.PeopleJsonFilePath, Settings.PeopleTargetFilePath, cancellationSource);
                 var pipelineCompletion = pipelineExecutor.Execute(pipeline);
 
                 //WaitForCancellation(pipelineCompletion, cancellationSource);
