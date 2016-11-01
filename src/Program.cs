@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Dataflow.Logic;
 using Dataflow.Models;
 using Dataflow.Pipelines;
-using Dataflow.Pipelines.PeopleStream;
+using Dataflow.Pipelines.BlockFactories;
 
 namespace Dataflow
 {
@@ -17,8 +17,8 @@ namespace Dataflow
 
         static void Main(string[] args)
         {
-            var peopleStreamFactory = new PeopleStreamFactory(new ReadingBlockFactory(false, new FileLinesCounter(), new DataReader(), new StreamLinesReader(), new DataParser()),
-                                                              new WritingBlockFactory(new DataWriter()));
+            var readingBlockFactory = new ReadingBlockFactory(false, new FileLinesCounter(), new DataReader(), new StreamLinesReader(), new DataParser());
+            var writingBlockFactory = new WritingBlockFactory(new DataWriter());
             var throwingBlockFactory = new ThrowingBlockFactory();
             var emptyBlockFactory = new EmptyBlockFactory();
             var pipelineFactory = new PipelineFactory();
@@ -28,13 +28,14 @@ namespace Dataflow
 
             // Create blocks
             // TODO: Progress reporting approach 1: before anything
-            var peopleStreamBlock = peopleStreamFactory.Create(PEOPLE_JSON_FILE_PATH, PEOPLE_RESULT_FILE_PATH, cancellationSource);
-            var throwBlock = THROW ? throwingBlockFactory.Create<Data>(cancellationSource.Token) : emptyBlockFactory.Create<Data>(cancellationSource.Token);
+            var readBlock = readingBlockFactory.Create(PEOPLE_JSON_FILE_PATH, cancellationSource.Token);
+            var writeBlock = writingBlockFactory.Create(PEOPLE_RESULT_FILE_PATH, readBlock.EstimatedOutputCount, cancellationSource.Token);
+            var throwBlock = THROW ? throwingBlockFactory.Create<Data>(cancellationSource.Token) : emptyBlockFactory.Create<Data>(writeBlock.EstimatedOutputCount, cancellationSource.Token);
             // TODO: Data-level error handling (reporting / logging)
             // TODO: Progress reporting approach 2: after everything
 
             // Execute pipeline
-            var pipeline = pipelineFactory.Create(peopleStreamBlock, new[] { throwBlock }, cancellationSource);
+            var pipeline = pipelineFactory.Create(readBlock, new[] { writeBlock, throwBlock }, cancellationSource);
             var pipelineCompletion = pipelineExecutor.Execute(pipeline);
 
             //WaitForCancellation(pipelineCompletion, cancellationSource);

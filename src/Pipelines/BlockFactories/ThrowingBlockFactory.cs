@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
 
-namespace Dataflow.Pipelines
+namespace Dataflow.Pipelines.BlockFactories
 {
     public class ThrowingBlockFactory
     {

@@ -63,13 +63,12 @@
     <Compile Include="Logic\DataReader.cs" />
     <Compile Include="Models\PipelineExecutionResult.cs" />
     <Compile Include="Pipelines\Blocks.cs" />
-    <Compile Include="Pipelines\EmptyBlockFactory.cs" />
-    <Compile Include="Pipelines\PeopleStream\PeopleStreamFactory.cs" />
-    <Compile Include="Pipelines\PeopleStream\ReadingBlockFactory.cs" />
+    <Compile Include="Pipelines\BlockFactories\EmptyBlockFactory.cs" />
+    <Compile Include="Pipelines\BlockFactories\ReadingBlockFactory.cs" />
     <Compile Include="Pipelines\PipelineExecutor.cs" />
     <Compile Include="Pipelines\PipelineFactory.cs" />
-    <Compile Include="Pipelines\ThrowingBlockFactory.cs" />
-    <Compile Include="Pipelines\PeopleStream\WritingBlockFactory.cs" />
+    <Compile Include="Pipelines\BlockFactories\ThrowingBlockFactory.cs" />
+    <Compile Include="Pipelines\BlockFactories\WritingBlockFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

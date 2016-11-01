@@ -5,7 +5,7 @@ using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
 
-namespace Dataflow.Pipelines.PeopleStream
+namespace Dataflow.Pipelines.BlockFactories
 {
     public class WritingBlockFactory
     {
