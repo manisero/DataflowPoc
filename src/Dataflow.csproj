@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\DataflowExtensions.cs" />
+    <Compile Include="Extensions\DataflowFacade.cs" />
     <Compile Include="Extensions\IntExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Logic\DataWriter.cs" />

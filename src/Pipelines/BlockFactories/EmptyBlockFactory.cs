@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using System.Threading.Tasks.Dataflow;
+using Dataflow.Extensions;
 
 namespace Dataflow.Pipelines.BlockFactories
 {
@@ -8,7 +8,7 @@ namespace Dataflow.Pipelines.BlockFactories
         public ProcessingBlock<TData> Create<TData>(CancellationToken cancellation)
         {
             // Create blocks
-            var emptyBlock = new BufferBlock<TData>(new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+            var emptyBlock = DataflowFacade.BufferBlock<TData>(cancellation, 1);
 
             return new ProcessingBlock<TData>
                 {

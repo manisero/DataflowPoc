@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks.Dataflow;
 using Dataflow.Extensions;
 using Dataflow.Models;
 
@@ -20,13 +19,13 @@ namespace Dataflow.Pipelines.BlockFactories
             var state = new State();
             
             // Create blocks
-            var reportBlock = new TransformBlock<TData, TData>(
+            var reportBlock = DataflowFacade.TransformBlock<TData>(
                 x =>
                     {
                         TryReport(state, batchSize, estimatedInputCount, progress);
                         return x;
                     },
-                new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+                cancellation);
 
             // Handle completion
             var completion = reportBlock.Completion.ContinueWithStatusPropagation(

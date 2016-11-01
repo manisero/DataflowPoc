@@ -19,7 +19,7 @@ namespace Dataflow.Pipelines
             // source -- processor1 -- processor2 -- output
             //       \      |          |             ^
             //        \     v          v            /
-            //         \--> errorHandler-----------/
+            //         \--> errorHandler ----------/
 
             // Link blocks
             source.Output.LinkWithCompletion(processors[0].Processor, validDataPredicate);

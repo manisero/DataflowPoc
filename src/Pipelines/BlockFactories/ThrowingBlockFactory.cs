@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks.Dataflow;
+using Dataflow.Extensions;
 
 namespace Dataflow.Pipelines.BlockFactories
 {
@@ -8,14 +8,13 @@ namespace Dataflow.Pipelines.BlockFactories
     {
         public ProcessingBlock<TData> Create<TData>(CancellationToken cancellation)
         {
-            Func<TData, TData> transform = x =>
-                                               {
-                                                   throw new InvalidOperationException();
-                                               };
-
             // Create blocks
-            var throwBlock = new TransformBlock<TData, TData>(transform,
-                                                              new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+            var throwBlock = DataflowFacade.TransformBlock<TData>(
+                x =>
+                    {
+                        throw new InvalidOperationException();
+                    },
+                cancellation);
 
             return new ProcessingBlock<TData>
                 {

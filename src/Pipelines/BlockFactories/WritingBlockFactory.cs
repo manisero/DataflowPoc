@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Threading;
-using System.Threading.Tasks.Dataflow;
 using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
@@ -28,13 +27,13 @@ namespace Dataflow.Pipelines.BlockFactories
             var writer = new StreamWriter(targetFilePath);
 
             // Create blocks
-            var writingBlock = new TransformBlock<Data, Data>(
+            var writingBlock = DataflowFacade.TransformBlock<Data>(
                 x =>
                     {
                         _dataWriter.Write(writer, x);
                         return x;
                     },
-                new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+                cancellation);
 
             // Handle completion
             var completion = writingBlock.Completion.ContinueWithStatusPropagation(x => writer.Dispose());

@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Dataflow.Extensions;
 
 namespace Dataflow.Pipelines
 {
@@ -34,7 +35,7 @@ namespace Dataflow.Pipelines
 
         public static ProcessingBlock<TData> Create(Func<TData, TData> process, CancellationToken cancellation)
         {
-            var processor = new TransformBlock<TData, TData>(process, new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+            var processor = DataflowFacade.TransformBlock<TData>(process, cancellation);
 
             return new ProcessingBlock<TData>
                 {

@@ -34,7 +34,7 @@ namespace Dataflow.Pipelines.BlockFactories
             var peopleJsonStream = File.OpenText(peopleJsonFilePath);
 
             // Create blocks
-            var bufferBlock = new BufferBlock<int>(new DataflowBlockOptions { CancellationToken = cancellation });
+            var bufferBlock = DataflowFacade.BufferBlock<int>(cancellation);
             var readBlock = Settings.OptimizeReading
                                 ? UseLinesReaderAndParser(peopleJsonStream, cancellation)
                                 : UseDataReader(peopleJsonStream, cancellation);
@@ -64,12 +64,12 @@ namespace Dataflow.Pipelines.BlockFactories
 
         private IPropagatorBlock<int, Data> UseDataReader(StreamReader peopleJsonStream, CancellationToken cancellation)
         {
-            return new TransformManyBlock<int, Data>
-                (x =>
-                     {
-                         return _dataReader.Read(peopleJsonStream, x);
-                     },
-                 new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+            return DataflowFacade.TransformManyBlock<int, Data>(
+                x =>
+                    {
+                        return _dataReader.Read(peopleJsonStream, x);
+                    },
+                cancellation);
         }
 
         private IPropagatorBlock<int, Data> UseLinesReaderAndParser(StreamReader peopleJsonStream, CancellationToken cancellation)
@@ -79,10 +79,10 @@ namespace Dataflow.Pipelines.BlockFactories
             // NOTE:
             // - extract part which must be single-thread
             // - ability to replace just reading (e.g. from db)
-            var readLinesBlock = new TransformManyBlock<int, string>(x => _streamLinesReader.Read(peopleJsonStream, x), new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+            var readLinesBlock = DataflowFacade.TransformManyBlock<int, string>(x => _streamLinesReader.Read(peopleJsonStream, x), cancellation);
 
             // NOTE: can be multi-thread
-            var parseDataBlock = new TransformBlock<string, Data>(x => _dataParser.Parse(x), new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+            var parseDataBlock = DataflowFacade.TransformBlock<string, Data>(x => _dataParser.Parse(x), cancellation);
 
             // Link blocks
             readLinesBlock.LinkWithCompletion(parseDataBlock);
