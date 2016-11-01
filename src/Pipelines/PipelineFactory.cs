@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Dataflow.Extensions;
 
@@ -9,12 +8,12 @@ namespace Dataflow.Pipelines
 {
     public class PipelineFactory
     {
-        public StartableBlock<TData> Create<TData>(CancellationTokenSource cancellationSource,
-                                                   StartableBlock<TData> source,
+        public StartableBlock<TData> Create<TData>(StartableBlock<TData> source,
                                                    ProcessingBlock<TData>[] processors,
                                                    ProcessingBlock<TData> errorHandler,
-                                                   ProcessingBlock<TData> progressReporter,
-                                                   Predicate<TData> validDataPredicate)
+                                                   ProcessingBlock<TData> output,
+                                                   Predicate<TData> validDataPredicate,
+                                                   CancellationTokenSource cancellationSource)
         {
             // Link blocks
             source.Output.LinkWithCompletion(processors[0].Processor, validDataPredicate);
@@ -27,33 +26,19 @@ namespace Dataflow.Pipelines
             }
 
             var lastProcessor = processors.Last();
-            lastProcessor.Processor.LinkTo(progressReporter.Processor, validDataPredicate);
+            lastProcessor.Processor.LinkTo(output.Processor, validDataPredicate);
             lastProcessor.Processor.LinkTo(errorHandler.Processor, x => !validDataPredicate(x));
 
-            errorHandler.Processor.LinkTo(progressReporter.Processor);
+            errorHandler.Processor.LinkTo(output.Processor);
 
             // Propagate completions of multiple inputs
-            Task.WhenAll(new[] { source.Output.Completion }.Concat(processors.Select(x => x.Processor.Completion)))
-                .ContinueWith(x =>
-                                  {
-                                      // TODO: Handle fault and cancellation
-                                      errorHandler.Processor.Complete();
-                                  }); // TODO: Consider passing cancellationSource.Token
-
-            Task.WhenAll(lastProcessor.Processor.Completion, errorHandler.Processor.Completion)
-                .ContinueWith(x =>
-                                  {
-                                      // TODO: Handle fault and cancellation
-                                      progressReporter.Processor.Complete();
-                                  }); // TODO: Consider passing cancellationSource.Token
+            errorHandler.Processor.DeriveCompletionOrFaultFrom(new[] { source.Output }.Concat(processors.Select(x => x.Processor)));
+            output.Processor.DeriveCompletionOrFaultFrom(lastProcessor.Processor, errorHandler.Processor);
 
             // Create global completion
-            var completion = Extensions.TaskExtensions.CreateGlobalCompletion(new[] { source.Completion }.Concat(processors.Select(x => x.Completion))
-                                                                                                         .Concat(new[] { errorHandler.Completion, progressReporter.Completion }),
-                                                                              cancellationSource);
-
-            // Create pipeline
-            var output = progressReporter;
+            var completion = TaskExtensions.CreateGlobalCompletion(new[] { source.Completion }.Concat(processors.Select(x => x.Completion))
+                                                                                              .Concat(new[] { errorHandler.Completion, output.Completion }),
+                                                                   cancellationSource);
 
             return new StartableBlock<TData>
                 {

@@ -65,12 +65,12 @@ namespace Dataflow.Pipelines
             var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create<Data>(progress, readBlock.EstimatedOutputCount, cancellationSource.Token);
 
-            return _pipelineFactory.Create(cancellationSource,
-                                           readBlock,
+            return _pipelineFactory.Create(readBlock,
                                            new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock },
                                            handleErrorBlock,
                                            progressBlock,
-                                           x => x.IsValid);
+                                           x => x.IsValid,
+                                           cancellationSource);
         }
     }
 }
