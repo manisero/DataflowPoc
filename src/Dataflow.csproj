@@ -61,6 +61,7 @@
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Logic\DataReader.cs" />
+    <Compile Include="Models\PipelineExecutionResult.cs" />
     <Compile Include="Pipelines\Blocks.cs" />
     <Compile Include="Pipelines\EmptyBlockFactory.cs" />
     <Compile Include="Pipelines\PeopleStream\PeopleStreamFactory.cs" />

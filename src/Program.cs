@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Dataflow.Extensions;
@@ -19,15 +18,13 @@ namespace Dataflow
 
         static void Main(string[] args)
         {
-            var peopleStreamFactory = new PeopleStreamFactory(new ReadingBlockFactory(true, new FileLinesCounter(), new DataReader(), new StreamLinesReader(), new DataParser()),
+            var peopleStreamFactory = new PeopleStreamFactory(new ReadingBlockFactory(false, new FileLinesCounter(), new DataReader(), new StreamLinesReader(), new DataParser()),
                                                               new WritingBlockFactory(new DataWriter()));
             var throwingBlockFactory = new ThrowingBlockFactory();
             var emptyBlockFactory = new EmptyBlockFactory();
             var pipelineExecutor = new PipelineExecutor();
 
             var cancellationSource = new CancellationTokenSource();
-            var stopwatch = new Stopwatch();
-            var duration = default(TimeSpan);
 
             // Create blocks
             // TODO: Progress reporting approach 1: before anything
@@ -55,16 +52,10 @@ namespace Dataflow
 
             var pipelineCompletion = pipelineExecutor.Execute(pipeline);
 
-            WaitForCancellation(pipelineCompletion, cancellationSource);
+            //WaitForCancellation(pipelineCompletion, cancellationSource);
 
-            try
-            {
-                pipelineCompletion.Wait();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            var executionResult = pipelineCompletion.Result;
+            HandleExecutionResult(executionResult);
 
             cancellationSource.Dispose();
         }
@@ -79,6 +70,26 @@ namespace Dataflow
                 {
                     cancellationSource.Cancel();
                 }
+            }
+        }
+
+        private static void HandleExecutionResult(PipelineExecutionResult executionResult)
+        {
+            var duration = executionResult.FinishTs - executionResult.StartTs;
+            Console.WriteLine($"Took {duration.TotalMilliseconds}ms.");
+
+            if (executionResult.Faulted)
+            {
+                Console.WriteLine("Faulted. Exception:");
+                Console.WriteLine(executionResult.Exception);
+            }
+            else if (executionResult.Canceled)
+            {
+                Console.WriteLine("Canceled.");
+            }
+            else
+            {
+                Console.WriteLine("Complete.");
             }
         }
     }

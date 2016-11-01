@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Dataflow.Extensions;
 using Dataflow.Models;
@@ -8,40 +7,40 @@ namespace Dataflow.Pipelines
 {
     public class PipelineExecutor
     {
-        public async Task Execute(StartableBlock<Data> pipeline)
+        public async Task<PipelineExecutionResult> Execute(StartableBlock<Data> pipeline)
         {
-            var stopwatch = new Stopwatch();
-            var duration = default(TimeSpan);
+            var pipelineExecutionResult = new PipelineExecutionResult();
 
+            // Ignore pipeline output
             pipeline.Output.IgnoreOutput();
 
             // Handle completion
             var completionHandler = pipeline.Completion.ContinueWith(
-                x =>
-                {
-                    duration = stopwatch.Elapsed;
+                (completion, executionResult) => FillExecutionResult(completion, (PipelineExecutionResult)executionResult),
+                pipelineExecutionResult);
 
-                    if (x.IsFaulted)
-                    {
-                        // TODO: Handle error
-                    }
-                    else if (x.IsCanceled)
-                    {
-                        Console.WriteLine("Canceled.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Complete.");
-                    }
-
-                    Console.WriteLine($"Took {duration.TotalMilliseconds}ms.");
-                });
-
-            // Start
-            stopwatch.Start();
+            // Execute
+            pipelineExecutionResult.StartTs = DateTime.UtcNow;
             pipeline.Start();
 
-            await completionHandler;
+            return await completionHandler;
+        }
+
+        private PipelineExecutionResult FillExecutionResult(Task pipelineCompletion, PipelineExecutionResult executionResult)
+        {
+            executionResult.FinishTs = DateTime.UtcNow;
+
+            if (pipelineCompletion.IsFaulted)
+            {
+                executionResult.Faulted = true;
+                executionResult.Exception = pipelineCompletion.Exception;
+            }
+            else if (pipelineCompletion.IsCanceled)
+            {
+                executionResult.Canceled = true;
+            }
+
+            return executionResult;
         }
     }
 }
