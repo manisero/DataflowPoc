@@ -55,13 +55,19 @@ namespace Dataflow.Pipelines.BlockFactories
 
             state.ItemsProcessed++;
 
-            if (state.ItemsProcessed % batchSize != 0)
+            if (state.ItemsProcessed >= estimatedItemsCount)
             {
-                return;
+                Report(state, 100, progress);
             }
+            else if (state.ItemsProcessed % batchSize == 0)
+            {
+                var percentage = state.ItemsProcessed.PercentageOf(estimatedItemsCount);
+                Report(state, percentage, progress);
+            }
+        }
 
-            var percentage = state.ItemsProcessed.PercentageOf(estimatedItemsCount);
-
+        private void Report(State state, byte percentage, IProgress<PipelineProgress> progress)
+        {
             if (percentage >= 100)
             {
                 percentage = 100;

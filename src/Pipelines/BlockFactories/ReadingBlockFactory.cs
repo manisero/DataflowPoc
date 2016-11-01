@@ -64,7 +64,12 @@ namespace Dataflow.Pipelines.BlockFactories
 
         private IPropagatorBlock<int, Data> UseDataReader(StreamReader peopleJsonStream, CancellationToken cancellation)
         {
-            return new TransformManyBlock<int, Data>(x => _dataReader.Read(peopleJsonStream, x), new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
+            return new TransformManyBlock<int, Data>
+                (x =>
+                     {
+                         return _dataReader.Read(peopleJsonStream, x);
+                     },
+                 new ExecutionDataflowBlockOptions { CancellationToken = cancellation, BoundedCapacity = 1 });
         }
 
         private IPropagatorBlock<int, Data> UseLinesReaderAndParser(StreamReader peopleJsonStream, CancellationToken cancellation)
