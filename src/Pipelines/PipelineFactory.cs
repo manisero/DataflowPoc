@@ -15,6 +15,12 @@ namespace Dataflow.Pipelines
                                                    Predicate<TData> validDataPredicate,
                                                    CancellationTokenSource cancellationSource)
         {
+            // The pipeline looks like this:
+            // source -- processor1 -- processor2 -- output
+            //       \      |          |             ^
+            //        \     v          v            /
+            //         \--> errorHandler-----------/
+
             // Link blocks
             source.Output.LinkWithCompletion(processors[0].Processor, validDataPredicate);
             source.Output.LinkTo(errorHandler.Processor, x => !validDataPredicate(x));
