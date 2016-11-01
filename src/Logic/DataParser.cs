@@ -1,4 +1,5 @@
-﻿using Dataflow.Models;
+﻿using System;
+using Dataflow.Models;
 using Newtonsoft.Json;
 
 namespace Dataflow.Logic
@@ -7,21 +8,25 @@ namespace Dataflow.Logic
     {
         public Data Parse(string personJson)
         {
-            if (string.IsNullOrEmpty(personJson))
+            var data = new Data();
+
+            if (!string.IsNullOrEmpty(personJson))
             {
-                return new Data
-                    {
-                        Error = "Empty row."
-                    };
+                try
+                {
+                    data.Person = JsonConvert.DeserializeObject<Person>(personJson);
+                }
+                catch (Exception e)
+                {
+                    data.Error = e.Message;
+                }
+            }
+            else
+            {
+                data.Error = "Empty row.";
             }
 
-            // TODO: Handle parsing exception
-            var person = JsonConvert.DeserializeObject<Person>(personJson);
-
-            return new Data
-                {
-                    Person = person
-                };
+            return data;
         }
     }
 }

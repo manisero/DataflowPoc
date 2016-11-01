@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Dataflow.Models;
 using Newtonsoft.Json;
@@ -12,23 +13,25 @@ namespace Dataflow.Logic
             for (var i = 0; i < peopleToRead && !peopleJsonStream.EndOfStream; i++)
             {
                 var line = peopleJsonStream.ReadLine();
+                var data = new Data();
 
                 if (!string.IsNullOrEmpty(line))
                 {
-                    var person = JsonConvert.DeserializeObject<Person>(line);
-
-                    yield return new Data
-                        {
-                            Person = person
-                        };
+                    try
+                    {
+                        data.Person = JsonConvert.DeserializeObject<Person>(line);
+                    }
+                    catch (Exception e)
+                    {
+                        data.Error = e.Message;
+                    }
                 }
                 else
                 {
-                    yield return new Data
-                        {
-                            Error = "Empty row."
-                        };
+                    data.Error = "Empty row.";
                 }
+
+                yield return data;
             }
         }
     }
