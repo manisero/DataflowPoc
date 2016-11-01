@@ -1,27 +1,27 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks.Dataflow;
 using Dataflow.Logic;
 using Dataflow.Models;
 
 namespace Dataflow.Pipelines.BlockFactories
 {
-    public class ComputePersonFieldsBlockFactory
+    public class ValidatePersonBlockFactory
     {
-        private readonly PersonFieldsComputer _personFieldsComputer;
+        private readonly PersonValidator _personValidator;
 
-        public ComputePersonFieldsBlockFactory(PersonFieldsComputer personFieldsComputer)
+        public ValidatePersonBlockFactory(PersonValidator personValidator)
         {
-            _personFieldsComputer = personFieldsComputer;
+            _personValidator = personValidator;
         }
 
         public ProcessingBlock<Data> Create(int estimatedInputCount, CancellationToken cancellation)
         {
-            var computeBlock = new TransformBlock<Data, Data>(
+            var validateBlock = new TransformBlock<Data, Data>(
                 x =>
                     {
                         if (x.IsValid)
                         {
-                            _personFieldsComputer.Compute(x);
+                            _personValidator.Validate(x);
                         }
 
                         return x;
@@ -30,9 +30,9 @@ namespace Dataflow.Pipelines.BlockFactories
 
             return new ProcessingBlock<Data>
                 {
-                    Processor = computeBlock,
+                    Processor = validateBlock,
                     EstimatedOutputCount = estimatedInputCount,
-                    Completion = computeBlock.Completion
+                    Completion = validateBlock.Completion
                 };
         }
     }

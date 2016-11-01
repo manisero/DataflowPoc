@@ -8,6 +8,7 @@ namespace Dataflow.Pipelines
     public class PeoplePipelineFactory
     {
         private readonly ReadingBlockFactory _readingBlockFactory;
+        private readonly ValidatePersonBlockFactory _validatePersonBlockFactory;
         private readonly ComputePersonFieldsBlockFactory _computePersonFieldsBlockFactory;
         private readonly WritingBlockFactory _writingBlockFactory;
         private readonly ThrowingBlockFactory _throwingBlockFactory;
@@ -16,6 +17,7 @@ namespace Dataflow.Pipelines
         private readonly PipelineFactory _pipelineFactory;
 
         public PeoplePipelineFactory(ReadingBlockFactory readingBlockFactory,
+                                     ValidatePersonBlockFactory validatePersonBlockFactory,
                                      ComputePersonFieldsBlockFactory computePersonFieldsBlockFactory,
                                      WritingBlockFactory writingBlockFactory,
                                      ThrowingBlockFactory throwingBlockFactory,
@@ -24,6 +26,7 @@ namespace Dataflow.Pipelines
                                      PipelineFactory pipelineFactory)
         {
             _readingBlockFactory = readingBlockFactory;
+            _validatePersonBlockFactory = validatePersonBlockFactory;
             _computePersonFieldsBlockFactory = computePersonFieldsBlockFactory;
             _writingBlockFactory = writingBlockFactory;
             _throwingBlockFactory = throwingBlockFactory;
@@ -41,7 +44,8 @@ namespace Dataflow.Pipelines
 
             // TODO: Progress reporting approach 1: before anything
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
-            var computeFieldsBlock = _computePersonFieldsBlockFactory.Create(readBlock.EstimatedOutputCount, cancellationSource.Token);
+            var validateBlock = _validatePersonBlockFactory.Create(readBlock.EstimatedOutputCount, cancellationSource.Token);
+            var computeFieldsBlock = _computePersonFieldsBlockFactory.Create(validateBlock.EstimatedOutputCount, cancellationSource.Token);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, computeFieldsBlock.EstimatedOutputCount, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create<Data>(cancellationSource.Token)
@@ -49,9 +53,8 @@ namespace Dataflow.Pipelines
             // TODO: Data-level error handling (reporting / logging)
             var progressBlock = _progressReportingBlockFactory.Create<Data>(progress, throwBlock.EstimatedOutputCount, cancellationSource.Token);
 
-            return _pipelineFactory.Create(readBlock,
-                                           new[] { computeFieldsBlock, writeBlock, throwBlock, progressBlock },
-                                           cancellationSource);
+            return _pipelineFactory.Create(cancellationSource,
+                                           readBlock, validateBlock, computeFieldsBlock, writeBlock, throwBlock, progressBlock);
         }
     }
 }

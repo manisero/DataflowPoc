@@ -8,7 +8,7 @@ namespace Dataflow.Pipelines
 {
     public class PipelineFactory
     {
-        public StartableBlock<TData> Create<TData>(StartableBlock<TData> source, ProcessingBlock<TData>[] processors, CancellationTokenSource cancellationSource)
+        public StartableBlock<TData> Create<TData>(CancellationTokenSource cancellationSource, StartableBlock<TData> source, params ProcessingBlock<TData>[] processors)
         {
             // Link blocks
             source.Output.LinkWithCompletion(processors[0].Processor);

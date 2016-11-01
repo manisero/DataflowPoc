@@ -10,11 +10,11 @@ namespace Dataflow.Logic
             if (string.IsNullOrEmpty(personJson))
             {
                 return new Data
-                {
-                    Error = "Empty row."
-                };
+                    {
+                        Error = "Empty row."
+                    };
             }
-            
+
             // TODO: Handle parsing exception
             var person = JsonConvert.DeserializeObject<Person>(personJson);
 

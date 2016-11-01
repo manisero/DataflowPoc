@@ -60,6 +60,7 @@
     <Compile Include="Logic\DataParser.cs" />
     <Compile Include="Logic\PersonFieldsComputer.cs" />
     <Compile Include="Logic\StreamLinesReader.cs" />
+    <Compile Include="Logic\PersonValidator.cs" />
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Logic\DataReader.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Models\PipelineProgress.cs" />
     <Compile Include="Pipelines\BlockFactories\ComputePersonFieldsBlockFactory.cs" />
     <Compile Include="Pipelines\BlockFactories\ProgressReportingBlockFactory.cs" />
+    <Compile Include="Pipelines\BlockFactories\ValidatePersonBlockFactory.cs" />
     <Compile Include="Pipelines\Blocks.cs" />
     <Compile Include="Pipelines\BlockFactories\EmptyBlockFactory.cs" />
     <Compile Include="Pipelines\BlockFactories\ReadingBlockFactory.cs" />
