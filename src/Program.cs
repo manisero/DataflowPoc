@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using Dataflow.Logic;
 using Dataflow.Pipelines;
 using Dataflow.Pipelines.GenericBlockFactories;
+using Dataflow.Pipelines.PeopleBatchesStream;
 using Dataflow.Pipelines.PeopleStream;
-using Dataflow.Pipelines.PeopleStream.BlockFactories;
 
 namespace Dataflow
 {
@@ -13,14 +13,53 @@ namespace Dataflow
     {
         static void Main(string[] args)
         {
-            // Dataflow
-            var peoplePipelineFactory = new PeoplePipelineFactory(new ReadingBlockFactory(new FileLinesCounter(),
-                                                                                          new DataReader(),
-                                                                                          new StreamLinesReader(),
-                                                                                          new DataParser()),
+            RunPeopleBatchesPipeline();
+            RunPeoplePipeline();
+            RunSynchronous();
+        }
+
+        private static void RunPeopleBatchesPipeline()
+        {
+            var peopleBatchesPipelineFactory = new PeopleBatchesPipelineFactory(new Pipelines.PeopleBatchesStream.BlockFactories.ReadingBlockFactory(new FileLinesCounter(),
+                                                                                                                                                     new DataReader(),
+                                                                                                                                                     new StreamLinesReader(),
+                                                                                                                                                     new DataParser()),
+                                                                                new PersonValidator(),
+                                                                                new PersonFieldsComputer(),
+                                                                                new Pipelines.PeopleBatchesStream.BlockFactories.WritingBlockFactory(new DataWriter()),
+                                                                                new ThrowingBlockFactory(),
+                                                                                new EmptyBlockFactory(),
+                                                                                new ProgressReportingBlockFactory(),
+                                                                                new PipelineFactory());
+
+            var pipelineExecutor = new PipelineExecutor();
+
+            using (var cancellationSource = new CancellationTokenSource())
+            {
+                var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
+
+                var pipeline = peopleBatchesPipelineFactory.Create(Settings.PeopleJsonFilePath,
+                                                                   Settings.PeopleTargetFilePath,
+                                                                   Settings.ErrorsFilePath,
+                                                                   progress,
+                                                                   cancellationSource);
+
+                Task.Run(() => WaitForCancellation(cancellationSource));
+
+                var executionResult = pipelineExecutor.Execute(pipeline).Result;
+                HandleExecutionResult(executionResult);
+            }
+        }
+
+        private static void RunPeoplePipeline()
+        {
+            var peoplePipelineFactory = new PeoplePipelineFactory(new Pipelines.PeopleStream.BlockFactories.ReadingBlockFactory(new FileLinesCounter(),
+                                                                                                                                new DataReader(),
+                                                                                                                                new StreamLinesReader(),
+                                                                                                                                new DataParser()),
                                                                   new PersonValidator(),
                                                                   new PersonFieldsComputer(),
-                                                                  new WritingBlockFactory(new DataWriter()),
+                                                                  new Pipelines.PeopleStream.BlockFactories.WritingBlockFactory(new DataWriter()),
                                                                   new ThrowingBlockFactory(),
                                                                   new EmptyBlockFactory(),
                                                                   new ProgressReportingBlockFactory(),
@@ -42,9 +81,10 @@ namespace Dataflow
                 var executionResult = pipelineExecutor.Execute(pipeline).Result;
                 HandleExecutionResult(executionResult);
             }
+        }
 
-            // Synchronous
-            Console.WriteLine();
+        private static void RunSynchronous()
+        {
             Console.WriteLine("Running synchronous...");
 
             var synchronousPeopleProcessor = new SynchronousPeopleProcessor(new FileLinesCounter(),
