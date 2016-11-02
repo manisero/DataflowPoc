@@ -2,9 +2,11 @@
 using System.Threading;
 using Dataflow.Logic;
 using Dataflow.Models;
-using Dataflow.Pipelines.BlockFactories;
+using Dataflow.Pipelines.GenericBlockFactories;
+using Dataflow.Pipelines.PeopleStream.BlockFactories;
+using Dataflow.Pipelines.PipelineBlocks;
 
-namespace Dataflow.Pipelines
+namespace Dataflow.Pipelines.PeopleStream
 {
     public class PeoplePipelineFactory
     {

@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Dataflow.Logic;
 using Dataflow.Models;
 using Dataflow.Pipelines;
-using Dataflow.Pipelines.BlockFactories;
+using Dataflow.Pipelines.GenericBlockFactories;
+using Dataflow.Pipelines.PeopleStream;
+using Dataflow.Pipelines.PeopleStream.BlockFactories;
 
 namespace Dataflow
 {

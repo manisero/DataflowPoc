@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Dataflow.Extensions;
 using Dataflow.Models;
+using Dataflow.Pipelines.PipelineBlocks;
 
 namespace Dataflow.Pipelines
 {

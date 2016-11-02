@@ -4,8 +4,9 @@ using System.Threading.Tasks.Dataflow;
 using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
+using Dataflow.Pipelines.PipelineBlocks;
 
-namespace Dataflow.Pipelines.BlockFactories
+namespace Dataflow.Pipelines.PeopleStream.BlockFactories
 {
     public class ReadingBlockFactory
     {

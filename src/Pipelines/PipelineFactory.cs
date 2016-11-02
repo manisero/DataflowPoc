@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
 using Dataflow.Extensions;
+using Dataflow.Pipelines.PipelineBlocks;
 
 namespace Dataflow.Pipelines
 {

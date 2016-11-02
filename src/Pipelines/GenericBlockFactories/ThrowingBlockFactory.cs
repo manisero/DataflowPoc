@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
 using Dataflow.Extensions;
+using Dataflow.Pipelines.PipelineBlocks;
 
-namespace Dataflow.Pipelines.BlockFactories
+namespace Dataflow.Pipelines.GenericBlockFactories
 {
     public class ThrowingBlockFactory
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dataflow.Models
+namespace Dataflow.Pipelines
 {
     public class PipelineExecutionResult
     {
