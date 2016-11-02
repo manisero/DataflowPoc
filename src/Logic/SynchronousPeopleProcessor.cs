@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Dataflow.Models;
 
 namespace Dataflow.Logic
@@ -10,18 +11,24 @@ namespace Dataflow.Logic
     public class SynchronousPeopleProcessor
     {
         private readonly FileLinesCounter _fileLinesCounter;
+        private readonly StreamLinesReader _streamLinesReader;
+        private readonly DataParser _dataParser;
         private readonly DataReader _dataReader;
         private readonly PersonValidator _personValidator;
         private readonly PersonFieldsComputer _personFieldsComputer;
         private readonly DataWriter _dataWriter;
 
         public SynchronousPeopleProcessor(FileLinesCounter fileLinesCounter,
+                                          StreamLinesReader streamLinesReader,
+                                          DataParser dataParser,
                                           DataReader dataReader,
                                           PersonValidator personValidator,
                                           PersonFieldsComputer personFieldsComputer,
                                           DataWriter dataWriter)
         {
             _fileLinesCounter = fileLinesCounter;
+            _streamLinesReader = streamLinesReader;
+            _dataParser = dataParser;
             _dataReader = dataReader;
             _personValidator = personValidator;
             _personFieldsComputer = personFieldsComputer;
@@ -29,29 +36,60 @@ namespace Dataflow.Logic
         }
 
         public TimeSpan Process(string peopleJsonFilePath,
-                            string targetFilePath,
-                            string errorsFilePath)
+                                string targetFilePath,
+                                string errorsFilePath)
         {
             var peopleCount = _fileLinesCounter.Count(peopleJsonFilePath);
-
-            IList<Data> data;
-
+            
             var sw = Stopwatch.StartNew();
+
+            //IList<Data> data;
+
+            //using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
+            //{
+            //    data = _dataReader.Read(peopleJsonStream, peopleCount).ToList();
+            //}
+
+            IList<string> lines;
 
             using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
             {
-                data = _dataReader.Read(peopleJsonStream, peopleCount).ToList();
+                lines = _streamLinesReader.Read(peopleJsonStream, peopleCount).ToList();
             }
 
-            foreach (var item in data.Where(x => x.IsValid))
+            Console.WriteLine("Lines read.");
+            
+            IList<Data> data = lines.Select(_dataParser.Parse).ToList();
+
+            Console.WriteLine("Data parsed.");
+
+            if (Settings.SimulateTimeConsumingComputations)
             {
-                _personValidator.Validate(item);
+                Parallel.ForEach(data.Where(x => x.IsValid), _personValidator.Validate);
+            }
+            else
+            {
+                foreach (var item in data.Where(x => x.IsValid))
+                {
+                    _personValidator.Validate(item);
+                }
             }
 
-            foreach (var item in data.Where(x => x.IsValid))
+            Console.WriteLine("Data validated.");
+
+            if (Settings.SimulateTimeConsumingComputations)
             {
-                _personFieldsComputer.Compute(item);
+                Parallel.ForEach(data.Where(x => x.IsValid), _personFieldsComputer.Compute);
             }
+            else
+            {
+                foreach (var item in data.Where(x => x.IsValid))
+                {
+                    _personFieldsComputer.Compute(item);
+                }
+            }
+
+            Console.WriteLine("Fields computed.");
 
             using (var writer = new StreamWriter(targetFilePath))
             {
@@ -61,6 +99,8 @@ namespace Dataflow.Logic
                 }
             }
 
+            Console.WriteLine("Data written.");
+
             using (var errorsWriter = new StreamWriter(errorsFilePath))
             {
                 foreach (var item in data.Where(x => !x.IsValid))
@@ -68,6 +108,8 @@ namespace Dataflow.Logic
                     _dataWriter.Write(errorsWriter, item);
                 }
             }
+
+            Console.WriteLine("Errors written.");
 
             return sw.Elapsed;
         }

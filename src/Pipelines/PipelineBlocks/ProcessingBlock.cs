@@ -12,7 +12,7 @@ namespace Dataflow.Pipelines.PipelineBlocks
 
         public Task Completion { get; set; }
 
-        public static ProcessingBlock<TData> Create(string name, Action<TData> process, CancellationToken cancellation)
+        public static ProcessingBlock<TData> Create(string name, Action<TData> process, CancellationToken cancellation, int maxDegreeOfParallelism = 1)
         {
             return Create(
                 name,
@@ -21,12 +21,13 @@ namespace Dataflow.Pipelines.PipelineBlocks
                         process(x);
                         return x;
                     },
-                cancellation);
+                cancellation,
+                maxDegreeOfParallelism);
         }
 
-        public static ProcessingBlock<TData> Create(string name, Func<TData, TData> process, CancellationToken cancellation)
+        public static ProcessingBlock<TData> Create(string name, Func<TData, TData> process, CancellationToken cancellation, int maxDegreeOfParallelism = 1)
         {
-            var processor = DataflowFacade.TransformBlock<TData>(name, process, cancellation);
+            var processor = DataflowFacade.TransformBlock<TData>(name, process, cancellation, maxDegreeOfParallelism);
 
             return new ProcessingBlock<TData>
                 {

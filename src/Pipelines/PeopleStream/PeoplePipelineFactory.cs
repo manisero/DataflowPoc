@@ -49,10 +49,12 @@ namespace Dataflow.Pipelines.PeopleStream
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
             var validateBlock = ProcessingBlock<Data>.Create("Validate",
                                                              x => _personValidator.Validate(x),
-                                                             cancellationSource.Token);
+                                                             cancellationSource.Token,
+                                                             3);
             var computeFieldsBlock = ProcessingBlock<Data>.Create("ComputeFields",
                                                                   x => _personFieldsComputer.Compute(x),
-                                                                  cancellationSource.Token);
+                                                                  cancellationSource.Token,
+                                                                  3);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create<Data>(cancellationSource.Token)

@@ -13,19 +13,6 @@ namespace Dataflow
     {
         static void Main(string[] args)
         {
-            // Synchronous
-            var synchronousPeopleProcessor = new SynchronousPeopleProcessor(new FileLinesCounter(),
-                                                                            new DataReader(),
-                                                                            new PersonValidator(),
-                                                                            new PersonFieldsComputer(),
-                                                                            new DataWriter());
-
-            var synchronousDuration = synchronousPeopleProcessor.Process(Settings.PeopleJsonFilePath,
-                                                                         Settings.PeopleTargetFilePath,
-                                                                         Settings.ErrorsFilePath);
-
-            Console.WriteLine($"Synchronous took {synchronousDuration.TotalMilliseconds}ms.");
-
             // Dataflow
             var peoplePipelineFactory = new PeoplePipelineFactory(new ReadingBlockFactory(new FileLinesCounter(),
                                                                                           new DataReader(),
@@ -55,6 +42,24 @@ namespace Dataflow
                 var executionResult = pipelineExecutor.Execute(pipeline).Result;
                 HandleExecutionResult(executionResult);
             }
+
+            // Synchronous
+            Console.WriteLine();
+            Console.WriteLine("Running synchronous...");
+
+            var synchronousPeopleProcessor = new SynchronousPeopleProcessor(new FileLinesCounter(),
+                                                                            new StreamLinesReader(),
+                                                                            new DataParser(),
+                                                                            new DataReader(),
+                                                                            new PersonValidator(),
+                                                                            new PersonFieldsComputer(),
+                                                                            new DataWriter());
+
+            var synchronousDuration = synchronousPeopleProcessor.Process(Settings.PeopleJsonFilePath,
+                                                                         Settings.PeopleTargetFilePath,
+                                                                         Settings.ErrorsFilePath);
+
+            Console.WriteLine($"Synchronous took {synchronousDuration.TotalMilliseconds}ms.");
         }
 
         private static void WaitForCancellation(CancellationTokenSource cancellationSource)

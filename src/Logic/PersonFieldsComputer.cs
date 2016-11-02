@@ -17,6 +17,11 @@ namespace Dataflow.Logic
             {
                 data.Error = $"Person has not yet been born (age: {data.Person.Age}). Cannot calculate their {nameof(data.Person.BirthYear)}.";
             }
+
+            if (Settings.SimulateTimeConsumingComputations)
+            {
+                ComputationsHelper.PerformTimeConsumingOperation();
+            }
         }
     }
 }

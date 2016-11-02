@@ -57,6 +57,7 @@
     <Compile Include="Extensions\DataflowFacade.cs" />
     <Compile Include="Extensions\IntExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
+    <Compile Include="Logic\ComputationsHelper.cs" />
     <Compile Include="Logic\DataWriter.cs" />
     <Compile Include="Logic\FileLinesCounter.cs" />
     <Compile Include="Logic\DataParser.cs" />
