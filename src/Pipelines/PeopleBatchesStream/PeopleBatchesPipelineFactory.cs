@@ -75,7 +75,7 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
                                  ? _throwingBlockFactory.Create<IList<Data>>(cancellationSource.Token)
                                  : _emptyBlockFactory.Create<IList<Data>>(cancellationSource.Token);
             var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, cancellationSource.Token);
-            var progressBlock = _progressReportingBlockFactory.Create<IList<Data>>(progress, readBlock.EstimatedOutputCount, cancellationSource.Token);
+            var progressBlock = _progressReportingBlockFactory.Create<IList<Data>>(progress, readBlock.EstimatedOutputCount, 1, cancellationSource.Token);
 
             return _pipelineFactory.Create(readBlock,
                                            new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock },

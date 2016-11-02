@@ -13,9 +13,8 @@ namespace Dataflow.Pipelines.GenericBlockFactories
             public bool Reported100 { get; set; } 
         }
 
-        public ProcessingBlock<TData> Create<TData>(IProgress<PipelineProgress> progress, int estimatedInputCount, CancellationToken cancellation)
+        public ProcessingBlock<TData> Create<TData>(IProgress<PipelineProgress> progress, int estimatedInputCount, int inputPerReport, CancellationToken cancellation)
         {
-            var batchSize = Settings.ProgressBatchSize;
             var state = new State();
             
             // Create blocks
@@ -23,7 +22,7 @@ namespace Dataflow.Pipelines.GenericBlockFactories
                 "ReportProgress",
                 x =>
                     {
-                        TryReport(state, batchSize, estimatedInputCount, progress);
+                        TryReport(state, inputPerReport, estimatedInputCount, progress);
                         return x;
                     },
                 cancellation);
@@ -45,7 +44,7 @@ namespace Dataflow.Pipelines.GenericBlockFactories
                 };
         }
 
-        private void TryReport(State state, int batchSize, int estimatedItemsCount, IProgress<PipelineProgress> progress)
+        private void TryReport(State state, int inputPerReport, int estimatedItemsCount, IProgress<PipelineProgress> progress)
         {
             if (state.Reported100)
             {
@@ -58,7 +57,7 @@ namespace Dataflow.Pipelines.GenericBlockFactories
             {
                 Report(state, 100, progress);
             }
-            else if (state.ItemsProcessed % batchSize == 0)
+            else if (state.ItemsProcessed % inputPerReport == 0)
             {
                 var percentage = state.ItemsProcessed.PercentageOf(estimatedItemsCount);
                 Report(state, percentage, progress);
