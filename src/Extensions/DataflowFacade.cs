@@ -20,12 +20,14 @@ namespace Dataflow.Extensions
 
         public static TransformBlock<TData, TData> TransformBlock<TData>(string name,
                                                                          Func<TData, TData> transform,
-                                                                         CancellationToken cancellationToken)
-            => TransformBlock<TData, TData>(name, transform, cancellationToken);
+                                                                         CancellationToken cancellationToken,
+                                                                         int maxDegreeOfParallelism = 1)
+            => TransformBlock<TData, TData>(name, transform, cancellationToken, maxDegreeOfParallelism);
 
         public static TransformBlock<TInput, TOutput> TransformBlock<TInput, TOutput>(string name,
                                                                                       Func<TInput, TOutput> transform,
-                                                                                      CancellationToken cancellationToken)
+                                                                                      CancellationToken cancellationToken,
+                                                                                      int maxDegreeOfParallelism = 1)
         {
             return new TransformBlock<TInput, TOutput>(x =>
                                                            {
@@ -38,7 +40,8 @@ namespace Dataflow.Extensions
                                                        new ExecutionDataflowBlockOptions
                                                            {
                                                                CancellationToken = cancellationToken,
-                                                               BoundedCapacity = 1
+                                                               MaxDegreeOfParallelism = maxDegreeOfParallelism,
+                                                               BoundedCapacity = maxDegreeOfParallelism
                                                            });
         }
 

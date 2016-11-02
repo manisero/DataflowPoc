@@ -86,7 +86,7 @@ namespace Dataflow.Pipelines.BlockFactories
             var parseDataBlock = DataflowFacade.TransformBlock<string, Data>(
                 "ParseData",
                 x => _dataParser.Parse(x),
-                cancellation);
+                cancellation, 3);
 
             // Link blocks
             readLinesBlock.LinkWithCompletion(parseDataBlock);
