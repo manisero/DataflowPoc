@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Dataflow.Logic;
-using Dataflow.Models;
 using Dataflow.Pipelines;
 using Dataflow.Pipelines.GenericBlockFactories;
 using Dataflow.Pipelines.PeopleStream;
@@ -14,6 +13,20 @@ namespace Dataflow
     {
         static void Main(string[] args)
         {
+            // Synchronous
+            var synchronousPeopleProcessor = new SynchronousPeopleProcessor(new FileLinesCounter(),
+                                                                            new DataReader(),
+                                                                            new PersonValidator(),
+                                                                            new PersonFieldsComputer(),
+                                                                            new DataWriter());
+
+            var synchronousDuration = synchronousPeopleProcessor.Process(Settings.PeopleJsonFilePath,
+                                                                         Settings.PeopleTargetFilePath,
+                                                                         Settings.ErrorsFilePath);
+
+            Console.WriteLine($"Synchronous took {synchronousDuration.TotalMilliseconds}ms.");
+
+            // Dataflow
             var peoplePipelineFactory = new PeoplePipelineFactory(new ReadingBlockFactory(new FileLinesCounter(),
                                                                                           new DataReader(),
                                                                                           new StreamLinesReader(),

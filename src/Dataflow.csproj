@@ -63,6 +63,7 @@
     <Compile Include="Logic\PersonFieldsComputer.cs" />
     <Compile Include="Logic\StreamLinesReader.cs" />
     <Compile Include="Logic\PersonValidator.cs" />
+    <Compile Include="Logic\SynchronousPeopleProcessor.cs" />
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Logic\DataReader.cs" />
