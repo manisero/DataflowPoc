@@ -10,7 +10,7 @@ namespace PerfAnalyzer.Models
 
         public string BlockName { get; set; }
 
-        public int? DataId { get; set; }
+        public int DataId { get; set; }
 
         public int? ElapsedMs { get; set; }
     }
@@ -41,13 +41,9 @@ namespace PerfAnalyzer.Models
             return value.Trim();
         }
 
-        private static int? ParseDataId(string value)
+        private static int ParseDataId(string value)
         {
-            var id = int.Parse(value.Replace(" ", string.Empty).Replace(new string((char)160, 1), string.Empty));
-
-            return id != -1
-                       ? id
-                       : (int?)null;
+            return int.Parse(value.Replace(" ", string.Empty).Replace(new string((char)160, 1), string.Empty));
         }
 
         private static int? ParseElapsedMs(string value)

@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\EventNames.cs" />
     <Compile Include="Models\GanttEntry.cs" />
     <Compile Include="Models\PerfEntry.cs" />
     <Compile Include="Program.cs" />

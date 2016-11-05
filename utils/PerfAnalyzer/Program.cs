@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CsvHelper;
@@ -14,29 +15,10 @@ namespace PerfAnalyzer
         static void Main(string[] args)
         {
             var csvReader = GetCsvReader(PERF_INPUT_PATH);
-            var perfEntries = csvReader.GetRecords<PerfEntry>().ToList();
+            var perfEntries = csvReader.GetRecords<PerfEntry>().OrderBy(x => x.TimestampMs).ToList();
 
-            var blockDurations = perfEntries.GroupBy(x => x.BlockName)
-                                            .ToDictionary(x => x.Key,
-                                                          x => x.Sum(item => item.ElapsedMs));
-
-            foreach (var duration in blockDurations)
-            {
-                Console.WriteLine($"{duration.Key}: {duration.Value}ms");
-            }
-
-            var ganttEntries = perfEntries.Select(x => new GanttEntry
-                {
-                    BlockName = x.BlockName,
-                    StartMs = x.TimestampMs - (x.ElapsedMs ?? 0),
-                    DurationMs = x.ElapsedMs ?? 0,
-                    DataId = "TODO"
-                })
-                                          .OrderBy(x => x.StartMs)
-                                          .ToList();
-
-            var ganttLines = new[] { "Task\tStart [ms]\tDuration [ms]\tDescription" }.Concat(ganttEntries.Select(x => x.ToChartLine())).ToList();
-            File.WriteAllLines(GANTT_OUTPUT_PATH, ganttLines);
+            PrintGeneralResult(perfEntries);
+            WriteGanttData(perfEntries);
         }
 
         private static CsvReader GetCsvReader(string perfResultPath)
@@ -48,6 +30,49 @@ namespace PerfAnalyzer
             csvReader.Configuration.RegisterClassMap<PerfEntryMap>();
 
             return csvReader;
+        }
+
+        private static void PrintGeneralResult(List<PerfEntry> perfEntries)
+        {
+            var totalDurationMs = perfEntries.Last().TimestampMs - perfEntries.First().TimestampMs;
+            Console.WriteLine($"Total duration: {totalDurationMs}ms");
+            Console.WriteLine();
+
+            var blockDurations = perfEntries.GroupBy(x => x.BlockName)
+                                            .ToDictionary(x => x.Key,
+                                                          x => x.Sum(item => item.ElapsedMs));
+
+            foreach (var duration in blockDurations)
+            {
+                Console.WriteLine($"{duration.Key}: {duration.Value}ms");
+            }
+        }
+
+        private static void WriteGanttData(List<PerfEntry> perfEntries)
+        {
+            var ganttEntries = perfEntries.GroupBy(x => new GanttEntry.Key
+                {
+                    BlockName = x.BlockName,
+                    DataId = x.DataId
+                })
+                                          .Select(x => new
+                                              {
+                                                  x.Key,
+                                                  Enter = x.Single(entry => entry.EventName == EventNames.BLOCK_ENTER),
+                                                  Exit = x.Single(entry => entry.EventName == EventNames.BLOCK_EXIT)
+                                              })
+                                          .Select(x => new GanttEntry
+                                              {
+                                                  BlockName = x.Key.BlockName,
+                                                  DataId = x.Key.DataId,
+                                                  StartMs = x.Enter.TimestampMs,
+                                                  DurationMs = x.Exit.TimestampMs - x.Enter.TimestampMs
+                                              })
+                                          .OrderBy(x => x.StartMs)
+                                          .ToList();
+
+            var ganttLines = new[] { "Block\tStart [ms]\tDuration [ms]\tDescription" }.Concat(ganttEntries.Select(x => x.ToChartLine())).ToList();
+            File.WriteAllLines(GANTT_OUTPUT_PATH, ganttLines);
         }
     }
 }
