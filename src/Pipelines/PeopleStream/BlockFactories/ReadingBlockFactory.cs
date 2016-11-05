@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
 using Dataflow.Extensions;
@@ -68,6 +69,7 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
             return DataflowFacade.TransformManyBlock<int, Data>(
                 "ReadData",
                 x => _dataReader.Read(peopleJsonStream, x),
+                x => null,
                 cancellation);
         }
 
@@ -78,16 +80,19 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
             // NOTE:
             // - extract part which must be single-thread
             // - ability to replace just reading (e.g. from db)
-            var readLinesBlock = DataflowFacade.TransformManyBlock<int, string>(
+            var readLinesBlock = DataflowFacade.TransformManyBlock<int, Data>(
                 "ReadLines",
-                x => _streamLinesReader.Read(peopleJsonStream, x),
+                x => _streamLinesReader.Read(peopleJsonStream, x).Select(line => new Data { PersonJson = line }),
+                x => null,
                 cancellation);
 
             // NOTE: can be multi-thread
-            var parseDataBlock = DataflowFacade.TransformBlock<string, Data>(
+            var parseDataBlock = DataflowFacade.TransformBlock(
                 "ParseData",
                 x => _dataParser.Parse(x),
-                cancellation, 3);
+                Data.IdGetter,
+                cancellation,
+                Settings.ProcessInParallel ? 3 : 1);
 
             // Link blocks
             readLinesBlock.LinkWithCompletion(parseDataBlock);

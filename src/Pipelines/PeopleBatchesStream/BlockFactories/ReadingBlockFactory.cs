@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
@@ -28,7 +27,7 @@ namespace Dataflow.Pipelines.PeopleBatchesStream.BlockFactories
             _dataParser = dataParser;
         }
 
-        public StartableBlock<IList<Data>> Create(string peopleJsonFilePath, CancellationToken cancellation)
+        public StartableBlock<DataBatch> Create(string peopleJsonFilePath, CancellationToken cancellation)
         {
             var batchSize = Settings.ReadingBatchSize;
             var peopleCount = _fileLinesCounter.Count(peopleJsonFilePath);
@@ -48,7 +47,7 @@ namespace Dataflow.Pipelines.PeopleBatchesStream.BlockFactories
             // Handle completion
             var completion = readBlock.Completion.ContinueWithStatusPropagation(_ => peopleJsonStream.Dispose());
 
-            return new StartableBlock<IList<Data>>
+            return new StartableBlock<DataBatch>
                 {
                     Start = () =>
                                 {
@@ -65,30 +64,33 @@ namespace Dataflow.Pipelines.PeopleBatchesStream.BlockFactories
                 };
         }
 
-        private IPropagatorBlock<int, IList<Data>> UseDataReader(StreamReader peopleJsonStream, CancellationToken cancellation)
+        private IPropagatorBlock<int, DataBatch> UseDataReader(StreamReader peopleJsonStream, CancellationToken cancellation)
         {
-            return DataflowFacade.TransformBlock<int, IList<Data>>(
+            return DataflowFacade.TransformBlock<int, DataBatch>(
                 "ReadData",
-                x => _dataReader.Read(peopleJsonStream, x).ToList(),
+                x => _dataReader.Read(peopleJsonStream, x).ToList().ToBatch(),
+                x => null,
                 cancellation);
         }
 
-        private IPropagatorBlock<int, IList<Data>> UseLinesReaderAndParser(StreamReader peopleJsonStream, CancellationToken cancellation)
+        private IPropagatorBlock<int, DataBatch> UseLinesReaderAndParser(StreamReader peopleJsonStream, CancellationToken cancellation)
         {
             // Create blocks
 
             // NOTE:
             // - extract part which must be single-thread
             // - ability to replace just reading (e.g. from db)
-            var readLinesBlock = DataflowFacade.TransformBlock<int, IList<string>>(
+            var readLinesBlock = DataflowFacade.TransformBlock<int, DataBatch>(
                 "ReadLines",
-                x => _streamLinesReader.Read(peopleJsonStream, x).ToList(),
+                x => _streamLinesReader.Read(peopleJsonStream, x).Select(line => new Data { PersonJson = line }).ToList().ToBatch(),
+                x => null,
                 cancellation);
 
             // NOTE: can be multi-thread
-            var parseDataBlock = DataflowFacade.TransformBlock<IList<string>, IList<Data>>(
+            var parseDataBlock = DataflowFacade.TransformBlock(
                 "ParseData",
-                x => x.Select(_dataParser.Parse).ToList(),
+                x => x.Data.ForEach(_dataParser.Parse),
+                DataBatch.IdGetter,
                 cancellation);
 
             // Link blocks

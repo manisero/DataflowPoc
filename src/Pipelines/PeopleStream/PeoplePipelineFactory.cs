@@ -49,18 +49,20 @@ namespace Dataflow.Pipelines.PeopleStream
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
             var validateBlock = ProcessingBlock<Data>.Create("Validate",
                                                              x => _personValidator.Validate(x),
+                                                             Data.IdGetter,
                                                              cancellationSource.Token,
-                                                             Settings.SimulateTimeConsumingComputations ? 3 : 1);
+                                                             Settings.ProcessInParallel ? 3 : 1);
             var computeFieldsBlock = ProcessingBlock<Data>.Create("ComputeFields",
                                                                   x => _personFieldsComputer.Compute(x),
+                                                                  Data.IdGetter,
                                                                   cancellationSource.Token,
-                                                                  Settings.SimulateTimeConsumingComputations ? 3 : 1);
+                                                                  Settings.ProcessInParallel ? 3 : 1);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest
-                                 ? _throwingBlockFactory.Create<Data>(cancellationSource.Token)
+                                 ? _throwingBlockFactory.Create(Data.IdGetter, cancellationSource.Token)
                                  : _emptyBlockFactory.Create<Data>(cancellationSource.Token);
             var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, cancellationSource.Token);
-            var progressBlock = _progressReportingBlockFactory.Create<Data>(progress, readBlock.EstimatedOutputCount, Settings.ProgressBatchSize, cancellationSource.Token);
+            var progressBlock = _progressReportingBlockFactory.Create(Data.IdGetter, progress, readBlock.EstimatedOutputCount, Settings.ProgressBatchSize, cancellationSource.Token);
 
             return _pipelineFactory.Create(readBlock,
                                            new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock },

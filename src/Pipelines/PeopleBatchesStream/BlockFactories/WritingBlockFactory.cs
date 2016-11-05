@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using Dataflow.Extensions;
 using Dataflow.Logic;
@@ -17,7 +16,7 @@ namespace Dataflow.Pipelines.PeopleBatchesStream.BlockFactories
             _dataWriter = dataWriter;
         }
 
-        public ProcessingBlock<IList<Data>> Create(string targetFilePath, CancellationToken cancellation)
+        public ProcessingBlock<DataBatch> Create(string targetFilePath, CancellationToken cancellation)
         {
             var targetDirectoryPath = Path.GetDirectoryName(targetFilePath);
 
@@ -29,23 +28,16 @@ namespace Dataflow.Pipelines.PeopleBatchesStream.BlockFactories
             var writer = new StreamWriter(targetFilePath);
 
             // Create blocks
-            var writeBlock = DataflowFacade.TransformBlock<IList<Data>>(
+            var writeBlock = DataflowFacade.TransformBlock(
                 "WriteData",
-                x =>
-                    {
-                        foreach (var item in x)
-                        {
-                            _dataWriter.Write(writer, item);
-                        }
-
-                        return x;
-                    },
+                x => x.Data.ForEach(item => _dataWriter.Write(writer, item)),
+                DataBatch.IdGetter,
                 cancellation);
 
             // Handle completion
             var completion = writeBlock.Completion.ContinueWithStatusPropagation(_ => writer.Dispose());
 
-            return new ProcessingBlock<IList<Data>>
+            return new ProcessingBlock<DataBatch>
                 {
                     Processor = writeBlock,
                     Completion = completion

@@ -6,15 +6,13 @@ namespace Dataflow.Logic
 {
     public class DataParser
     {
-        public Data Parse(string personJson)
+        public void Parse(Data data)
         {
-            var data = new Data();
-
-            if (!string.IsNullOrEmpty(personJson))
+            if (!string.IsNullOrEmpty(data.PersonJson))
             {
                 try
                 {
-                    data.Person = JsonConvert.DeserializeObject<Person>(personJson);
+                    data.Person = JsonConvert.DeserializeObject<Person>(data.PersonJson);
                 }
                 catch (Exception e)
                 {
@@ -25,8 +23,6 @@ namespace Dataflow.Logic
             {
                 data.Error = "Empty row.";
             }
-
-            return data;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Dataflow.Extensions;
 using Dataflow.Logic;
 using Dataflow.Models;
 using Dataflow.Pipelines.GenericBlockFactories;
@@ -40,7 +40,7 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
             _pipelineFactory = pipelineFactory;
         }
 
-        public StartableBlock<IList<Data>> Create(string peopleJsonFilePath,
+        public StartableBlock<DataBatch> Create(string peopleJsonFilePath,
                                                   string targetFilePath,
                                                   string errorsFilePath,
                                                   IProgress<PipelineProgress> progress,
@@ -50,32 +50,22 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
 
             // Create blocks
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
-            var validateBlock = ProcessingBlock<IList<Data>>.Create("Validate",
-                                                                    x =>
-                                                                        {
-                                                                            foreach (var item in x.Where(item => item.IsValid))
-                                                                            {
-                                                                                _personValidator.Validate(item);
-                                                                            }
-                                                                        },
-                                                                    cancellationSource.Token,
-                                                                    Settings.SimulateTimeConsumingComputations ? 3 : 1);
-            var computeFieldsBlock = ProcessingBlock<IList<Data>>.Create("ComputeFields",
-                                                                         x =>
-                                                                             {
-                                                                                 foreach (var item in x.Where(item => item.IsValid))
-                                                                                 {
-                                                                                     _personFieldsComputer.Compute(item);
-                                                                                 }
-                                                                             },
-                                                                         cancellationSource.Token,
-                                                                         Settings.SimulateTimeConsumingComputations ? 3 : 1);
+            var validateBlock = ProcessingBlock<DataBatch>.Create("Validate",
+                                                                  x => x.Data.Where(item => item.IsValid).ForEach(_personValidator.Validate),
+                                                                  DataBatch.IdGetter,
+                                                                  cancellationSource.Token,
+                                                                  Settings.ProcessInParallel ? 3 : 1);
+            var computeFieldsBlock = ProcessingBlock<DataBatch>.Create("ComputeFields",
+                                                                       x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
+                                                                       DataBatch.IdGetter,
+                                                                       cancellationSource.Token,
+                                                                       Settings.ProcessInParallel ? 3 : 1);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest
-                                 ? _throwingBlockFactory.Create<IList<Data>>(cancellationSource.Token)
-                                 : _emptyBlockFactory.Create<IList<Data>>(cancellationSource.Token);
+                                 ? _throwingBlockFactory.Create(DataBatch.IdGetter, cancellationSource.Token)
+                                 : _emptyBlockFactory.Create<DataBatch>(cancellationSource.Token);
             var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, cancellationSource.Token);
-            var progressBlock = _progressReportingBlockFactory.Create<IList<Data>>(progress, readBlock.EstimatedOutputCount, 1, cancellationSource.Token);
+            var progressBlock = _progressReportingBlockFactory.Create(DataBatch.IdGetter, progress, readBlock.EstimatedOutputCount, 1, cancellationSource.Token);
 
             return _pipelineFactory.Create(readBlock,
                                            new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock },

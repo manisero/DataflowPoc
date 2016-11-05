@@ -28,13 +28,10 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
             var writer = new StreamWriter(targetFilePath);
 
             // Create blocks
-            var writeBlock = DataflowFacade.TransformBlock<Data>(
+            var writeBlock = DataflowFacade.TransformBlock(
                 "WriteData",
-                x =>
-                    {
-                        _dataWriter.Write(writer, x);
-                        return x;
-                    },
+                x => _dataWriter.Write(writer, x),
+                Data.IdGetter,
                 cancellation);
 
             // Handle completion

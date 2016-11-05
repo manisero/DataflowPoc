@@ -23,14 +23,14 @@ namespace PerfAnalyzer
                 Console.WriteLine($"{duration.Key}: {duration.Value}ms");
             }
 
-            var ganttEntries = perfEntries.OrderBy(x => x.Timestamp)
-                                          .Select(x => new GanttEntry
-                                              {
-                                                  BlockName = x.BlockName,
-                                                  StartMs = x.Timestamp - x.ElapsedMs,
-                                                  DurationMs = x.ElapsedMs,
-                                                  DataId = "TODO"
-                                              })
+            var ganttEntries = perfEntries.Select(x => new GanttEntry
+                {
+                    BlockName = x.BlockName,
+                    StartMs = x.Timestamp - x.ElapsedMs,
+                    DurationMs = x.ElapsedMs,
+                    DataId = "TODO"
+                })
+                                          .OrderBy(x => x.StartMs)
                                           .ToList();
 
             var ganttLines = new[] { "Task\tStart [ms]\tDuration [ms]\tDescription" }.Concat(ganttEntries.Select(x => x.ToChartLine())).ToList();

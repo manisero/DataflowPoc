@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Dataflow.Extensions;
 using Dataflow.Models;
 
 namespace Dataflow.Logic
@@ -50,20 +51,22 @@ namespace Dataflow.Logic
             //    data = _dataReader.Read(peopleJsonStream, peopleCount).ToList();
             //}
 
-            IList<string> lines;
+            IList<Data> data;
 
             using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
             {
-                lines = _streamLinesReader.Read(peopleJsonStream, peopleCount).ToList();
+                data = _streamLinesReader.Read(peopleJsonStream, peopleCount)
+                                         .Select(x => new Data { PersonJson = x })
+                                         .ToList();
             }
 
             Console.WriteLine("Lines read.");
             
-            IList<Data> data = lines.Select(_dataParser.Parse).ToList();
+            data.ForEach(_dataParser.Parse);
 
             Console.WriteLine("Data parsed.");
 
-            if (Settings.SimulateTimeConsumingComputations)
+            if (Settings.ProcessInParallel)
             {
                 Parallel.ForEach(data.Where(x => x.IsValid), _personValidator.Validate);
             }
@@ -77,7 +80,7 @@ namespace Dataflow.Logic
 
             Console.WriteLine("Data validated.");
 
-            if (Settings.SimulateTimeConsumingComputations)
+            if (Settings.ProcessInParallel)
             {
                 Parallel.ForEach(data.Where(x => x.IsValid), _personFieldsComputer.Compute);
             }

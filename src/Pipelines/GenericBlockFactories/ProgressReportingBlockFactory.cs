@@ -13,18 +13,19 @@ namespace Dataflow.Pipelines.GenericBlockFactories
             public bool Reported100 { get; set; } 
         }
 
-        public ProcessingBlock<TData> Create<TData>(IProgress<PipelineProgress> progress, int estimatedInputCount, int inputPerReport, CancellationToken cancellation)
+        public ProcessingBlock<TData> Create<TData>(Func<TData, object> dataIdGetter,
+                                                    IProgress<PipelineProgress> progress,
+                                                    int estimatedInputCount,
+                                                    int inputPerReport,
+                                                    CancellationToken cancellation)
         {
             var state = new State();
-            
+
             // Create blocks
-            var reportBlock = DataflowFacade.TransformBlock<TData>(
+            var reportBlock = DataflowFacade.TransformBlock(
                 "ReportProgress",
-                x =>
-                    {
-                        TryReport(state, inputPerReport, estimatedInputCount, progress);
-                        return x;
-                    },
+                x => TryReport(state, inputPerReport, estimatedInputCount, progress),
+                dataIdGetter,
                 cancellation);
 
             // Handle completion

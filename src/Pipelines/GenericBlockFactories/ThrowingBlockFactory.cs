@@ -7,15 +7,16 @@ namespace Dataflow.Pipelines.GenericBlockFactories
 {
     public class ThrowingBlockFactory
     {
-        public ProcessingBlock<TData> Create<TData>(CancellationToken cancellation)
+        public ProcessingBlock<TData> Create<TData>(Func<TData, object> dataIdGetter, CancellationToken cancellation)
         {
             // Create blocks
-            var throwBlock = DataflowFacade.TransformBlock<TData>(
+            var throwBlock = DataflowFacade.TransformBlock(
                 "Throw",
                 x =>
                     {
                         throw new InvalidOperationException();
                     },
+                dataIdGetter,
                 cancellation);
 
             return new ProcessingBlock<TData>
