@@ -68,8 +68,8 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
         {
             return DataflowFacade.TransformManyBlock<int, Data>(
                 "ReadData",
-                x => _dataReader.Read(peopleJsonStream, x),
                 x => -1,
+                x => _dataReader.Read(peopleJsonStream, x),
                 cancellation);
         }
 
@@ -82,15 +82,15 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
             // - ability to replace just reading (e.g. from db)
             var readLinesBlock = DataflowFacade.TransformManyBlock<int, Data>(
                 "ReadLines",
-                x => _streamLinesReader.Read(peopleJsonStream, x).Select(line => new Data { PersonJson = line }),
                 x => -1,
+                x => _streamLinesReader.Read(peopleJsonStream, x).Select(line => new Data { PersonJson = line }),
                 cancellation);
 
             // NOTE: can be multi-thread
             var parseDataBlock = DataflowFacade.TransformBlock(
                 "ParseData",
-                x => _dataParser.Parse(x),
                 Data.IdGetter,
+                x => _dataParser.Parse(x),
                 cancellation,
                 Settings.ProcessInParallel ? 3 : 1);
 

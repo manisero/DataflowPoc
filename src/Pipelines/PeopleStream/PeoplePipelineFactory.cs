@@ -48,13 +48,13 @@ namespace Dataflow.Pipelines.PeopleStream
             // TODO: Progress reporting approach 1: before anything
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
             var validateBlock = ProcessingBlock<Data>.Create("Validate",
-                                                             x => _personValidator.Validate(x),
                                                              Data.IdGetter,
+                                                             x => _personValidator.Validate(x),
                                                              cancellationSource.Token,
                                                              Settings.ProcessInParallel ? 3 : 1);
             var computeFieldsBlock = ProcessingBlock<Data>.Create("ComputeFields",
-                                                                  x => _personFieldsComputer.Compute(x),
                                                                   Data.IdGetter,
+                                                                  x => _personFieldsComputer.Compute(x),
                                                                   cancellationSource.Token,
                                                                   Settings.ProcessInParallel ? 3 : 1);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);

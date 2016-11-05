@@ -30,8 +30,8 @@ namespace Dataflow.Pipelines.PeopleBatchesStream.BlockFactories
             // Create blocks
             var writeBlock = DataflowFacade.TransformBlock(
                 "WriteData",
-                x => x.Data.ForEach(item => _dataWriter.Write(writer, item)),
                 DataBatch.IdGetter,
+                x => x.Data.ForEach(item => _dataWriter.Write(writer, item)),
                 cancellation);
 
             // Handle completion

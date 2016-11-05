@@ -12,11 +12,11 @@ namespace Dataflow.Pipelines.GenericBlockFactories
             // Create blocks
             var throwBlock = DataflowFacade.TransformBlock(
                 "Throw",
+                dataIdGetter,
                 x =>
                     {
                         throw new InvalidOperationException();
                     },
-                dataIdGetter,
                 cancellation);
 
             return new ProcessingBlock<TData>

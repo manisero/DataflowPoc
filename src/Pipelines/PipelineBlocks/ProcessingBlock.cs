@@ -13,30 +13,30 @@ namespace Dataflow.Pipelines.PipelineBlocks
         public Task Completion { get; set; }
 
         public static ProcessingBlock<TData> Create(string name,
-                                                    Action<TData> process,
                                                     Func<TData, int> dataIdGetter,
+                                                    Action<TData> process,
                                                     CancellationToken cancellation,
                                                     int maxDegreeOfParallelism = 1)
         {
             return Create(
                 name,
+                dataIdGetter,
                 x =>
                     {
                         process(x);
                         return x;
                     },
-                dataIdGetter,
                 cancellation,
                 maxDegreeOfParallelism);
         }
 
         public static ProcessingBlock<TData> Create(string name,
-                                                    Func<TData, TData> process,
                                                     Func<TData, int> dataIdGetter,
+                                                    Func<TData, TData> process,
                                                     CancellationToken cancellation,
                                                     int maxDegreeOfParallelism = 1)
         {
-            var processor = DataflowFacade.TransformBlock<TData>(name, process, dataIdGetter, cancellation, maxDegreeOfParallelism);
+            var processor = DataflowFacade.TransformBlock<TData>(name, dataIdGetter, process, cancellation, maxDegreeOfParallelism);
 
             return new ProcessingBlock<TData>
                 {

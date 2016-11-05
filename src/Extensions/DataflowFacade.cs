@@ -19,32 +19,32 @@ namespace Dataflow.Extensions
         }
 
         public static TransformBlock<TData, TData> TransformBlock<TData>(string name,
-                                                                         Action<TData> action,
                                                                          Func<TData, int> dataIdGetter,
+                                                                         Action<TData> action,
                                                                          CancellationToken cancellationToken,
                                                                          int maxDegreeOfParallelism = 1)
         {
             return TransformBlock<TData>(name,
+                                         dataIdGetter,
                                          x =>
                                              {
                                                  action(x);
                                                  return x;
                                              },
-                                         dataIdGetter,
                                          cancellationToken,
                                          maxDegreeOfParallelism);
         }
 
         public static TransformBlock<TData, TData> TransformBlock<TData>(string name,
-                                                                         Func<TData, TData> transform,
                                                                          Func<TData, int> dataIdGetter,
+                                                                         Func<TData, TData> transform,
                                                                          CancellationToken cancellationToken,
                                                                          int maxDegreeOfParallelism = 1)
-            => TransformBlock<TData, TData>(name, transform, dataIdGetter, cancellationToken, maxDegreeOfParallelism);
+            => TransformBlock<TData, TData>(name, dataIdGetter, transform, cancellationToken, maxDegreeOfParallelism);
 
         public static TransformBlock<TInput, TOutput> TransformBlock<TInput, TOutput>(string name,
-                                                                                      Func<TInput, TOutput> transform,
                                                                                       Func<TInput, int> inputIdGetter,
+                                                                                      Func<TInput, TOutput> transform,
                                                                                       CancellationToken cancellationToken,
                                                                                       int maxDegreeOfParallelism = 1)
         {
@@ -69,8 +69,8 @@ namespace Dataflow.Extensions
         }
 
         public static TransformManyBlock<TInput, TOutput> TransformManyBlock<TInput, TOutput>(string name,
-                                                                                              Func<TInput, IEnumerable<TOutput>> transform,
                                                                                               Func<TInput, int> inputIdGetter,
+                                                                                              Func<TInput, IEnumerable<TOutput>> transform,
                                                                                               CancellationToken cancellationToken)
         {
             return new TransformManyBlock<TInput, TOutput>(x =>

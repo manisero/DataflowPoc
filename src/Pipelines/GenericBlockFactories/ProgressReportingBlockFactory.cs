@@ -24,8 +24,8 @@ namespace Dataflow.Pipelines.GenericBlockFactories
             // Create blocks
             var reportBlock = DataflowFacade.TransformBlock(
                 "ReportProgress",
-                x => TryReport(state, inputPerReport, estimatedInputCount, progress),
                 dataIdGetter,
+                x => TryReport(state, inputPerReport, estimatedInputCount, progress),
                 cancellation);
 
             // Handle completion

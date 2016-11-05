@@ -51,13 +51,13 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
             // Create blocks
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
             var validateBlock = ProcessingBlock<DataBatch>.Create("Validate",
-                                                                  x => x.Data.Where(item => item.IsValid).ForEach(_personValidator.Validate),
                                                                   DataBatch.IdGetter,
+                                                                  x => x.Data.Where(item => item.IsValid).ForEach(_personValidator.Validate),
                                                                   cancellationSource.Token,
                                                                   Settings.ProcessInParallel ? 3 : 1);
             var computeFieldsBlock = ProcessingBlock<DataBatch>.Create("ComputeFields",
-                                                                       x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
                                                                        DataBatch.IdGetter,
+                                                                       x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
                                                                        cancellationSource.Token,
                                                                        Settings.ProcessInParallel ? 3 : 1);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
