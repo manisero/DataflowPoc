@@ -47,8 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GanttEntry.cs" />
-    <Compile Include="PerfEntry.cs" />
+    <Compile Include="Models\GanttEntry.cs" />
+    <Compile Include="Models\PerfEntry.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

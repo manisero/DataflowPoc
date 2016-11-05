@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace PerfAnalyzer
+namespace PerfAnalyzer.Models
 {
     public class GanttEntry
     {

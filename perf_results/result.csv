@@ -1,49 +1,101 @@
-Event Name                    	 Time MSec	Process Name    	blockName     	elapsedMs	Rest  
-Manisero.DataflowPoc/BlockExit	 3 270,023	Dataflow (11276)	Validate      	   790   	      
-Manisero.DataflowPoc/BlockExit	 3 981,463	Dataflow (11276)	Validate      	   699   	      
-Manisero.DataflowPoc/BlockExit	 4 019,199	Dataflow (11276)	ReadData      	    37   	      
-Manisero.DataflowPoc/BlockExit	 4 295,332	Dataflow (11276)	ComputeFields 	 1 024   	      
-Manisero.DataflowPoc/BlockExit	 4 303,066	Dataflow (11276)	WriteData     	     7   	      
-Manisero.DataflowPoc/BlockExit	 4 304,918	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	 4 380,223	Dataflow (11276)	ReadData      	    56   	      
-Manisero.DataflowPoc/BlockExit	 5 042,210	Dataflow (11276)	Validate      	   735   	      
-Manisero.DataflowPoc/BlockExit	 5 244,388	Dataflow (11276)	ComputeFields 	   948   	      
-Manisero.DataflowPoc/BlockExit	 5 251,640	Dataflow (11276)	WriteData     	     6   	      
-Manisero.DataflowPoc/BlockExit	 5 251,963	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	 5 319,268	Dataflow (11276)	ReadData      	    30   	      
-Manisero.DataflowPoc/BlockExit	 6 068,336	Dataflow (11276)	Validate      	   815   	      
-Manisero.DataflowPoc/BlockExit	 6 367,491	Dataflow (11276)	ComputeFields 	 1 123   	      
-Manisero.DataflowPoc/BlockExit	 6 383,504	Dataflow (11276)	WriteData     	    15   	      
-Manisero.DataflowPoc/BlockExit	 6 383,535	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	 6 432,082	Dataflow (11276)	ReadData      	    35   	      
-Manisero.DataflowPoc/BlockExit	 7 208,897	Dataflow (11276)	ComputeFields 	   825   	      
-Manisero.DataflowPoc/BlockExit	 7 216,795	Dataflow (11276)	WriteData     	     7   	      
-Manisero.DataflowPoc/BlockExit	 7 222,642	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	 7 257,570	Dataflow (11276)	Validate      	   872   	      
-Manisero.DataflowPoc/BlockExit	 7 301,121	Dataflow (11276)	ReadData      	    33   	      
-Manisero.DataflowPoc/BlockExit	 7 950,764	Dataflow (11276)	Validate      	   692   	      
-Manisero.DataflowPoc/BlockExit	 7 999,516	Dataflow (11276)	ComputeFields 	   741   	      
-Manisero.DataflowPoc/BlockExit	 8 006,717	Dataflow (11276)	WriteData     	     7   	      
-Manisero.DataflowPoc/BlockExit	 8 006,739	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	 8 700,415	Dataflow (11276)	ComputeFields 	   700   	      
-Manisero.DataflowPoc/BlockExit	 8 723,074	Dataflow (11276)	WriteData     	    22   	      
-Manisero.DataflowPoc/BlockExit	 8 723,443	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	 8 765,116	Dataflow (11276)	ReadData      	    39   	      
-Manisero.DataflowPoc/BlockExit	 8 766,102	Dataflow (11276)	Validate      	   758   	      
-Manisero.DataflowPoc/BlockExit	 9 828,121	Dataflow (11276)	ComputeFields 	 1 018   	      
-Manisero.DataflowPoc/BlockExit	 9 836,361	Dataflow (11276)	WriteData     	     8   	      
-Manisero.DataflowPoc/BlockExit	 9 836,387	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	 9 916,106	Dataflow (11276)	ReadData      	    78   	      
-Manisero.DataflowPoc/BlockExit	10 079,137	Dataflow (11276)	Validate      	 1 313   	      
-Manisero.DataflowPoc/BlockExit	10 138,944	Dataflow (11276)	ReadData      	    39   	      
-Manisero.DataflowPoc/BlockExit	10 875,645	Dataflow (11276)	ComputeFields 	   786   	      
-Manisero.DataflowPoc/BlockExit	10 885,119	Dataflow (11276)	WriteData     	     9   	      
-Manisero.DataflowPoc/BlockExit	10 885,335	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	10 967,179	Dataflow (11276)	Validate      	   887   	      
-Manisero.DataflowPoc/BlockExit	11 672,688	Dataflow (11276)	Validate      	   705   	      
-Manisero.DataflowPoc/BlockExit	11 960,780	Dataflow (11276)	ComputeFields 	   993   	      
-Manisero.DataflowPoc/BlockExit	12 015,544	Dataflow (11276)	WriteData     	     6   	      
-Manisero.DataflowPoc/BlockExit	12 015,575	Dataflow (11276)	ReportProgress	     0   	      
-Manisero.DataflowPoc/BlockExit	12 721,542	Dataflow (11276)	ComputeFields 	   760   	      
-Manisero.DataflowPoc/BlockExit	12 728,616	Dataflow (11276)	WriteData     	     7   	      
-Manisero.DataflowPoc/BlockExit	12 728,749	Dataflow (11276)	ReportProgress	     0   	      
+Event Name                     	 Time MSec	Process Name   	blockName     	dataId	elapsedMs	Rest  
+Manisero.DataflowPoc/BlockEnter	 1 640,710	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 1 809,011	Dataflow (8072)	ReadData      	-1    	   168   	      
+Manisero.DataflowPoc/BlockEnter	 1 811,535	Dataflow (8072)	Validate      	     1	         	      
+Manisero.DataflowPoc/BlockEnter	 1 811,842	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 1 840,756	Dataflow (8072)	ReadData      	-1    	    28   	      
+Manisero.DataflowPoc/BlockExit 	 2 478,024	Dataflow (8072)	Validate      	     1	   666   	      
+Manisero.DataflowPoc/BlockEnter	 2 478,177	Dataflow (8072)	ComputeFields 	     1	         	      
+Manisero.DataflowPoc/BlockEnter	 2 478,286	Dataflow (8072)	Validate      	     2	         	      
+Manisero.DataflowPoc/BlockExit 	 3 231,262	Dataflow (8072)	ComputeFields 	     1	   753   	      
+Manisero.DataflowPoc/BlockEnter	 3 231,295	Dataflow (8072)	WriteData     	     1	         	      
+Manisero.DataflowPoc/BlockExit 	 3 237,606	Dataflow (8072)	Validate      	     2	   759   	      
+Manisero.DataflowPoc/BlockEnter	 3 237,782	Dataflow (8072)	ComputeFields 	     2	         	      
+Manisero.DataflowPoc/BlockExit 	 3 240,957	Dataflow (8072)	WriteData     	     1	     9   	      
+Manisero.DataflowPoc/BlockEnter	 3 241,291	Dataflow (8072)	ReportProgress	     1	         	      
+Manisero.DataflowPoc/BlockExit 	 3 242,342	Dataflow (8072)	ReportProgress	     1	     0   	      
+Manisero.DataflowPoc/BlockEnter	 3 244,050	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 3 277,191	Dataflow (8072)	ReadData      	-1    	    33   	      
+Manisero.DataflowPoc/BlockEnter	 3 277,718	Dataflow (8072)	Validate      	     3	         	      
+Manisero.DataflowPoc/BlockEnter	 3 296,962	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 3 344,990	Dataflow (8072)	ReadData      	-1    	    47   	      
+Manisero.DataflowPoc/BlockExit 	 3 948,898	Dataflow (8072)	ComputeFields 	     2	   711   	      
+Manisero.DataflowPoc/BlockEnter	 3 948,925	Dataflow (8072)	WriteData     	     2	         	      
+Manisero.DataflowPoc/BlockExit 	 3 955,397	Dataflow (8072)	WriteData     	     2	     6   	      
+Manisero.DataflowPoc/BlockEnter	 3 955,434	Dataflow (8072)	ReportProgress	     2	         	      
+Manisero.DataflowPoc/BlockExit 	 3 955,452	Dataflow (8072)	ReportProgress	     2	     0   	      
+Manisero.DataflowPoc/BlockExit 	 3 965,227	Dataflow (8072)	Validate      	     3	   687   	      
+Manisero.DataflowPoc/BlockEnter	 3 965,282	Dataflow (8072)	ComputeFields 	     3	         	      
+Manisero.DataflowPoc/BlockEnter	 3 965,293	Dataflow (8072)	Validate      	     4	         	      
+Manisero.DataflowPoc/BlockEnter	 3 965,300	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 3 996,363	Dataflow (8072)	ReadData      	-1    	    31   	      
+Manisero.DataflowPoc/BlockExit 	 4 656,175	Dataflow (8072)	Validate      	     4	   690   	      
+Manisero.DataflowPoc/BlockExit 	 4 668,227	Dataflow (8072)	ComputeFields 	     3	   702   	      
+Manisero.DataflowPoc/BlockEnter	 4 668,275	Dataflow (8072)	WriteData     	     3	         	      
+Manisero.DataflowPoc/BlockEnter	 4 668,289	Dataflow (8072)	ComputeFields 	     4	         	      
+Manisero.DataflowPoc/BlockEnter	 4 668,295	Dataflow (8072)	Validate      	     5	         	      
+Manisero.DataflowPoc/BlockExit 	 4 679,821	Dataflow (8072)	WriteData     	     3	    11   	      
+Manisero.DataflowPoc/BlockEnter	 4 679,839	Dataflow (8072)	ReportProgress	     3	         	      
+Manisero.DataflowPoc/BlockExit 	 4 679,845	Dataflow (8072)	ReportProgress	     3	     0   	      
+Manisero.DataflowPoc/BlockEnter	 4 681,110	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 4 760,701	Dataflow (8072)	ReadData      	-1    	    79   	      
+Manisero.DataflowPoc/BlockExit 	 5 436,760	Dataflow (8072)	Validate      	     5	   768   	      
+Manisero.DataflowPoc/BlockExit 	 5 625,879	Dataflow (8072)	ComputeFields 	     4	   957   	      
+Manisero.DataflowPoc/BlockEnter	 5 625,924	Dataflow (8072)	WriteData     	     4	         	      
+Manisero.DataflowPoc/BlockEnter	 5 625,932	Dataflow (8072)	ComputeFields 	     5	         	      
+Manisero.DataflowPoc/BlockExit 	 5 632,393	Dataflow (8072)	WriteData     	     4	     6   	      
+Manisero.DataflowPoc/BlockEnter	 5 632,412	Dataflow (8072)	ReportProgress	     4	         	      
+Manisero.DataflowPoc/BlockExit 	 5 632,418	Dataflow (8072)	ReportProgress	     4	     0   	      
+Manisero.DataflowPoc/BlockEnter	 5 632,742	Dataflow (8072)	Validate      	     6	         	      
+Manisero.DataflowPoc/BlockEnter	 5 635,017	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 5 669,922	Dataflow (8072)	ReadData      	-1    	    34   	      
+Manisero.DataflowPoc/BlockExit 	 6 421,772	Dataflow (8072)	ComputeFields 	     5	   795   	      
+Manisero.DataflowPoc/BlockEnter	 6 423,595	Dataflow (8072)	WriteData     	     5	         	      
+Manisero.DataflowPoc/BlockExit 	 6 431,770	Dataflow (8072)	WriteData     	     5	     8   	      
+Manisero.DataflowPoc/BlockEnter	 6 431,793	Dataflow (8072)	ReportProgress	     5	         	      
+Manisero.DataflowPoc/BlockExit 	 6 431,799	Dataflow (8072)	ReportProgress	     5	     0   	      
+Manisero.DataflowPoc/BlockExit 	 6 538,248	Dataflow (8072)	Validate      	     6	   905   	      
+Manisero.DataflowPoc/BlockEnter	 6 538,317	Dataflow (8072)	ComputeFields 	     6	         	      
+Manisero.DataflowPoc/BlockEnter	 6 538,320	Dataflow (8072)	Validate      	     7	         	      
+Manisero.DataflowPoc/BlockExit 	 7 282,270	Dataflow (8072)	Validate      	     7	   743   	      
+Manisero.DataflowPoc/BlockEnter	 7 282,348	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 7 312,820	Dataflow (8072)	ComputeFields 	     6	   774   	      
+Manisero.DataflowPoc/BlockEnter	 7 313,179	Dataflow (8072)	ComputeFields 	     7	         	      
+Manisero.DataflowPoc/BlockExit 	 7 315,722	Dataflow (8072)	ReadData      	-1    	    33   	      
+Manisero.DataflowPoc/BlockEnter	 7 315,740	Dataflow (8072)	Validate      	     8	         	      
+Manisero.DataflowPoc/BlockExit 	 7 975,517	Dataflow (8072)	Validate      	     8	   659   	      
+Manisero.DataflowPoc/BlockEnter	 7 975,735	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 8 001,533	Dataflow (8072)	ComputeFields 	     7	   688   	      
+Manisero.DataflowPoc/BlockEnter	 8 001,674	Dataflow (8072)	WriteData     	     6	         	      
+Manisero.DataflowPoc/BlockExit 	 8 011,262	Dataflow (8072)	WriteData     	     6	     8   	      
+Manisero.DataflowPoc/BlockEnter	 8 011,344	Dataflow (8072)	WriteData     	     7	         	      
+Manisero.DataflowPoc/BlockExit 	 8 021,775	Dataflow (8072)	ReadData      	-1    	    45   	      
+Manisero.DataflowPoc/BlockEnter	 8 022,395	Dataflow (8072)	ReportProgress	     6	         	      
+Manisero.DataflowPoc/BlockExit 	 8 022,410	Dataflow (8072)	ReportProgress	     6	     0   	      
+Manisero.DataflowPoc/BlockEnter	 8 022,806	Dataflow (8072)	ComputeFields 	     8	         	      
+Manisero.DataflowPoc/BlockExit 	 8 023,707	Dataflow (8072)	WriteData     	     7	    12   	      
+Manisero.DataflowPoc/BlockEnter	 8 023,723	Dataflow (8072)	ReportProgress	     7	         	      
+Manisero.DataflowPoc/BlockExit 	 8 023,728	Dataflow (8072)	ReportProgress	     7	     0   	      
+Manisero.DataflowPoc/BlockEnter	 8 023,993	Dataflow (8072)	Validate      	     9	         	      
+Manisero.DataflowPoc/BlockEnter	 8 605,034	Dataflow (8072)	ReadData      	-1    	         	      
+Manisero.DataflowPoc/BlockExit 	 8 640,173	Dataflow (8072)	ReadData      	-1    	    35   	      
+Manisero.DataflowPoc/BlockExit 	 8 757,083	Dataflow (8072)	ComputeFields 	     8	   734   	      
+Manisero.DataflowPoc/BlockEnter	 8 757,111	Dataflow (8072)	WriteData     	     8	         	      
+Manisero.DataflowPoc/BlockExit 	 8 763,932	Dataflow (8072)	WriteData     	     8	     6   	      
+Manisero.DataflowPoc/BlockEnter	 8 764,556	Dataflow (8072)	ReportProgress	     8	         	      
+Manisero.DataflowPoc/BlockExit 	 8 764,564	Dataflow (8072)	ReportProgress	     8	     0   	      
+Manisero.DataflowPoc/BlockExit 	 8 819,215	Dataflow (8072)	Validate      	     9	   794   	      
+Manisero.DataflowPoc/BlockEnter	 8 819,329	Dataflow (8072)	Validate      	    10	         	      
+Manisero.DataflowPoc/BlockEnter	 8 824,434	Dataflow (8072)	ComputeFields 	     9	         	      
+Manisero.DataflowPoc/BlockExit 	 9 591,575	Dataflow (8072)	Validate      	    10	   772   	      
+Manisero.DataflowPoc/BlockExit 	 9 738,996	Dataflow (8072)	ComputeFields 	     9	   914   	      
+Manisero.DataflowPoc/BlockEnter	 9 739,071	Dataflow (8072)	WriteData     	     9	         	      
+Manisero.DataflowPoc/BlockEnter	 9 739,075	Dataflow (8072)	ComputeFields 	    10	         	      
+Manisero.DataflowPoc/BlockExit 	 9 749,729	Dataflow (8072)	WriteData     	     9	    10   	      
+Manisero.DataflowPoc/BlockEnter	 9 749,757	Dataflow (8072)	ReportProgress	     9	         	      
+Manisero.DataflowPoc/BlockExit 	 9 749,764	Dataflow (8072)	ReportProgress	     9	     0   	      
+Manisero.DataflowPoc/BlockExit 	10 407,733	Dataflow (8072)	ComputeFields 	    10	   668   	      
+Manisero.DataflowPoc/BlockEnter	10 407,898	Dataflow (8072)	WriteData     	    10	         	      
+Manisero.DataflowPoc/BlockExit 	10 415,169	Dataflow (8072)	WriteData     	    10	     6   	      
+Manisero.DataflowPoc/BlockEnter	10 415,582	Dataflow (8072)	ReportProgress	    10	         	      
+Manisero.DataflowPoc/BlockExit 	10 415,742	Dataflow (8072)	ReportProgress	    10	     0   	      

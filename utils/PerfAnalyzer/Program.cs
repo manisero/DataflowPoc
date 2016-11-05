@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using CsvHelper;
+using PerfAnalyzer.Models;
 
 namespace PerfAnalyzer
 {
@@ -13,10 +14,11 @@ namespace PerfAnalyzer
         static void Main(string[] args)
         {
             var csvReader = GetCsvReader(PERF_INPUT_PATH);
-            var perfEntries = csvReader.GetRecords<PerfEntry>().Where(x => x.EventName == "BlockExit").ToList();
+            var perfEntries = csvReader.GetRecords<PerfEntry>().ToList();
 
             var blockDurations = perfEntries.GroupBy(x => x.BlockName)
-                                            .ToDictionary(x => x.Key, x => x.Sum(item => item.ElapsedMs));
+                                            .ToDictionary(x => x.Key,
+                                                          x => x.Sum(item => item.ElapsedMs));
 
             foreach (var duration in blockDurations)
             {
@@ -26,8 +28,8 @@ namespace PerfAnalyzer
             var ganttEntries = perfEntries.Select(x => new GanttEntry
                 {
                     BlockName = x.BlockName,
-                    StartMs = x.Timestamp - x.ElapsedMs,
-                    DurationMs = x.ElapsedMs,
+                    StartMs = x.TimestampMs - (x.ElapsedMs ?? 0),
+                    DurationMs = x.ElapsedMs ?? 0,
                     DataId = "TODO"
                 })
                                           .OrderBy(x => x.StartMs)
