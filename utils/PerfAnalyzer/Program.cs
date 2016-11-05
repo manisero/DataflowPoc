@@ -7,21 +7,34 @@ namespace PerfAnalyzer
 {
     class Program
     {
-        private const string PERF_RESULT_PATH = @"..\..\..\..\perf_results\result.csv";
+        private const string PERF_INPUT_PATH = @"..\..\..\..\perf_results\result.csv";
+        private const string GANTT_OUTPUT_PATH = @"..\..\..\..\perf_results\gantt.csv";
 
         static void Main(string[] args)
         {
-            var csvReader = GetCsvReader(PERF_RESULT_PATH);
-            var entries = csvReader.GetRecords<PerfEntry>().ToList();
+            var csvReader = GetCsvReader(PERF_INPUT_PATH);
+            var perfEntries = csvReader.GetRecords<PerfEntry>().Where(x => x.EventName == "BlockExit").ToList();
 
-            var blockDurations = entries.Where(x => x.EventName == "BlockExit")
-                                        .GroupBy(x => x.BlockName)
-                                        .ToDictionary(x => x.Key, x => x.Sum(item => item.ElapsedTicks));
+            var blockDurations = perfEntries.GroupBy(x => x.BlockName)
+                                            .ToDictionary(x => x.Key, x => x.Sum(item => item.ElapsedMs));
 
             foreach (var duration in blockDurations)
             {
-                Console.WriteLine($"{duration.Key}: {duration.Value} ticks");
+                Console.WriteLine($"{duration.Key}: {duration.Value}ms");
             }
+
+            var ganttEntries = perfEntries.OrderBy(x => x.Timestamp)
+                                          .Select(x => new GanttEntry
+                                              {
+                                                  BlockName = x.BlockName,
+                                                  StartMs = x.Timestamp - x.ElapsedMs,
+                                                  DurationMs = x.ElapsedMs,
+                                                  DataId = "TODO"
+                                              })
+                                          .ToList();
+
+            var ganttLines = new[] { "Task\tStart [ms]\tDuration [ms]\tDescription" }.Concat(ganttEntries.Select(x => x.ToChartLine())).ToList();
+            File.WriteAllLines(GANTT_OUTPUT_PATH, ganttLines);
         }
 
         private static CsvReader GetCsvReader(string perfResultPath)

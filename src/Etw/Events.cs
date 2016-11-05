@@ -20,11 +20,11 @@ namespace Dataflow.Etw
         }
 
         [Event(BlockExitId, Level = EventLevel.Informational)]
-        public void BlockExit(string blockName, long elapsedTicks)
+        public void BlockExit(string blockName, long elapsedMs)
         {
             if (IsEnabled())
             {
-                WriteEvent(BlockExitId, blockName, elapsedTicks);
+                WriteEvent(BlockExitId, blockName, elapsedMs);
             }
         }
     }

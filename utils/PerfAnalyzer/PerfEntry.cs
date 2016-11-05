@@ -10,7 +10,7 @@ namespace PerfAnalyzer
 
         public string BlockName { get; set; }
 
-        public int ElapsedTicks { get; set; }
+        public int ElapsedMs { get; set; }
     }
 
     public class PerfEntryMap : CsvClassMap<PerfEntry>
@@ -20,7 +20,7 @@ namespace PerfAnalyzer
             Map(m => m.EventName).Index(0).ConvertUsing(x => ParseEventName(x.GetField<string>(0)));
             Map(m => m.Timestamp).Index(1).ConvertUsing(x => ParseTimestamp(x.GetField<string>(1)));
             Map(m => m.BlockName).Index(3).ConvertUsing(x => ParseBlockName(x.GetField<string>(3)));
-            Map(m => m.ElapsedTicks).Index(4).ConvertUsing(x => ParseElapsedTicks(x.GetField<string>(4)));
+            Map(m => m.ElapsedMs).Index(4).ConvertUsing(x => ParseElapsedTicks(x.GetField<string>(4)));
         }
 
         private string ParseEventName(string value)

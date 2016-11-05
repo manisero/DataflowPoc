@@ -34,7 +34,7 @@ namespace Dataflow.Extensions
                                                                Events.Write.BlockEnter(name);
                                                                var sw = Stopwatch.StartNew();
                                                                var o = transform(x);
-                                                               Events.Write.BlockExit(name, sw.ElapsedTicks);
+                                                               Events.Write.BlockExit(name, sw.ElapsedMilliseconds);
                                                                return o;
                                                            },
                                                        new ExecutionDataflowBlockOptions
@@ -54,7 +54,7 @@ namespace Dataflow.Extensions
                                                                    Events.Write.BlockEnter(name);
                                                                    var sw = Stopwatch.StartNew();
                                                                    var o = transform(x);
-                                                                   Events.Write.BlockExit(name, sw.ElapsedTicks);
+                                                                   Events.Write.BlockExit(name, sw.ElapsedMilliseconds);
                                                                    return o;
                                                                },
                                                            new ExecutionDataflowBlockOptions
