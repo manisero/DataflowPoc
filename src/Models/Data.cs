@@ -47,6 +47,8 @@ namespace Dataflow.Models
 
         public int Id { get; }
 
+        public int IntendedSize { get; set; }
+
         public ICollection<Data> Data { get; set; }
     }
 }

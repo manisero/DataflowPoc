@@ -13,7 +13,7 @@ namespace Dataflow.Logic
             for (var i = 0; i < peopleToRead && !peopleJsonStream.EndOfStream; i++)
             {
                 var line = peopleJsonStream.ReadLine();
-                var data = new Data();
+                var data = new Data { PersonJson = line };
 
                 if (!string.IsNullOrEmpty(line))
                 {
