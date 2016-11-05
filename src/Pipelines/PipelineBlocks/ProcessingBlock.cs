@@ -14,7 +14,7 @@ namespace Dataflow.Pipelines.PipelineBlocks
 
         public static ProcessingBlock<TData> Create(string name,
                                                     Action<TData> process,
-                                                    Func<TData, object> dataIdGetter,
+                                                    Func<TData, int> dataIdGetter,
                                                     CancellationToken cancellation,
                                                     int maxDegreeOfParallelism = 1)
         {
@@ -32,7 +32,7 @@ namespace Dataflow.Pipelines.PipelineBlocks
 
         public static ProcessingBlock<TData> Create(string name,
                                                     Func<TData, TData> process,
-                                                    Func<TData, object> dataIdGetter,
+                                                    Func<TData, int> dataIdGetter,
                                                     CancellationToken cancellation,
                                                     int maxDegreeOfParallelism = 1)
         {

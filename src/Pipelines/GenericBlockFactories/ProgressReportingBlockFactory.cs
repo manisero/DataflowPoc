@@ -13,7 +13,7 @@ namespace Dataflow.Pipelines.GenericBlockFactories
             public bool Reported100 { get; set; } 
         }
 
-        public ProcessingBlock<TData> Create<TData>(Func<TData, object> dataIdGetter,
+        public ProcessingBlock<TData> Create<TData>(Func<TData, int> dataIdGetter,
                                                     IProgress<PipelineProgress> progress,
                                                     int estimatedInputCount,
                                                     int inputPerReport,

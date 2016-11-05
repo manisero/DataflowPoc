@@ -14,8 +14,8 @@ namespace Dataflow
         static void Main(string[] args)
         {
             RunPeopleBatchesPipeline();
-            RunPeoplePipeline();
-            RunSynchronous();
+            //RunPeoplePipeline();
+            //RunSynchronous();
         }
 
         private static void RunPeopleBatchesPipeline()

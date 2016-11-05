@@ -7,7 +7,7 @@ namespace Dataflow.Models
     public class Data
     {
         private static int _instancesCount;
-        public static readonly Func<Data, object> IdGetter = x => x.Id;
+        public static readonly Func<Data, int> IdGetter = x => x.Id;
 
         public Data()
         {
@@ -38,7 +38,7 @@ namespace Dataflow.Models
     public class DataBatch
     {
         private static int _instancesCount;
-        public static readonly Func<DataBatch, object> IdGetter = x => x.Id;
+        public static readonly Func<DataBatch, int> IdGetter = x => x.Id;
 
         public DataBatch()
         {
