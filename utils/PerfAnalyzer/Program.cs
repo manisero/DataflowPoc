@@ -11,25 +11,55 @@ namespace PerfAnalyzer
     {
         private const string PERF_INPUT_PATH = @"..\..\..\..\perf_results\result.csv";
         private const string GANTT_OUTPUT_PATH = @"..\..\..\..\perf_results\gantt.csv";
+        private const string GANTT2_OUTPUT_PATH = @"..\..\..\..\perf_results\gantt2.csv";
 
         static void Main(string[] args)
         {
-            var csvReader = GetCsvReader(PERF_INPUT_PATH);
-            var perfEntries = csvReader.GetRecords<PerfEntry>().OrderBy(x => x.TimestampMs).ToList();
-
+            var perfEntries = ReadPerfEntries(PERF_INPUT_PATH);
+            
             PrintGeneralResult(perfEntries);
-            WriteGanttData(perfEntries);
+
+            var ganttEntries = MapToGanttEntries(perfEntries);
+            WriteGanttData(ganttEntries);
+            WriteGantt2Data(ganttEntries);
         }
 
-        private static CsvReader GetCsvReader(string perfResultPath)
+        private static List<PerfEntry> ReadPerfEntries(string perfResultPath)
         {
-            var textReader = File.OpenText(perfResultPath);
+            using (var textReader = File.OpenText(perfResultPath))
+            using (var csvReader = new CsvReader(textReader))
+            {
+                csvReader.Configuration.Delimiter = "\t";
+                csvReader.Configuration.RegisterClassMap<PerfEntryMap>();
 
-            var csvReader = new CsvReader(textReader);
-            csvReader.Configuration.Delimiter = "\t";
-            csvReader.Configuration.RegisterClassMap<PerfEntryMap>();
+                return csvReader.GetRecords<PerfEntry>()
+                                .OrderBy(x => x.TimestampMs)
+                                .ToList();
+            }
+        }
 
-            return csvReader;
+        private static List<GanttEntry> MapToGanttEntries(IEnumerable<PerfEntry> perfEntries)
+        {
+            return perfEntries.GroupBy(x => new GanttEntry.Key
+                {
+                    BlockName = x.BlockName,
+                    DataId = x.DataId
+                })
+                              .Select(x => new
+                                  {
+                                      x.Key,
+                                      Enter = x.Single(entry => entry.EventName == EventNames.BLOCK_ENTER),
+                                      Exit = x.Single(entry => entry.EventName == EventNames.BLOCK_EXIT)
+                                  })
+                              .Select(x => new GanttEntry
+                                  {
+                                      BlockName = x.Key.BlockName,
+                                      DataId = x.Key.DataId,
+                                      StartMs = x.Enter.TimestampMs,
+                                      DurationMs = x.Exit.TimestampMs - x.Enter.TimestampMs
+                                  })
+                              .OrderBy(x => x.StartMs)
+                              .ToList();
         }
 
         private static void PrintGeneralResult(List<PerfEntry> perfEntries)
@@ -48,31 +78,15 @@ namespace PerfAnalyzer
             }
         }
 
-        private static void WriteGanttData(List<PerfEntry> perfEntries)
+        private static void WriteGanttData(List<GanttEntry> ganttEntries)
         {
-            var ganttEntries = perfEntries.GroupBy(x => new GanttEntry.Key
-                {
-                    BlockName = x.BlockName,
-                    DataId = x.DataId
-                })
-                                          .Select(x => new
-                                              {
-                                                  x.Key,
-                                                  Enter = x.Single(entry => entry.EventName == EventNames.BLOCK_ENTER),
-                                                  Exit = x.Single(entry => entry.EventName == EventNames.BLOCK_EXIT)
-                                              })
-                                          .Select(x => new GanttEntry
-                                              {
-                                                  BlockName = x.Key.BlockName,
-                                                  DataId = x.Key.DataId,
-                                                  StartMs = x.Enter.TimestampMs,
-                                                  DurationMs = x.Exit.TimestampMs - x.Enter.TimestampMs
-                                              })
-                                          .OrderBy(x => x.StartMs)
-                                          .ToList();
-
             var ganttLines = new[] { "Block\tStart [ms]\tDuration [ms]\tDescription" }.Concat(ganttEntries.Select(x => x.ToChartLine())).ToList();
             File.WriteAllLines(GANTT_OUTPUT_PATH, ganttLines);
+        }
+
+        private static void WriteGantt2Data(List<GanttEntry> ganttEntries)
+        {
+            File.WriteAllLines(GANTT2_OUTPUT_PATH, new[] { "test" });
         }
     }
 }
