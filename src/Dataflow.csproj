@@ -81,9 +81,10 @@
     <Compile Include="Pipelines\PeopleStream\BlockFactories\ReadingBlockFactory.cs" />
     <Compile Include="Pipelines\PeopleStream\PeoplePipelineFactory.cs" />
     <Compile Include="Pipelines\PipelineExecutor.cs" />
-    <Compile Include="Pipelines\PipelineFactory.cs" />
+    <Compile Include="Pipelines\RailroadPipelineFactory.cs" />
     <Compile Include="Pipelines\GenericBlockFactories\ThrowingBlockFactory.cs" />
     <Compile Include="Pipelines\PeopleStream\BlockFactories\WritingBlockFactory.cs" />
+    <Compile Include="Pipelines\StraightPipelineFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />

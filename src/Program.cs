@@ -30,7 +30,7 @@ namespace Dataflow
                                                                                 new ThrowingBlockFactory(),
                                                                                 new EmptyBlockFactory(),
                                                                                 new ProgressReportingBlockFactory(),
-                                                                                new PipelineFactory());
+                                                                                new StraightPipelineFactory());
 
             var pipelineExecutor = new PipelineExecutor();
 
@@ -40,7 +40,6 @@ namespace Dataflow
 
                 var pipeline = peopleBatchesPipelineFactory.Create(Settings.PeopleJsonFilePath,
                                                                    Settings.PeopleTargetFilePath,
-                                                                   Settings.ErrorsFilePath,
                                                                    progress,
                                                                    cancellationSource);
 
@@ -63,7 +62,7 @@ namespace Dataflow
                                                                   new ThrowingBlockFactory(),
                                                                   new EmptyBlockFactory(),
                                                                   new ProgressReportingBlockFactory(),
-                                                                  new PipelineFactory());
+                                                                  new RailroadPipelineFactory());
             var pipelineExecutor = new PipelineExecutor();
 
             using (var cancellationSource = new CancellationTokenSource())

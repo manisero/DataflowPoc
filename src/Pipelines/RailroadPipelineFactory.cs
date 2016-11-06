@@ -7,7 +7,7 @@ using Dataflow.Pipelines.PipelineBlocks;
 
 namespace Dataflow.Pipelines
 {
-    public class PipelineFactory
+    public class RailroadPipelineFactory
     {
         public StartableBlock<TData> Create<TData>(StartableBlock<TData> source,
                                                    ProcessingBlock<TData>[] processors,
@@ -17,7 +17,7 @@ namespace Dataflow.Pipelines
                                                    CancellationTokenSource cancellationSource)
         {
             // The pipeline looks like this:
-            // source -- processor1 -- processor2 -- output
+            // source -> processor1 -> processor2 -> output
             //       \      |          |             ^
             //        \     v          v            /
             //         \--> errorHandler ----------/

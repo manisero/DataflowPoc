@@ -17,7 +17,7 @@ namespace Dataflow.Pipelines.PeopleStream
         private readonly ThrowingBlockFactory _throwingBlockFactory;
         private readonly EmptyBlockFactory _emptyBlockFactory;
         private readonly ProgressReportingBlockFactory _progressReportingBlockFactory;
-        private readonly PipelineFactory _pipelineFactory;
+        private readonly RailroadPipelineFactory _railroadPipelineFactory;
 
         public PeoplePipelineFactory(ReadingBlockFactory readingBlockFactory,
                                      PersonValidator personValidator,
@@ -26,7 +26,7 @@ namespace Dataflow.Pipelines.PeopleStream
                                      ThrowingBlockFactory throwingBlockFactory,
                                      EmptyBlockFactory emptyBlockFactory,
                                      ProgressReportingBlockFactory progressReportingBlockFactory,
-                                     PipelineFactory pipelineFactory)
+                                     RailroadPipelineFactory railroadPipelineFactory)
         {
             _readingBlockFactory = readingBlockFactory;
             _personValidator = personValidator;
@@ -35,7 +35,7 @@ namespace Dataflow.Pipelines.PeopleStream
             _throwingBlockFactory = throwingBlockFactory;
             _emptyBlockFactory = emptyBlockFactory;
             _progressReportingBlockFactory = progressReportingBlockFactory;
-            _pipelineFactory = pipelineFactory;
+            _railroadPipelineFactory = railroadPipelineFactory;
         }
 
         public StartableBlock<Data> Create(string peopleJsonFilePath,
@@ -64,12 +64,12 @@ namespace Dataflow.Pipelines.PeopleStream
             var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create(Data.IdGetter, progress, readBlock.EstimatedOutputCount, Settings.ProgressBatchSize, cancellationSource.Token);
 
-            return _pipelineFactory.Create(readBlock,
-                                           new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock },
-                                           handleErrorBlock,
-                                           progressBlock,
-                                           x => x.IsValid,
-                                           cancellationSource);
+            return _railroadPipelineFactory.Create(readBlock,
+                                                   new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock },
+                                                   handleErrorBlock,
+                                                   progressBlock,
+                                                   x => x.IsValid,
+                                                   cancellationSource);
         }
     }
 }

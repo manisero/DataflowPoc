@@ -8,6 +8,7 @@ Done
 
 - Unified way of blocks creation
 - Block post-processing handling
+- Block task and post-processing task status propagation
 - Progress reporting
 - Global completion
 - Cancellation
