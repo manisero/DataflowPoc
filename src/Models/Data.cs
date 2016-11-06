@@ -2,28 +2,19 @@
 using System.Collections.Generic;
 using System.Threading;
 using Dataflow.Etw;
-using Dataflow.Extensions;
 
 namespace Dataflow.Models
 {
-    public class Data : IDisposable
+    public class Data
     {
         private static int _instancesCount;
-        private static int _livingInstancesCount;
 
         public static readonly Func<Data, int> IdGetter = x => x.Id;
 
         public Data()
         {
             Id = Interlocked.Increment(ref _instancesCount);
-            var living = Interlocked.Increment(ref _livingInstancesCount);
-            Events.Write.DataCreation(Id, living);
-        }
-
-        public void Dispose()
-        {
-            var living = Interlocked.Decrement(ref _livingInstancesCount);
-            Events.Write.DataDisposal(Id, living);
+            Events.Write.DataCreation(Id);
         }
 
         public int Id { get; }
@@ -42,12 +33,7 @@ namespace Dataflow.Models
         }
     }
 
-    public static class DataExtensions
-    {
-        public static DataBatch ToBatch(this ICollection<Data> data) => new DataBatch { Data = data };
-    }
-
-    public class DataBatch : IDisposable
+    public class DataBatch
     {
         private static int _instancesCount;
         public static readonly Func<DataBatch, int> IdGetter = x => x.Id;
@@ -55,12 +41,6 @@ namespace Dataflow.Models
         public DataBatch()
         {
             Id = Interlocked.Increment(ref _instancesCount);
-        }
-
-        public void Dispose()
-        {
-            Data.ForEach(x => x.Dispose());
-            Data.Clear();
         }
 
         public int Id { get; }

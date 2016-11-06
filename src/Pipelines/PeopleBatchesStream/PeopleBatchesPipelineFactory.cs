@@ -40,8 +40,10 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
                                                 IProgress<PipelineProgress> progress,
                                                 CancellationTokenSource cancellationSource)
         {
+            var dataPool = new DataPool();
+
             // Create blocks
-            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
+            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, dataPool, cancellationSource.Token);
             var validateBlock = ProcessingBlock<DataBatch>.Create("Validate",
                                                                   DataBatch.IdGetter,
                                                                   x => x.Data.Where(item => item.IsValid).ForEach(_personValidator.Validate),
@@ -57,7 +59,7 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
             var progressBlock = _progressReportingBlockFactory.Create(DataBatch.IdGetter, progress, readBlock.EstimatedOutputCount, 1, cancellationSource.Token);
             var disposeBlock = ProcessingBlock<DataBatch>.Create("DisposeData",
                                                                  DataBatch.IdGetter,
-                                                                 x => x.Dispose(),
+                                                                 x => x.Data.ForEach(dataPool.Return),
                                                                  cancellationSource.Token);
 
             return _straightPipelineFactory.Create(readBlock,

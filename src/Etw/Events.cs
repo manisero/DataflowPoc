@@ -32,22 +32,11 @@ namespace Dataflow.Etw
         public const int DataCreationId = 3;
 
         [Event(DataCreationId, Level = EventLevel.Informational)]
-        public void DataCreation(int dataId, int livingData)
+        public void DataCreation(int dataId)
         {
             if (IsEnabled())
             {
-                WriteEvent(DataCreationId, dataId, livingData);
-            }
-        }
-
-        public const int DataDisposalId = 4;
-
-        [Event(DataDisposalId, Level = EventLevel.Informational)]
-        public void DataDisposal(int dataId, int livingData)
-        {
-            if (IsEnabled())
-            {
-                WriteEvent(DataDisposalId, dataId, livingData);
+                WriteEvent(DataCreationId, dataId);
             }
         }
     }

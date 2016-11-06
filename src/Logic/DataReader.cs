@@ -8,12 +8,13 @@ namespace Dataflow.Logic
 {
     public class DataReader
     {
-        public IEnumerable<Data> Read(StreamReader peopleJsonStream, int peopleToRead)
+        public IEnumerable<Data> Read(StreamReader peopleJsonStream, int peopleToRead, DataPool dataPool)
         {
             for (var i = 0; i < peopleToRead && !peopleJsonStream.EndOfStream; i++)
             {
                 var line = peopleJsonStream.ReadLine();
-                var data = new Data { PersonJson = line };
+                var data = dataPool.Rent();
+                data.PersonJson = line;
 
                 if (!string.IsNullOrEmpty(line))
                 {

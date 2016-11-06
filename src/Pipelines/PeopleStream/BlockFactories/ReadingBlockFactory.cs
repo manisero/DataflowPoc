@@ -27,7 +27,7 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
             _dataParser = dataParser;
         }
 
-        public StartableBlock<Data> Create(string peopleJsonFilePath, CancellationToken cancellation)
+        public StartableBlock<Data> Create(string peopleJsonFilePath, DataPool dataPool, CancellationToken cancellation)
         {
             var batchSize = Settings.ReadingBatchSize;
             var peopleCount = _fileLinesCounter.Count(peopleJsonFilePath);
@@ -38,8 +38,8 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
             // Create blocks
             var bufferBlock = DataflowFacade.BufferBlock<int>(cancellation);
             var readBlock = Settings.SplitReadingIntoTwoSteps
-                                ? UseLinesReaderAndParser(peopleJsonStream, cancellation)
-                                : UseDataReader(peopleJsonStream, cancellation);
+                                ? UseLinesReaderAndParser(peopleJsonStream, dataPool, cancellation)
+                                : UseDataReader(peopleJsonStream, dataPool, cancellation);
 
             //  Link blocks
             bufferBlock.LinkWithCompletion(readBlock);
@@ -64,16 +64,16 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
                 };
         }
 
-        private IPropagatorBlock<int, Data> UseDataReader(StreamReader peopleJsonStream, CancellationToken cancellation)
+        private IPropagatorBlock<int, Data> UseDataReader(StreamReader peopleJsonStream, DataPool dataPool, CancellationToken cancellation)
         {
             return DataflowFacade.TransformManyBlock<int, Data>(
                 "ReadData",
                 x => -1,
-                x => _dataReader.Read(peopleJsonStream, x),
+                x => _dataReader.Read(peopleJsonStream, x, dataPool),
                 cancellation);
         }
 
-        private IPropagatorBlock<int, Data> UseLinesReaderAndParser(StreamReader peopleJsonStream, CancellationToken cancellation)
+        private IPropagatorBlock<int, Data> UseLinesReaderAndParser(StreamReader peopleJsonStream, DataPool dataPool, CancellationToken cancellation)
         {
             // Create blocks
 
@@ -83,7 +83,14 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
             var readLinesBlock = DataflowFacade.TransformManyBlock<int, Data>(
                 "ReadLines",
                 x => -1,
-                x => _streamLinesReader.Read(peopleJsonStream, x).Select(line => new Data { PersonJson = line }),
+                x => _streamLinesReader.Read(peopleJsonStream, x)
+                .Select(line =>
+                            {
+                                var data = dataPool.Rent();
+                                data.PersonJson = line;
+
+                                return data;
+                            }),
                 cancellation);
 
             // NOTE: can be multi-thread

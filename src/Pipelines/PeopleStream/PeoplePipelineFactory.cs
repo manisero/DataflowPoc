@@ -44,9 +44,11 @@ namespace Dataflow.Pipelines.PeopleStream
                                            IProgress<PipelineProgress> progress,
                                            CancellationTokenSource cancellationSource)
         {
+            var dataPool = new DataPool();
+
             // Create blocks
             // TODO: Progress reporting approach 1: before anything
-            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, cancellationSource.Token);
+            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, dataPool, cancellationSource.Token);
             var validateBlock = ProcessingBlock<Data>.Create("Validate",
                                                              Data.IdGetter,
                                                              x => _personValidator.Validate(x),

@@ -24,4 +24,4 @@ To do
   - memory consumption (performance counters?)
   - garbage collections (ETW)
 - Object pooling
-
+- Test for different processor cores number

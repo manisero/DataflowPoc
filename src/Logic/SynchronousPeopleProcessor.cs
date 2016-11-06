@@ -47,6 +47,7 @@ namespace Dataflow.Logic
             
             var sw = Stopwatch.StartNew();
 
+            var dataPool = new DataPool();
             IList<Data> data;
 
             if (Settings.SplitReadingIntoTwoSteps)
@@ -56,7 +57,13 @@ namespace Dataflow.Logic
                 using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
                 {
                     data = _streamLinesReader.Read(peopleJsonStream, peopleCount)
-                                             .Select(x => new Data { PersonJson = x })
+                                             .Select(x =>
+                                                         {
+                                                             var d = dataPool.Rent();
+                                                             d.PersonJson = x;
+
+                                                             return d;
+                                                         })
                                              .ToList();
                 }
 
@@ -76,7 +83,7 @@ namespace Dataflow.Logic
 
                 using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
                 {
-                    data = _dataReader.Read(peopleJsonStream, peopleCount).ToList();
+                    data = _dataReader.Read(peopleJsonStream, peopleCount, dataPool).ToList();
                 }
 
                 Events.Write.BlockExit("ReadData", DATA_ID, 0);
@@ -145,7 +152,7 @@ namespace Dataflow.Logic
             Console.WriteLine("Data written.");
 
             Events.Write.BlockEnter("DisposeData", DATA_ID);
-            data.ForEach(x => x.Dispose());
+            data.ForEach(dataPool.Return);
             Events.Write.BlockExit("DisposeData", DATA_ID, 0);
             Console.WriteLine("Data disposed.");
 

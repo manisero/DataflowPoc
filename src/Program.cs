@@ -46,6 +46,8 @@ namespace Dataflow
                 var executionResult = pipelineExecutor.Execute(pipeline).Result;
                 HandleExecutionResult(executionResult);
             }
+
+            PrintDataPoolSize();
         }
 
         private static void RunPeoplePipeline()
@@ -97,6 +99,8 @@ namespace Dataflow
                                                                          Settings.ErrorsFilePath);
 
             Console.WriteLine($"Synchronous took {synchronousDuration.TotalMilliseconds}ms.");
+
+            PrintDataPoolSize();
         }
 
         private static void WaitForCancellation(CancellationTokenSource cancellationSource)
@@ -128,5 +132,7 @@ namespace Dataflow
                 Console.WriteLine("Complete.");
             }
         }
+
+        private static void PrintDataPoolSize() => Console.WriteLine($"{nameof(DataPool)} size: {DataPool.Current.GetPooledCound()}");
     }
 }
