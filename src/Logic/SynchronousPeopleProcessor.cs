@@ -82,53 +82,65 @@ namespace Dataflow.Logic
                 Console.WriteLine("Data read.");
             }
 
+            Events.Write.BlockEnter("Validate", DATA_ID);
+
             if (Settings.ProcessInParallel)
             {
-                Events.Write.BlockEnter("Validate", DATA_ID);
-
                 Parallel.ForEach(data.Where(x => x.IsValid),
                                  new ParallelOptions { MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism },
                                  _personValidator.Validate);
-
-                Events.Write.BlockExit("Validate", DATA_ID, 0);
             }
             else
             {
-                Events.Write.BlockEnter("Validate", DATA_ID);
-
                 foreach (var item in data.Where(x => x.IsValid))
                 {
                     _personValidator.Validate(item);
                 }
-
-                Events.Write.BlockExit("Validate", DATA_ID, 0);
             }
+
+            Events.Write.BlockExit("Validate", DATA_ID, 0);
 
             Console.WriteLine("Data validated.");
 
+            Events.Write.BlockEnter("ComputeFields", DATA_ID);
+
             if (Settings.ProcessInParallel)
             {
-                Events.Write.BlockEnter("ComputeFields", DATA_ID);
-
                 Parallel.ForEach(data.Where(x => x.IsValid),
                                  new ParallelOptions { MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism },
                                  _personFieldsComputer.Compute);
-
-                Events.Write.BlockExit("ComputeFields", DATA_ID, 0);
             }
             else
             {
-                Events.Write.BlockEnter("ComputeFields", DATA_ID);
-
                 foreach (var item in data.Where(x => x.IsValid))
                 {
                     _personFieldsComputer.Compute(item);
                 }
-
-                Events.Write.BlockExit("ComputeFields", DATA_ID, 0);
             }
 
+            Events.Write.BlockExit("ComputeFields", DATA_ID, 0);
+
             Console.WriteLine("Fields computed.");
+
+            for (var i = 1; i <= Settings.ExtraProcessingBlocksCount; i++)
+            {
+                Events.Write.BlockEnter($"ExtraProcessing {i}", DATA_ID);
+
+                if (Settings.ProcessInParallel)
+                {
+                    Parallel.ForEach(data,
+                                     new ParallelOptions { MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism },
+                                     _ => ComputationsHelper.PerformTimeConsumingOperation());
+                }
+                else
+                {
+                    data.ForEach(_ => ComputationsHelper.PerformTimeConsumingOperation());
+                }
+
+                Events.Write.BlockExit($"ExtraProcessing {i}", DATA_ID, 0);
+
+                Console.WriteLine($"ExtraProcessing {i} done.");
+            }
 
             // TODO: Extra processing steps
 

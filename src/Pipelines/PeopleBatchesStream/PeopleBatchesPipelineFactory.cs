@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Dataflow.Extensions;
@@ -51,13 +52,25 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
                                                                        x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
                                                                        cancellationSource.Token,
                                                                        Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
-            // TODO: Extra processing blocks
+            var extraProcessingBlocks = CreateExtraProcessingBlocks(cancellationSource);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create(DataBatch.IdGetter, progress, readBlock.EstimatedOutputCount, 1, cancellationSource.Token);
 
             return _straightPipelineFactory.Create(readBlock,
-                                                   new[] { validateBlock, computeFieldsBlock, writeBlock, progressBlock },
+                                                   new[] { validateBlock, computeFieldsBlock }.Concat(extraProcessingBlocks)
+                                                                                              .Concat(new[] { writeBlock, progressBlock })
+                                                                                              .ToArray(),
                                                    cancellationSource);
+        }
+
+        private IEnumerable<ProcessingBlock<DataBatch>> CreateExtraProcessingBlocks(CancellationTokenSource cancellationSource)
+        {
+            return Enumerable.Range(1, Settings.ExtraProcessingBlocksCount)
+                             .Select(x => ProcessingBlock<DataBatch>.Create($"ExtraProcessing {x}",
+                                                                            DataBatch.IdGetter,
+                                                                            batch => batch.Data.ForEach(_ => ComputationsHelper.PerformTimeConsumingOperation()),
+                                                                            cancellationSource.Token,
+                                                                            Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1));
         }
     }
 }

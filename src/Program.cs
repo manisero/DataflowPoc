@@ -15,7 +15,7 @@ namespace Dataflow
         {
             RunPeopleBatchesPipeline();
             //RunPeoplePipeline();
-            //RunSynchronous();
+            RunSynchronous();
         }
 
         private static void RunPeopleBatchesPipeline()
