@@ -19,11 +19,10 @@ namespace PerfAnalyzer.Models
         public int DataId { get; set; }
 
         public double StartMs { get; set; }
+        public string StartMsString => StartMs.ToString(DoubleFormat);
 
         public double DurationMs { get; set; }
-
-        public string Description => $"{BlockName}, {Math.Round(DurationMs, 2).ToString(DoubleFormat)}ms, DataId: {DataId}";
-
-        public string ToChartLine() => $"{BlockName}\t{StartMs.ToString(DoubleFormat)}\t{DurationMs.ToString(DoubleFormat)}\t{Description}";
+        public string DurationMsString => DurationMs.ToString(DoubleFormat);
+        public string DurationMsRoundedString => Math.Round(DurationMs, 2).ToString(DoubleFormat);
     }
 }

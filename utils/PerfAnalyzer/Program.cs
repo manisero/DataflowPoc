@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CsvHelper;
+using PerfAnalyzer.Logic;
 using PerfAnalyzer.Models;
 
 namespace PerfAnalyzer
@@ -20,8 +21,9 @@ namespace PerfAnalyzer
             PrintGeneralResult(perfEntries);
 
             var ganttEntries = MapToGanttEntries(perfEntries);
-            WriteGanttData(ganttEntries);
-            WriteGantt2Data(ganttEntries);
+
+            new GanttWriter().Write(ganttEntries, GANTT_OUTPUT_PATH);
+            new Gantt2Writer().Write(ganttEntries, GANTT2_OUTPUT_PATH);
         }
 
         private static List<PerfEntry> ReadPerfEntries(string perfResultPath)
@@ -76,17 +78,6 @@ namespace PerfAnalyzer
             {
                 Console.WriteLine($"{duration.Key}: {duration.Value}ms");
             }
-        }
-
-        private static void WriteGanttData(List<GanttEntry> ganttEntries)
-        {
-            var ganttLines = new[] { "Block\tStart [ms]\tDuration [ms]\tDescription" }.Concat(ganttEntries.Select(x => x.ToChartLine())).ToList();
-            File.WriteAllLines(GANTT_OUTPUT_PATH, ganttLines);
-        }
-
-        private static void WriteGantt2Data(List<GanttEntry> ganttEntries)
-        {
-            File.WriteAllLines(GANTT2_OUTPUT_PATH, new[] { "test" });
         }
     }
 }
