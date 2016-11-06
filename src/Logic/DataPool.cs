@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using Dataflow.Models;
 
 namespace Dataflow.Logic
@@ -12,22 +12,28 @@ namespace Dataflow.Logic
             Current = this;
         }
 
-        private readonly Queue<Data> _pool = new Queue<Data>(50000);
+        private readonly ConcurrentBag<Data> _pool = new ConcurrentBag<Data>();
 
         public Data Rent()
         {
-            return _pool.Count != 0
-                       ? _pool.Dequeue()
+            Data data;
+
+            return _pool.TryTake(out data)
+                       ? data
                        : new Data();
         }
 
         public void Return(Data data)
         {
+            if (!Settings.EnableDataPooling)
+            {
+                return;
+            }
+
             data.PersonJson = null;
-            data.Person = null;
             data.Error = null;
 
-            _pool.Enqueue(data);
+            _pool.Add(data);
         }
 
         public int GetPooledCound() => _pool.Count;

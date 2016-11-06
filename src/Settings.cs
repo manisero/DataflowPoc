@@ -8,6 +8,7 @@ namespace Dataflow
         public static string PeopleJsonFilePath => GetSetting();
         public static string PeopleTargetFilePath => GetSetting();
         public static string ErrorsFilePath => GetSetting();
+        public static bool EnableDataPooling => bool.Parse(GetSetting());
         public static int ReadingBatchSize => int.Parse(GetSetting());
         public static int ProgressBatchSize => int.Parse(GetSetting());
         public static int ExtraProcessingBlocksCount => int.Parse(GetSetting());

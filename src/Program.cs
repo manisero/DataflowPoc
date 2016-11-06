@@ -13,15 +13,20 @@ namespace Dataflow
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Press any key to start...");
+            Console.ReadKey();
+            Console.WriteLine();
+            Console.WriteLine();
+
             RunPeopleBatchesPipeline();
             //RunPeoplePipeline();
-            //RunSynchronous();
+            RunSynchronous();
         }
 
         private static void RunPeopleBatchesPipeline()
         {
             var peopleBatchesPipelineFactory = new PeopleBatchesPipelineFactory(new Pipelines.PeopleBatchesStream.BlockFactories.ReadingBlockFactory(new FileLinesCounter(),
-                                                                                                                                                     new DataReader(),
+                                                                                                                                                     new DataReader(new DataParser()),
                                                                                                                                                      new StreamLinesReader(),
                                                                                                                                                      new DataParser()),
                                                                                 new PersonValidator(),
@@ -53,7 +58,7 @@ namespace Dataflow
         private static void RunPeoplePipeline()
         {
             var peoplePipelineFactory = new PeoplePipelineFactory(new Pipelines.PeopleStream.BlockFactories.ReadingBlockFactory(new FileLinesCounter(),
-                                                                                                                                new DataReader(),
+                                                                                                                                new DataReader(new DataParser()),
                                                                                                                                 new StreamLinesReader(),
                                                                                                                                 new DataParser()),
                                                                   new PersonValidator(),
@@ -89,7 +94,7 @@ namespace Dataflow
             var synchronousPeopleProcessor = new SynchronousPeopleProcessor(new FileLinesCounter(),
                                                                             new StreamLinesReader(),
                                                                             new DataParser(),
-                                                                            new DataReader(),
+                                                                            new DataReader(new DataParser()),
                                                                             new PersonValidator(),
                                                                             new PersonFieldsComputer(),
                                                                             new DataWriter());

@@ -21,7 +21,7 @@ namespace Dataflow.Models
 
         public string PersonJson { get; set; }
 
-        public Person Person { get; set; }
+        public Person Person { get; set; } = new Person();
 
         public bool IsValid => Error == null;
 

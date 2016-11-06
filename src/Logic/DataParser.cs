@@ -12,7 +12,7 @@ namespace Dataflow.Logic
             {
                 try
                 {
-                    data.Person = JsonConvert.DeserializeObject<Person>(data.PersonJson);
+                    JsonConvert.PopulateObject(data.PersonJson, data.Person);
                 }
                 catch (Exception e)
                 {

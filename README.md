@@ -16,12 +16,14 @@ Done
 - Railroad pipeline
 - Performance tracking (ETW)
 - Performance analysis (Gantt)
+  - easy to spot bottlenecks
+- Object pooling
+  - no difference observed :(
 
 To do
 ---
 
 - More performance tracking
-  - memory consumption (performance counters?)
+  - memory consumption (performance counters)
   - garbage collections (ETW)
-- Object pooling
 - Test for different processor cores number
