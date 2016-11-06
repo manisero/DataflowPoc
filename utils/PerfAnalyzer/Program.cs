@@ -58,7 +58,7 @@ namespace PerfAnalyzer
                                       BlockName = x.Key.BlockName,
                                       DataId = x.Key.DataId,
                                       StartMs = x.Enter.TimestampMs,
-                                      DurationMs = x.Exit.TimestampMs - x.Enter.TimestampMs
+                                      EndMs = x.Exit.TimestampMs
                                   })
                               .OrderBy(x => x.StartMs)
                               .ToList();
