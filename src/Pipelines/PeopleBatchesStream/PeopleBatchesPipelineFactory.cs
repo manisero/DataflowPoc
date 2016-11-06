@@ -55,10 +55,14 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
             var extraProcessingBlocks = CreateExtraProcessingBlocks(cancellationSource);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create(DataBatch.IdGetter, progress, readBlock.EstimatedOutputCount, 1, cancellationSource.Token);
+            var disposeBlock = ProcessingBlock<DataBatch>.Create("DisposeData",
+                                                                 DataBatch.IdGetter,
+                                                                 x => x.Dispose(),
+                                                                 cancellationSource.Token);
 
             return _straightPipelineFactory.Create(readBlock,
                                                    new[] { validateBlock, computeFieldsBlock }.Concat(extraProcessingBlocks)
-                                                                                              .Concat(new[] { writeBlock, progressBlock })
+                                                                                              .Concat(new[] { writeBlock, progressBlock, disposeBlock })
                                                                                               .ToArray(),
                                                    cancellationSource);
         }

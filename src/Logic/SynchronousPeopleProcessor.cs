@@ -60,12 +60,14 @@ namespace Dataflow.Logic
                                              .ToList();
                 }
 
-                Events.Write.BlockExit("ParseData", DATA_ID, 0);
-
+                Events.Write.BlockExit("ReadLines", DATA_ID, 0);
                 Console.WriteLine("Lines read.");
+
+                Events.Write.BlockEnter("ParseData", DATA_ID);
 
                 data.ForEach(_dataParser.Parse);
 
+                Events.Write.BlockExit("ParseData", DATA_ID, 0);
                 Console.WriteLine("Data parsed.");
             }
             else
@@ -78,7 +80,6 @@ namespace Dataflow.Logic
                 }
 
                 Events.Write.BlockExit("ReadData", DATA_ID, 0);
-
                 Console.WriteLine("Data read.");
             }
 
@@ -92,14 +93,10 @@ namespace Dataflow.Logic
             }
             else
             {
-                foreach (var item in data.Where(x => x.IsValid))
-                {
-                    _personValidator.Validate(item);
-                }
+                data.Where(x => x.IsValid).ForEach(_personValidator.Validate);
             }
 
             Events.Write.BlockExit("Validate", DATA_ID, 0);
-
             Console.WriteLine("Data validated.");
 
             Events.Write.BlockEnter("ComputeFields", DATA_ID);
@@ -112,14 +109,10 @@ namespace Dataflow.Logic
             }
             else
             {
-                foreach (var item in data.Where(x => x.IsValid))
-                {
-                    _personFieldsComputer.Compute(item);
-                }
+                data.Where(x => x.IsValid).ForEach(_personFieldsComputer.Compute);
             }
 
             Events.Write.BlockExit("ComputeFields", DATA_ID, 0);
-
             Console.WriteLine("Fields computed.");
 
             for (var i = 1; i <= Settings.ExtraProcessingBlocksCount; i++)
@@ -138,25 +131,23 @@ namespace Dataflow.Logic
                 }
 
                 Events.Write.BlockExit($"ExtraProcessing {i}", DATA_ID, 0);
-
                 Console.WriteLine($"ExtraProcessing {i} done.");
             }
-
-            // TODO: Extra processing steps
 
             Events.Write.BlockEnter("WriteData", DATA_ID);
 
             using (var writer = new StreamWriter(targetFilePath))
             {
-                foreach (var item in data)
-                {
-                    _dataWriter.Write(writer, item);
-                }
+                data.ForEach(x => _dataWriter.Write(writer, x));
             }
 
             Events.Write.BlockExit("WriteData", DATA_ID, 0);
-
             Console.WriteLine("Data written.");
+
+            Events.Write.BlockEnter("DisposeData", DATA_ID);
+            data.ForEach(x => x.Dispose());
+            Events.Write.BlockExit("DisposeData", DATA_ID, 0);
+            Console.WriteLine("Data disposed.");
 
             return sw.Elapsed;
         }

@@ -21,8 +21,7 @@ To do
 ---
 
 - More performance tracking
-  - track synchronous processing
-  - memory consumption (perfomance counters?)
+  - memory consumption (performance counters?)
   - garbage collections (ETW)
 - Object pooling
 
