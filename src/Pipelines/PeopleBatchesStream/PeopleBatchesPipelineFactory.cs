@@ -16,8 +16,6 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
         private readonly PersonValidator _personValidator;
         private readonly PersonFieldsComputer _personFieldsComputer;
         private readonly WritingBlockFactory _writingBlockFactory;
-        private readonly ThrowingBlockFactory _throwingBlockFactory;
-        private readonly EmptyBlockFactory _emptyBlockFactory;
         private readonly ProgressReportingBlockFactory _progressReportingBlockFactory;
         private readonly StraightPipelineFactory _straightPipelineFactory;
 
@@ -25,8 +23,6 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
                                      PersonValidator personValidator,
                                      PersonFieldsComputer personFieldsComputer,
                                      WritingBlockFactory writingBlockFactory,
-                                     ThrowingBlockFactory throwingBlockFactory,
-                                     EmptyBlockFactory emptyBlockFactory,
                                      ProgressReportingBlockFactory progressReportingBlockFactory,
                                      StraightPipelineFactory straightPipelineFactory)
         {
@@ -34,8 +30,6 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
             _personValidator = personValidator;
             _personFieldsComputer = personFieldsComputer;
             _writingBlockFactory = writingBlockFactory;
-            _throwingBlockFactory = throwingBlockFactory;
-            _emptyBlockFactory = emptyBlockFactory;
             _progressReportingBlockFactory = progressReportingBlockFactory;
             _straightPipelineFactory = straightPipelineFactory;
         }
@@ -57,14 +51,12 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
                                                                        x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
                                                                        cancellationSource.Token,
                                                                        Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
+            // TODO: Extra processing blocks
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
-            var throwBlock = Settings.ThrowTest
-                                 ? _throwingBlockFactory.Create(DataBatch.IdGetter, cancellationSource.Token)
-                                 : _emptyBlockFactory.Create<DataBatch>(cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create(DataBatch.IdGetter, progress, readBlock.EstimatedOutputCount, 1, cancellationSource.Token);
 
             return _straightPipelineFactory.Create(readBlock,
-                                                   new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock, progressBlock },
+                                                   new[] { validateBlock, computeFieldsBlock, writeBlock, progressBlock },
                                                    cancellationSource);
         }
     }

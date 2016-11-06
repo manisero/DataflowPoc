@@ -130,6 +130,8 @@ namespace Dataflow.Logic
 
             Console.WriteLine("Fields computed.");
 
+            // TODO: Extra processing steps
+
             Events.Write.BlockEnter("WriteData", DATA_ID);
 
             using (var writer = new StreamWriter(targetFilePath))

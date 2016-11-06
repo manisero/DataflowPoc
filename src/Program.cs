@@ -27,8 +27,6 @@ namespace Dataflow
                                                                                 new PersonValidator(),
                                                                                 new PersonFieldsComputer(),
                                                                                 new Pipelines.PeopleBatchesStream.BlockFactories.WritingBlockFactory(new DataWriter()),
-                                                                                new ThrowingBlockFactory(),
-                                                                                new EmptyBlockFactory(),
                                                                                 new ProgressReportingBlockFactory(),
                                                                                 new StraightPipelineFactory());
 
