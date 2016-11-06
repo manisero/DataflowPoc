@@ -51,16 +51,12 @@ namespace Dataflow.Pipelines.PeopleBatchesStream
                                                                   DataBatch.IdGetter,
                                                                   x => x.Data.Where(item => item.IsValid).ForEach(_personValidator.Validate),
                                                                   cancellationSource.Token,
-                                                                  Settings.ProcessInParallel
-                                                                      ? 3
-                                                                      : 1);
+                                                                  Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
             var computeFieldsBlock = ProcessingBlock<DataBatch>.Create("ComputeFields",
                                                                        DataBatch.IdGetter,
                                                                        x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
                                                                        cancellationSource.Token,
-                                                                       Settings.ProcessInParallel
-                                                                           ? 3
-                                                                           : 1);
+                                                                       Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create(DataBatch.IdGetter, cancellationSource.Token)

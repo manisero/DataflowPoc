@@ -37,7 +37,7 @@ namespace Dataflow.Pipelines.PeopleBatchesStream.BlockFactories
 
             // Create blocks
             var bufferBlock = DataflowFacade.BufferBlock<DataBatch>(cancellation);
-            var readBlock = Settings.OptimizeReading
+            var readBlock = Settings.SplitReadingIntoTwoSteps
                                 ? UseLinesReaderAndParser(peopleJsonStream, cancellation)
                                 : UseDataReader(peopleJsonStream, cancellation);
 

@@ -51,12 +51,12 @@ namespace Dataflow.Pipelines.PeopleStream
                                                              Data.IdGetter,
                                                              x => _personValidator.Validate(x),
                                                              cancellationSource.Token,
-                                                             Settings.ProcessInParallel ? 3 : 1);
+                                                             Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
             var computeFieldsBlock = ProcessingBlock<Data>.Create("ComputeFields",
                                                                   Data.IdGetter,
                                                                   x => _personFieldsComputer.Compute(x),
                                                                   cancellationSource.Token,
-                                                                  Settings.ProcessInParallel ? 3 : 1);
+                                                                  Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create(Data.IdGetter, cancellationSource.Token)

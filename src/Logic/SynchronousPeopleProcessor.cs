@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Dataflow.Etw;
 using Dataflow.Extensions;
 using Dataflow.Models;
 
@@ -11,6 +12,8 @@ namespace Dataflow.Logic
 {
     public class SynchronousPeopleProcessor
     {
+        private const int DATA_ID = 1;
+
         private readonly FileLinesCounter _fileLinesCounter;
         private readonly StreamLinesReader _streamLinesReader;
         private readonly DataParser _dataParser;
@@ -44,75 +47,102 @@ namespace Dataflow.Logic
             
             var sw = Stopwatch.StartNew();
 
-            //IList<Data> data;
-
-            //using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
-            //{
-            //    data = _dataReader.Read(peopleJsonStream, peopleCount).ToList();
-            //}
-
             IList<Data> data;
 
-            using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
+            if (Settings.SplitReadingIntoTwoSteps)
             {
-                data = _streamLinesReader.Read(peopleJsonStream, peopleCount)
-                                         .Select(x => new Data { PersonJson = x })
-                                         .ToList();
-            }
+                Events.Write.BlockEnter("ReadLines", DATA_ID);
 
-            Console.WriteLine("Lines read.");
-            
-            data.ForEach(_dataParser.Parse);
+                using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
+                {
+                    data = _streamLinesReader.Read(peopleJsonStream, peopleCount)
+                                             .Select(x => new Data { PersonJson = x })
+                                             .ToList();
+                }
 
-            Console.WriteLine("Data parsed.");
+                Events.Write.BlockExit("ParseData", DATA_ID, 0);
 
-            if (Settings.ProcessInParallel)
-            {
-                Parallel.ForEach(data.Where(x => x.IsValid), _personValidator.Validate);
+                Console.WriteLine("Lines read.");
+
+                data.ForEach(_dataParser.Parse);
+
+                Console.WriteLine("Data parsed.");
             }
             else
             {
+                Events.Write.BlockEnter("ReadData", DATA_ID);
+
+                using (var peopleJsonStream = File.OpenText(peopleJsonFilePath))
+                {
+                    data = _dataReader.Read(peopleJsonStream, peopleCount).ToList();
+                }
+
+                Events.Write.BlockExit("ReadData", DATA_ID, 0);
+
+                Console.WriteLine("Data read.");
+            }
+
+            if (Settings.ProcessInParallel)
+            {
+                Events.Write.BlockEnter("Validate", DATA_ID);
+
+                Parallel.ForEach(data.Where(x => x.IsValid),
+                                 new ParallelOptions { MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism },
+                                 _personValidator.Validate);
+
+                Events.Write.BlockExit("Validate", DATA_ID, 0);
+            }
+            else
+            {
+                Events.Write.BlockEnter("Validate", DATA_ID);
+
                 foreach (var item in data.Where(x => x.IsValid))
                 {
                     _personValidator.Validate(item);
                 }
+
+                Events.Write.BlockExit("Validate", DATA_ID, 0);
             }
 
             Console.WriteLine("Data validated.");
 
             if (Settings.ProcessInParallel)
             {
-                Parallel.ForEach(data.Where(x => x.IsValid), _personFieldsComputer.Compute);
+                Events.Write.BlockEnter("ComputeFields", DATA_ID);
+
+                Parallel.ForEach(data.Where(x => x.IsValid),
+                                 new ParallelOptions { MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism },
+                                 _personFieldsComputer.Compute);
+
+                Events.Write.BlockExit("ComputeFields", DATA_ID, 0);
             }
             else
             {
+                Events.Write.BlockEnter("ComputeFields", DATA_ID);
+
                 foreach (var item in data.Where(x => x.IsValid))
                 {
                     _personFieldsComputer.Compute(item);
                 }
+
+                Events.Write.BlockExit("ComputeFields", DATA_ID, 0);
             }
 
             Console.WriteLine("Fields computed.");
 
+            Events.Write.BlockEnter("WriteData", DATA_ID);
+
             using (var writer = new StreamWriter(targetFilePath))
             {
-                foreach (var item in data.Where(x => x.IsValid))
+                foreach (var item in data)
                 {
                     _dataWriter.Write(writer, item);
                 }
             }
 
+            Events.Write.BlockExit("WriteData", DATA_ID, 0);
+
             Console.WriteLine("Data written.");
-
-            using (var errorsWriter = new StreamWriter(errorsFilePath))
-            {
-                foreach (var item in data.Where(x => !x.IsValid))
-                {
-                    _dataWriter.Write(errorsWriter, item);
-                }
-            }
-
-            Console.WriteLine("Errors written.");
 
             return sw.Elapsed;
         }

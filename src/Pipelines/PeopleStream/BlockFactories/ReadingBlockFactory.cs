@@ -37,7 +37,7 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
 
             // Create blocks
             var bufferBlock = DataflowFacade.BufferBlock<int>(cancellation);
-            var readBlock = Settings.OptimizeReading
+            var readBlock = Settings.SplitReadingIntoTwoSteps
                                 ? UseLinesReaderAndParser(peopleJsonStream, cancellation)
                                 : UseDataReader(peopleJsonStream, cancellation);
 
@@ -91,8 +91,7 @@ namespace Dataflow.Pipelines.PeopleStream.BlockFactories
                 "ParseData",
                 Data.IdGetter,
                 x => _dataParser.Parse(x),
-                cancellation,
-                Settings.ProcessInParallel ? 3 : 1);
+                cancellation);
 
             // Link blocks
             readLinesBlock.LinkWithCompletion(parseDataBlock);

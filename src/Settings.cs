@@ -12,7 +12,8 @@ namespace Dataflow
         public static int ProgressBatchSize => int.Parse(GetSetting());
         public static bool SimulateTimeConsumingComputations => bool.Parse(GetSetting());
         public static bool ProcessInParallel => bool.Parse(GetSetting());
-        public static bool OptimizeReading => bool.Parse(GetSetting());
+        public static int MaxDegreeOfParallelism => int.Parse(GetSetting());
+        public static bool SplitReadingIntoTwoSteps => bool.Parse(GetSetting());
         public static bool ThrowTest => bool.Parse(GetSetting());
 
         private static string GetSetting([CallerMemberName] string name = null)
