@@ -13,14 +13,14 @@ namespace Dataflow
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Press any key to start...");
-            Console.ReadKey();
-            Console.WriteLine();
-            Console.WriteLine();
+            //Console.WriteLine("Press any key to start...");
+            //Console.ReadKey();
+            //Console.WriteLine();
+            //Console.WriteLine();
 
             RunPeopleBatchesPipeline();
             //RunPeoplePipeline();
-            RunSynchronous();
+            //RunSynchronous();
         }
 
         private static void RunPeopleBatchesPipeline()

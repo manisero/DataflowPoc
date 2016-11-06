@@ -10,6 +10,7 @@ namespace PerfAnalyzer.Models
         public const string ComputeFields = nameof(ComputeFields);
         public const string WriteData = nameof(WriteData);
         public const string ReportProgress = nameof(ReportProgress);
+        public const string DisposeData = nameof(DisposeData);
 
         public static readonly List<string> BlocksOrdered = new List<string>
             {
@@ -17,7 +18,8 @@ namespace PerfAnalyzer.Models
                 Validate,
                 ComputeFields,
                 WriteData,
-                ReportProgress
+                ReportProgress,
+                DisposeData
             };
 
         public static readonly Dictionary<string, int> BlockToOrderMap = BlocksOrdered.Select((x, i) => new { Block = x, Order = i })

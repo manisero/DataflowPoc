@@ -19,6 +19,9 @@ Done
   - easy to spot bottlenecks
 - Object pooling
   - no difference observed :(
+  - probably should try on more records
+    - currently: 100k records, 10k batch size
+    - to try: 1kk records, 10k batch size
 
 To do
 ---
