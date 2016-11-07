@@ -32,7 +32,6 @@ namespace Manisero.DataflowPoc.Core.Pipelines
 
             if (pipelineCompletion.IsFaulted)
             {
-                executionResult.Faulted = true;
                 executionResult.Exception = pipelineCompletion.Exception;
             }
             else if (pipelineCompletion.IsCanceled)

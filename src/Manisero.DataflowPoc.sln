@@ -11,6 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Core", "1. Core", "{A60D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Playground", "2. Playground", "{5BC8C250-5E6B-4161-B99E-31A5056834C8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Real-life scenario", "3. Real-life scenario", "{A9F47047-BDB0-42CE-AFFC-4416EB34A9B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manisero.DataflowPoc.DataExporter", "Manisero.DataflowPoc.DataExporter\Manisero.DataflowPoc.DataExporter.csproj", "{AAD6DF08-1780-457C-82E6-445A2D19C476}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +29,10 @@ Global
 		{C7C16B85-455F-4DC4-BBBC-18699A4DE8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7C16B85-455F-4DC4-BBBC-18699A4DE8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7C16B85-455F-4DC4-BBBC-18699A4DE8C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAD6DF08-1780-457C-82E6-445A2D19C476}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAD6DF08-1780-457C-82E6-445A2D19C476}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAD6DF08-1780-457C-82E6-445A2D19C476}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAD6DF08-1780-457C-82E6-445A2D19C476}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,5 +40,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{220CB990-5F60-4279-8186-3E98EB3A8523} = {A60DA89B-081F-41F3-B7A4-5B992C3D0E83}
 		{C7C16B85-455F-4DC4-BBBC-18699A4DE8C0} = {5BC8C250-5E6B-4161-B99E-31A5056834C8}
+		{AAD6DF08-1780-457C-82E6-445A2D19C476} = {A9F47047-BDB0-42CE-AFFC-4416EB34A9B9}
 	EndGlobalSection
 EndGlobal

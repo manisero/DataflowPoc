@@ -8,7 +8,7 @@ namespace Manisero.DataflowPoc.Core.Pipelines
 
         public DateTime FinishTs { get; set; }
 
-        public bool Faulted { get; set; }
+        public bool Faulted => Exception != null;
 
         public Exception Exception { get; set; }
 
