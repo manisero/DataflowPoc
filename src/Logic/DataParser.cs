@@ -1,8 +1,8 @@
 ﻿using System;
-using Dataflow.Models;
+using Manisero.DataflowPoc.Models;
 using Newtonsoft.Json;
 
-namespace Dataflow.Logic
+namespace Manisero.DataflowPoc.Logic
 {
     public class DataParser
     {

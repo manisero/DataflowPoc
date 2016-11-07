@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dataflow.Logic
+namespace Manisero.DataflowPoc.Logic
 {
     public static class ComputationsHelper
     {

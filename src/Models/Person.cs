@@ -1,4 +1,4 @@
-﻿namespace Dataflow.Models
+﻿namespace Manisero.DataflowPoc.Models
 {
     public class Person
     {

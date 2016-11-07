@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.Tracing;
 
-namespace Dataflow.Etw
+namespace Manisero.DataflowPoc.Etw
 {
     [EventSource(Name = "Manisero.DataflowPoc")]
     public class Events : EventSource

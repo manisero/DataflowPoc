@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
 using System.Runtime.CompilerServices;
 
-namespace Dataflow
+namespace Manisero.DataflowPoc
 {
     public static class Settings
     {

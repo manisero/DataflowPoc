@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Dataflow.Models;
+using Manisero.DataflowPoc.Models;
 
-namespace Dataflow.Logic
+namespace Manisero.DataflowPoc.Logic
 {
     public class DataReader
     {

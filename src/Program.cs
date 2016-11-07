@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Dataflow.Logic;
-using Dataflow.Pipelines;
-using Dataflow.Pipelines.GenericBlockFactories;
-using Dataflow.Pipelines.PeopleBatchesStream;
-using Dataflow.Pipelines.PeopleStream;
+using Manisero.DataflowPoc.Logic;
+using Manisero.DataflowPoc.Pipelines;
+using Manisero.DataflowPoc.Pipelines.GenericBlockFactories;
+using Manisero.DataflowPoc.Pipelines.PeopleBatchesStream;
+using Manisero.DataflowPoc.Pipelines.PeopleStream;
 
-namespace Dataflow
+namespace Manisero.DataflowPoc
 {
     class Program
     {

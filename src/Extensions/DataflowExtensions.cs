@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace Dataflow.Extensions
+namespace Manisero.DataflowPoc.Extensions
 {
     public static class DataflowExtensions
     {

@@ -1,8 +1,8 @@
 ﻿using System.Threading;
-using Dataflow.Extensions;
-using Dataflow.Pipelines.PipelineBlocks;
+using Manisero.DataflowPoc.Extensions;
+using Manisero.DataflowPoc.Pipelines.PipelineBlocks;
 
-namespace Dataflow.Pipelines.GenericBlockFactories
+namespace Manisero.DataflowPoc.Pipelines.GenericBlockFactories
 {
     public class EmptyBlockFactory
     {

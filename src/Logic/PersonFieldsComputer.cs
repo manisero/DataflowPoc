@@ -1,7 +1,7 @@
 ﻿using System;
-using Dataflow.Models;
+using Manisero.DataflowPoc.Models;
 
-namespace Dataflow.Logic
+namespace Manisero.DataflowPoc.Logic
 {
     public class PersonFieldsComputer
     {

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Dataflow.Logic
+namespace Manisero.DataflowPoc.Logic
 {
     public class FileLinesCounter
     {

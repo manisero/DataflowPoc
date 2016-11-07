@@ -7,7 +7,7 @@
     <ProjectGuid>{F93EF8E6-A4EE-4E48-BFBC-5B7F0D290351}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Dataflow</RootNamespace>
+    <RootNamespace>Manisero.DataflowPoc</RootNamespace>
     <AssemblyName>Dataflow</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

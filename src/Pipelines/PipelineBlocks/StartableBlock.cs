@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace Dataflow.Pipelines.PipelineBlocks
+namespace Manisero.DataflowPoc.Pipelines.PipelineBlocks
 {
     public class StartableBlock<TOutput>
     {

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading;
-using Dataflow.Logic;
-using Dataflow.Models;
-using Dataflow.Pipelines.GenericBlockFactories;
-using Dataflow.Pipelines.PeopleStream.BlockFactories;
-using Dataflow.Pipelines.PipelineBlocks;
+using Manisero.DataflowPoc.Logic;
+using Manisero.DataflowPoc.Models;
+using Manisero.DataflowPoc.Pipelines.GenericBlockFactories;
+using Manisero.DataflowPoc.Pipelines.PeopleStream.BlockFactories;
+using Manisero.DataflowPoc.Pipelines.PipelineBlocks;
 
-namespace Dataflow.Pipelines.PeopleStream
+namespace Manisero.DataflowPoc.Pipelines.PeopleStream
 {
     public class PeoplePipelineFactory
     {

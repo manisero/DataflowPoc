@@ -1,4 +1,4 @@
-﻿namespace Dataflow.Pipelines
+﻿namespace Manisero.DataflowPoc.Pipelines
 {
     public struct PipelineProgress
     {

@@ -4,11 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Dataflow.Etw;
-using Dataflow.Extensions;
-using Dataflow.Models;
+using Manisero.DataflowPoc.Etw;
+using Manisero.DataflowPoc.Extensions;
+using Manisero.DataflowPoc.Models;
 
-namespace Dataflow.Logic
+namespace Manisero.DataflowPoc.Logic
 {
     public class SynchronousPeopleProcessor
     {

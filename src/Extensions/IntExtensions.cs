@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dataflow.Extensions
+namespace Manisero.DataflowPoc.Extensions
 {
     public static class IntExtensions
     {

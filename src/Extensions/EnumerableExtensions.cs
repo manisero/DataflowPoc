@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Dataflow.Extensions
+namespace Manisero.DataflowPoc.Extensions
 {
     public static class EnumerableExtensions
     {

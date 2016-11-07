@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using System.Threading;
-using Dataflow.Extensions;
-using Dataflow.Logic;
-using Dataflow.Models;
-using Dataflow.Pipelines.PipelineBlocks;
+using Manisero.DataflowPoc.Extensions;
+using Manisero.DataflowPoc.Logic;
+using Manisero.DataflowPoc.Models;
+using Manisero.DataflowPoc.Pipelines.PipelineBlocks;
 
-namespace Dataflow.Pipelines.PeopleBatchesStream.BlockFactories
+namespace Manisero.DataflowPoc.Pipelines.PeopleBatchesStream.BlockFactories
 {
     public class WritingBlockFactory
     {

@@ -2,9 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Dataflow.Extensions;
+using Manisero.DataflowPoc.Extensions;
 
-namespace Dataflow.Pipelines.PipelineBlocks
+namespace Manisero.DataflowPoc.Pipelines.PipelineBlocks
 {
     public class ProcessingBlock<TData>
     {

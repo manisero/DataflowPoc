@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
-using Dataflow.Extensions;
-using Dataflow.Logic;
-using Dataflow.Models;
-using Dataflow.Pipelines.PipelineBlocks;
+using Manisero.DataflowPoc.Extensions;
+using Manisero.DataflowPoc.Logic;
+using Manisero.DataflowPoc.Models;
+using Manisero.DataflowPoc.Pipelines.PipelineBlocks;
 
-namespace Dataflow.Pipelines.PeopleStream.BlockFactories
+namespace Manisero.DataflowPoc.Pipelines.PeopleStream.BlockFactories
 {
     public class ReadingBlockFactory
     {

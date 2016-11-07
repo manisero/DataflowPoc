@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Dataflow.Etw;
+using Manisero.DataflowPoc.Etw;
 
-namespace Dataflow.Models
+namespace Manisero.DataflowPoc.Models
 {
     public class Data
     {

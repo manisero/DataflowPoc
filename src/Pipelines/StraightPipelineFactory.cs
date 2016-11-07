@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Threading;
-using Dataflow.Extensions;
-using Dataflow.Pipelines.PipelineBlocks;
+using Manisero.DataflowPoc.Extensions;
+using Manisero.DataflowPoc.Pipelines.PipelineBlocks;
 
-namespace Dataflow.Pipelines
+namespace Manisero.DataflowPoc.Pipelines
 {
     public class StraightPipelineFactory
     {

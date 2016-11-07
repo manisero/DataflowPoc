@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
-using Dataflow.Etw;
+using Manisero.DataflowPoc.Etw;
 
-namespace Dataflow.Extensions
+namespace Manisero.DataflowPoc.Extensions
 {
     public static class DataflowFacade
     {
