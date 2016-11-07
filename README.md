@@ -18,10 +18,10 @@ Done
 - Performance analysis (Gantt)
   - easy to spot bottlenecks
 - Object pooling
+  - tested:
+    - 100k records, 10k batch size
+    - 1kk records, 10k batch size
   - no difference observed :(
-  - probably should try on more records
-    - currently: 100k records, 10k batch size
-    - to try: 1kk records, 10k batch size
 - Test for different processor cores number
   - doubled cores, halved time
 - More performance tracking
@@ -29,6 +29,10 @@ Done
     - Dataflow enables control over memory consumption
   - garbage collections (ETW)
     - pooling did not lower GCs rate (see 'Object pooling')
+- Tested MaxMessagesPerTask
+  - no difference observed :(
+- Tested SingleProducerConstrained
+  - no difference observed :(
 
 To do
 ---
