@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
 using System.Runtime.CompilerServices;
 
-namespace Manisero.DataflowPoc
+namespace Manisero.DataflowPoc.Playground
 {
     public static class Settings
     {

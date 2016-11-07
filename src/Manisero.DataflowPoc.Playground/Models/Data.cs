@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Manisero.DataflowPoc.Core.Etw;
 
-namespace Manisero.DataflowPoc.Models
+namespace Manisero.DataflowPoc.Playground.Models
 {
     public class Data
     {

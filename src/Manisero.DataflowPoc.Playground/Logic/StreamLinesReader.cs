@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Manisero.DataflowPoc.Logic
+namespace Manisero.DataflowPoc.Playground.Logic
 {
     public class StreamLinesReader
     {

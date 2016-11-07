@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using Manisero.DataflowPoc.Models;
+using Manisero.DataflowPoc.Playground.Models;
 
-namespace Manisero.DataflowPoc.Logic
+namespace Manisero.DataflowPoc.Playground.Logic
 {
     public class DataWriter
     {

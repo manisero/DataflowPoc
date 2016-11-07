@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Manisero.DataflowPoc.Core.Extensions;
-using Manisero.DataflowPoc.Pipelines.PipelineBlocks;
+using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
 
-namespace Manisero.DataflowPoc.Pipelines
+namespace Manisero.DataflowPoc.Core.Pipelines
 {
     public class PipelineExecutor
     {

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Manisero.DataflowPoc.Core.Extensions;
-using Manisero.DataflowPoc.Logic;
-using Manisero.DataflowPoc.Models;
-using Manisero.DataflowPoc.Pipelines.GenericBlockFactories;
-using Manisero.DataflowPoc.Pipelines.PeopleBatchesStream.BlockFactories;
-using Manisero.DataflowPoc.Pipelines.PipelineBlocks;
+using Manisero.DataflowPoc.Core.Pipelines;
+using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
+using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
+using Manisero.DataflowPoc.Playground.Logic;
+using Manisero.DataflowPoc.Playground.Models;
+using Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream.BlockFactories;
 
-namespace Manisero.DataflowPoc.Pipelines.PeopleBatchesStream
+namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
 {
     public class PeopleBatchesPipelineFactory
     {

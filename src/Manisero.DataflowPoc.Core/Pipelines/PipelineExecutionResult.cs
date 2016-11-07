@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Manisero.DataflowPoc.Pipelines
+namespace Manisero.DataflowPoc.Core.Pipelines
 {
     public class PipelineExecutionResult
     {

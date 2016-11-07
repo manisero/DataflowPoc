@@ -50,6 +50,16 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\IntExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
+    <Compile Include="Pipelines\GenericBlockFactories\EmptyBlockFactory.cs" />
+    <Compile Include="Pipelines\GenericBlockFactories\ProgressReportingBlockFactory.cs" />
+    <Compile Include="Pipelines\GenericBlockFactories\ThrowingBlockFactory.cs" />
+    <Compile Include="Pipelines\PipelineBlocks\ProcessingBlock.cs" />
+    <Compile Include="Pipelines\PipelineBlocks\StartableBlock.cs" />
+    <Compile Include="Pipelines\PipelineExecutionResult.cs" />
+    <Compile Include="Pipelines\PipelineExecutor.cs" />
+    <Compile Include="Pipelines\PipelineProgress.cs" />
+    <Compile Include="Pipelines\RailroadPipelineFactory.cs" />
+    <Compile Include="Pipelines\StraightPipelineFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
