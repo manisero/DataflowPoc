@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F93EF8E6-A4EE-4E48-BFBC-5B7F0D290351}</ProjectGuid>
+    <ProjectGuid>{0B40EA4E-49C0-4C1A-81FA-B60FF4974012}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Manisero.DataflowPoc</RootNamespace>
-    <AssemblyName>Dataflow</AssemblyName>
+    <AssemblyName>Manisero.DataflowPoc</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -34,14 +34,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml.Linq" />
@@ -59,32 +59,32 @@
     <Compile Include="Extensions\IntExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Logic\ComputationsHelper.cs" />
+    <Compile Include="Logic\DataParser.cs" />
     <Compile Include="Logic\DataPool.cs" />
+    <Compile Include="Logic\DataReader.cs" />
     <Compile Include="Logic\DataWriter.cs" />
     <Compile Include="Logic\FileLinesCounter.cs" />
-    <Compile Include="Logic\DataParser.cs" />
     <Compile Include="Logic\PersonFieldsComputer.cs" />
-    <Compile Include="Logic\StreamLinesReader.cs" />
     <Compile Include="Logic\PersonValidator.cs" />
+    <Compile Include="Logic\StreamLinesReader.cs" />
     <Compile Include="Logic\SynchronousPeopleProcessor.cs" />
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\Person.cs" />
-    <Compile Include="Logic\DataReader.cs" />
+    <Compile Include="Pipelines\GenericBlockFactories\EmptyBlockFactory.cs" />
+    <Compile Include="Pipelines\GenericBlockFactories\ProgressReportingBlockFactory.cs" />
+    <Compile Include="Pipelines\GenericBlockFactories\ThrowingBlockFactory.cs" />
     <Compile Include="Pipelines\PeopleBatchesStream\BlockFactories\ReadingBlockFactory.cs" />
     <Compile Include="Pipelines\PeopleBatchesStream\BlockFactories\WritingBlockFactory.cs" />
     <Compile Include="Pipelines\PeopleBatchesStream\PeopleBatchesPipelineFactory.cs" />
-    <Compile Include="Pipelines\PipelineBlocks\ProcessingBlock.cs" />
-    <Compile Include="Pipelines\PipelineExecutionResult.cs" />
-    <Compile Include="Pipelines\PipelineProgress.cs" />
-    <Compile Include="Pipelines\GenericBlockFactories\ProgressReportingBlockFactory.cs" />
-    <Compile Include="Pipelines\PipelineBlocks\StartableBlock.cs" />
-    <Compile Include="Pipelines\GenericBlockFactories\EmptyBlockFactory.cs" />
     <Compile Include="Pipelines\PeopleStream\BlockFactories\ReadingBlockFactory.cs" />
-    <Compile Include="Pipelines\PeopleStream\PeoplePipelineFactory.cs" />
-    <Compile Include="Pipelines\PipelineExecutor.cs" />
-    <Compile Include="Pipelines\RailroadPipelineFactory.cs" />
-    <Compile Include="Pipelines\GenericBlockFactories\ThrowingBlockFactory.cs" />
     <Compile Include="Pipelines\PeopleStream\BlockFactories\WritingBlockFactory.cs" />
+    <Compile Include="Pipelines\PeopleStream\PeoplePipelineFactory.cs" />
+    <Compile Include="Pipelines\PipelineBlocks\ProcessingBlock.cs" />
+    <Compile Include="Pipelines\PipelineBlocks\StartableBlock.cs" />
+    <Compile Include="Pipelines\PipelineExecutionResult.cs" />
+    <Compile Include="Pipelines\PipelineExecutor.cs" />
+    <Compile Include="Pipelines\PipelineProgress.cs" />
+    <Compile Include="Pipelines\RailroadPipelineFactory.cs" />
     <Compile Include="Pipelines\StraightPipelineFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

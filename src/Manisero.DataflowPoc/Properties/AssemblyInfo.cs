@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Dataflow")]
+[assembly: AssemblyTitle("Manisero.DataflowPoc")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Dataflow")]
+[assembly: AssemblyProduct("Manisero.DataflowPoc")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f93ef8e6-a4ee-4e48-bfbc-5b7f0d290351")]
+[assembly: Guid("0b40ea4e-49c0-4c1a-81fa-b60ff4974012")]
 
 // Version information for an assembly consists of the following four values:
 //
