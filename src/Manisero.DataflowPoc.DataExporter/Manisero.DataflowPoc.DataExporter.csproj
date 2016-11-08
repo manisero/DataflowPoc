@@ -53,12 +53,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\Person.cs" />
+    <Compile Include="Logic\PeopleBatchReader.cs" />
+    <Compile Include="Logic\PeopleCounter.cs" />
+    <Compile Include="Logic\SqlConnectionResolver.cs" />
+    <Compile Include="Pipeline\BlockFactories\ReadBlockFactory.cs" />
+    <Compile Include="Pipeline\Models\DataBatch.cs" />
+    <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Manisero.DataflowPoc.Core\Manisero.DataflowPoc.Core.csproj">
+      <Project>{220cb990-5f60-4279-8186-3e98eb3a8523}</Project>
+      <Name>Manisero.DataflowPoc.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
