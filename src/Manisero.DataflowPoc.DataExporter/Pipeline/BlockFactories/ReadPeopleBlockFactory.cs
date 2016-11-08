@@ -34,11 +34,10 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
             // Create blocks
             var bufferBlock = DataflowFacade.BufferBlock<DataBatch<Person>>(cancellation);
 
-            var readBlock = DataflowFacade.TransformBlock<DataBatch<Person>>(
-                "ReadPersonBatch",
-                x => x.Number,
-                x => x.Data = _peopleBatchReader.Read(x.DataOffset, x.IntendedSize),
-                cancellation);
+            var readBlock = DataflowFacade.TransformBlock<DataBatch<Person>>("ReadPerson",
+                                                                             DataBatch<Person>.IdGetter,
+                                                                             x => x.Data = _peopleBatchReader.Read(x.DataOffset, x.IntendedSize),
+                                                                             cancellation);
 
             // Link blocks
             bufferBlock.LinkWithCompletion(readBlock);

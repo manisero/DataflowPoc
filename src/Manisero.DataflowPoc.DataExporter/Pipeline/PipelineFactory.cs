@@ -12,49 +12,72 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 {
     public interface IPipelineFactory
     {
-        StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation);
+        StartableBlock<DataBatch<PeopleSummary>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation);
     }
 
     public class PipelineFactory : IPipelineFactory
     {
+        private readonly IReadSummaryBlockFactory _readSummaryBlockFactory;
         private readonly IReadPeopleBlockFactory _readPeopleBlockFactory;
         private readonly IWriteCsvBlockFactory _writeCsvBlockFactory;
         private readonly IProgressReportingBlockFactory _progressReportingBlockFactory;
         private readonly IStraightPipelineFactory _straightPipelineFactory;
 
-        public PipelineFactory(IReadPeopleBlockFactory readPeopleBlockFactory,
+        public PipelineFactory(IReadSummaryBlockFactory readSummaryBlockFactory,
+                               IReadPeopleBlockFactory readPeopleBlockFactory,
                                IWriteCsvBlockFactory writeCsvBlockFactory,
                                IProgressReportingBlockFactory progressReportingBlockFactory,
                                IStraightPipelineFactory straightPipelineFactory)
         {
+            _readSummaryBlockFactory = readSummaryBlockFactory;
             _readPeopleBlockFactory = readPeopleBlockFactory;
             _writeCsvBlockFactory = writeCsvBlockFactory;
             _progressReportingBlockFactory = progressReportingBlockFactory;
             _straightPipelineFactory = straightPipelineFactory;
         }
 
-        public StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
+        public StartableBlock<DataBatch<PeopleSummary>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
         {
             File.Create(targetFilePath).Dispose();
 
             // TODO: Writing summary before people in the csv file
 
-            // Create blocks
+            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
+            var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
+
+            return summaryPipeline;
+        }
+
+        private StartableBlock<DataBatch<PeopleSummary>> CreateSummaryPipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
+        {
+            var readBlock = _readSummaryBlockFactory.Create(cancellation.Token);
+            var writeBlock = _writeCsvBlockFactory.Create<PeopleSummary>(targetFilePath, cancellation.Token);
+            var progressBlock = _progressReportingBlockFactory.Create<DataBatch<PeopleSummary>>("PeopleSummaryProgress",
+                                                                                                x => x.Number,
+                                                                                                progress,
+                                                                                                readBlock.EstimatedOutputCount,
+                                                                                                1,
+                                                                                                cancellation.Token);
+
+            return _straightPipelineFactory.Create(readBlock,
+                                                   new[] { writeBlock, progressBlock },
+                                                   cancellation);
+        }
+
+        private StartableBlock<DataBatch<Person>> CreatePeoplePipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
+        {
             var readBlock = _readPeopleBlockFactory.Create(cancellation.Token);
             var writeBlock = _writeCsvBlockFactory.Create<Person>(targetFilePath, cancellation.Token);
-            var progressBlock = _progressReportingBlockFactory.Create<DataBatch<Person>>("PeopleBatchProgress",
+            var progressBlock = _progressReportingBlockFactory.Create<DataBatch<Person>>("PersonProgress",
                                                                                          x => x.Number,
                                                                                          progress,
                                                                                          readBlock.EstimatedOutputCount,
                                                                                          1,
                                                                                          cancellation.Token);
 
-            // Link blocks
-            var pipeline = _straightPipelineFactory.Create(readBlock,
-                                                           new[] { writeBlock, progressBlock },
-                                                           cancellation);
-
-            return pipeline;
+            return _straightPipelineFactory.Create(readBlock,
+                                                   new[] { writeBlock, progressBlock },
+                                                   cancellation);
         }
     }
 }

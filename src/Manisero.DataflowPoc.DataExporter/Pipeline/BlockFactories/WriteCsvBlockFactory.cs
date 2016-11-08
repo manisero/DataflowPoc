@@ -21,11 +21,10 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
             var csvWriter = new Lazy<CsvWriter>(() => CreateCsvWriter(targetFilePath));
 
             // Create blocks
-            var writeBlock = DataflowFacade.TransformBlock<DataBatch<TItem>>(
-                $"Write{typeof(TItem).Name}Batch",
-                x => x.Number,
-                x => csvWriter.Value.WriteRecords(x.Data),
-                cancellation);
+            var writeBlock = DataflowFacade.TransformBlock($"Write{typeof(TItem).Name}",
+                                                           DataBatch<TItem>.IdGetter,
+                                                           x => csvWriter.Value.WriteRecords(x.Data),
+                                                           cancellation);
 
             // Handle completion
             var completion = writeBlock.Completion.ContinueWithStatusPropagation(_ => csvWriter.ValueIfCreated()?.Dispose());

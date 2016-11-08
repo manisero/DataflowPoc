@@ -71,12 +71,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\PeopleSummary.cs" />
     <Compile Include="Domain\Person.cs" />
     <Compile Include="Extensions\LazyExtensions.cs" />
     <Compile Include="Logic\PeopleBatchReader.cs" />
     <Compile Include="Logic\PeopleCounter.cs" />
+    <Compile Include="Logic\PeopleSummaryReader.cs" />
     <Compile Include="Logic\SqlConnectionResolver.cs" />
     <Compile Include="Pipeline\BlockFactories\ReadPeopleBlockFactory.cs" />
+    <Compile Include="Pipeline\BlockFactories\ReadSummaryBlockFactory.cs" />
     <Compile Include="Pipeline\BlockFactories\WriteCsvBlockFactory.cs" />
     <Compile Include="Pipeline\Models\DataBatch.cs" />
     <Compile Include="Pipeline\PipelineFactory.cs" />

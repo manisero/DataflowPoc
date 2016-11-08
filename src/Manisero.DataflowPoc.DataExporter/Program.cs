@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using Manisero.DataflowPoc.Core.Pipelines;
@@ -15,7 +14,8 @@ namespace Manisero.DataflowPoc.DataExporter
         static void Main(string[] args)
         {
             var sqlConnectionResolver = new SqlConnectionResolver(Settings.ConnectionString);
-            var pipelineFactory = new PipelineFactory(new ReadPeopleBlockFactory(new PeopleCounter(sqlConnectionResolver),
+            var pipelineFactory = new PipelineFactory(new ReadSummaryBlockFactory(new PeopleSummaryReader(sqlConnectionResolver)),
+                                                      new ReadPeopleBlockFactory(new PeopleCounter(sqlConnectionResolver),
                                                                                  new PeopleBatchReader(sqlConnectionResolver)),
                                                       new WriteCsvBlockFactory(),
                                                       new ProgressReportingBlockFactory(),
