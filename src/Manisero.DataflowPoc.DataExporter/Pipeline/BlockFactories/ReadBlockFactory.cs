@@ -15,7 +15,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
 
     public class ReadBlockFactory : IReadBlockFactory
     {
-        private const int BATCH_SIZE = 1000;
+        private const int BATCH_SIZE = 100000;
 
         private readonly IPeopleCounter _peopleCounter;
         private readonly IPeopleBatchReader _peopleBatchReader;

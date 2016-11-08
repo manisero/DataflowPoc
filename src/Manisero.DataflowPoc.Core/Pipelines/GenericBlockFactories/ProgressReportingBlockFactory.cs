@@ -5,7 +5,17 @@ using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
 
 namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
 {
-    public class ProgressReportingBlockFactory
+    public interface IProgressReportingBlockFactory
+    {
+        ProcessingBlock<TData> Create<TData>(string name,
+                                             Func<TData, int> dataIdGetter,
+                                             IProgress<PipelineProgress> progress,
+                                             int estimatedInputCount,
+                                             int inputPerReport,
+                                             CancellationToken cancellation);
+    }
+
+    public class ProgressReportingBlockFactory : IProgressReportingBlockFactory
     {
         private class State
         {
@@ -13,7 +23,8 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
             public bool Reported100 { get; set; } 
         }
 
-        public ProcessingBlock<TData> Create<TData>(Func<TData, int> dataIdGetter,
+        public ProcessingBlock<TData> Create<TData>(string name,
+                                                    Func<TData, int> dataIdGetter,
                                                     IProgress<PipelineProgress> progress,
                                                     int estimatedInputCount,
                                                     int inputPerReport,
@@ -23,7 +34,7 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
 
             // Create blocks
             var reportBlock = DataflowFacade.TransformBlock(
-                "ReportProgress",
+                name,
                 dataIdGetter,
                 x => TryReport(state, inputPerReport, estimatedInputCount, progress),
                 cancellation);

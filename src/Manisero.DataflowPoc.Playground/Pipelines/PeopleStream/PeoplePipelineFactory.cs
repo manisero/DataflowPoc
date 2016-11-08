@@ -65,7 +65,12 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleStream
                                  ? _throwingBlockFactory.Create(Data.IdGetter, cancellationSource.Token)
                                  : _emptyBlockFactory.Create<Data>(cancellationSource.Token);
             var handleErrorBlock = _writingBlockFactory.Create(errorsFilePath, cancellationSource.Token);
-            var progressBlock = _progressReportingBlockFactory.Create(Data.IdGetter, progress, readBlock.EstimatedOutputCount, Settings.ProgressBatchSize, cancellationSource.Token);
+            var progressBlock = _progressReportingBlockFactory.Create("ReportProgress",
+                                                                      Data.IdGetter,
+                                                                      progress,
+                                                                      readBlock.EstimatedOutputCount,
+                                                                      Settings.ProgressBatchSize,
+                                                                      cancellationSource.Token);
 
             return _railroadPipelineFactory.Create(readBlock,
                                                    new[] { validateBlock, computeFieldsBlock, writeBlock, throwBlock },

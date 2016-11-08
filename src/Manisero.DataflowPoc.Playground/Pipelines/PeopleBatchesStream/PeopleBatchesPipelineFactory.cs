@@ -57,7 +57,12 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
                                                                        Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
             var extraProcessingBlocks = CreateExtraProcessingBlocks(cancellationSource);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
-            var progressBlock = _progressReportingBlockFactory.Create(DataBatch.IdGetter, progress, readBlock.EstimatedOutputCount, 1, cancellationSource.Token);
+            var progressBlock = _progressReportingBlockFactory.Create("ReportProgress",
+                                                                      DataBatch.IdGetter,
+                                                                      progress,
+                                                                      readBlock.EstimatedOutputCount,
+                                                                      1,
+                                                                      cancellationSource.Token);
             var disposeBlock = ProcessingBlock<DataBatch>.Create("DisposeData",
                                                                  DataBatch.IdGetter,
                                                                  x => x.Data.ForEach(dataPool.Return),

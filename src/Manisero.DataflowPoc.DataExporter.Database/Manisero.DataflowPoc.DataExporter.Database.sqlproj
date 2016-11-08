@@ -58,8 +58,14 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Tables" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Person.sql" />
+    <None Include="Scripts\truncate_People.sql" />
+    <None Include="Scripts\dobule_People.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\create_Person.sql" />
   </ItemGroup>
 </Project>

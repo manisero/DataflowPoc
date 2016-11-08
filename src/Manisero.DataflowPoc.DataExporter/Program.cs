@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using Manisero.DataflowPoc.Core.Pipelines;
+using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
 using Manisero.DataflowPoc.DataExporter.Logic;
 using Manisero.DataflowPoc.DataExporter.Pipeline;
 using Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories;
@@ -19,6 +20,7 @@ namespace Manisero.DataflowPoc.DataExporter
             var pipelineFactory = new PipelineFactory(new ReadBlockFactory(new PeopleCounter(sqlConnectionResolver),
                                                                            new PeopleBatchReader(sqlConnectionResolver)),
                                                       new WriteBlockFactory(new PeopleBatchWriter()),
+                                                      new ProgressReportingBlockFactory(),
                                                       new StraightPipelineFactory());
             var pipelineExecutor = new PipelineExecutor();
 
@@ -27,7 +29,7 @@ namespace Manisero.DataflowPoc.DataExporter
                 Task.Run(() => WaitForCancellation(cancellation));
 
                 var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
-                var pipeline = pipelineFactory.Create(ConfigurationManager.AppSettings["PeopleTargetFilePath"], cancellation);
+                var pipeline = pipelineFactory.Create(ConfigurationManager.AppSettings["PeopleTargetFilePath"], progress, cancellation);
                 var executionResult = pipelineExecutor.Execute(pipeline).Result;
 
                 HandleExecutionResult(executionResult);
