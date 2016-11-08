@@ -9,12 +9,12 @@ using Manisero.DataflowPoc.DataExporter.Pipeline.Models;
 
 namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
 {
-    public interface IWriteBlockFactory
+    public interface IWriteCsvBlockFactory
     {
         ProcessingBlock<DataBatch<TItem>> Create<TItem>(string targetFilePath, CancellationToken cancellation);
     }
 
-    public class WriteBlockFactory : IWriteBlockFactory
+    public class WriteCsvBlockFactory : IWriteCsvBlockFactory
     {
         public ProcessingBlock<DataBatch<TItem>> Create<TItem>(string targetFilePath, CancellationToken cancellation)
         {
@@ -22,7 +22,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
 
             // Create blocks
             var writeBlock = DataflowFacade.TransformBlock<DataBatch<TItem>>(
-                "WritePeopleBatch",
+                $"Write{typeof(TItem).Name}Batch",
                 x => x.Number,
                 x => csvWriter.Value.WriteRecords(x.Data),
                 cancellation);

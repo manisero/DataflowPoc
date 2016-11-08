@@ -8,18 +8,18 @@ using Manisero.DataflowPoc.DataExporter.Pipeline.Models;
 
 namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
 {
-    public interface IReadBlockFactory
+    public interface IReadPeopleBlockFactory
     {
         StartableBlock<DataBatch<Person>> Create(CancellationToken cancellation);
     }
 
-    public class ReadBlockFactory : IReadBlockFactory
+    public class ReadPeopleBlockFactory : IReadPeopleBlockFactory
     {
         private readonly IPeopleCounter _peopleCounter;
         private readonly IPeopleBatchReader _peopleBatchReader;
 
-        public ReadBlockFactory(IPeopleCounter peopleCounter,
-                                IPeopleBatchReader peopleBatchReader)
+        public ReadPeopleBlockFactory(IPeopleCounter peopleCounter,
+                                      IPeopleBatchReader peopleBatchReader)
         {
             _peopleCounter = peopleCounter;
             _peopleBatchReader = peopleBatchReader;
@@ -35,7 +35,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
             var bufferBlock = DataflowFacade.BufferBlock<DataBatch<Person>>(cancellation);
 
             var readBlock = DataflowFacade.TransformBlock<DataBatch<Person>>(
-                "ReadPeopleBatch",
+                "ReadPersonBatch",
                 x => x.Number,
                 x => x.Data = _peopleBatchReader.Read(x.DataOffset, x.IntendedSize),
                 cancellation);

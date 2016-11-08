@@ -76,8 +76,8 @@
     <Compile Include="Logic\PeopleBatchReader.cs" />
     <Compile Include="Logic\PeopleCounter.cs" />
     <Compile Include="Logic\SqlConnectionResolver.cs" />
-    <Compile Include="Pipeline\BlockFactories\ReadBlockFactory.cs" />
-    <Compile Include="Pipeline\BlockFactories\WriteBlockFactory.cs" />
+    <Compile Include="Pipeline\BlockFactories\ReadPeopleBlockFactory.cs" />
+    <Compile Include="Pipeline\BlockFactories\WriteCsvBlockFactory.cs" />
     <Compile Include="Pipeline\Models\DataBatch.cs" />
     <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Program.cs" />

@@ -17,18 +17,18 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 
     public class PipelineFactory : IPipelineFactory
     {
-        private readonly IReadBlockFactory _readBlockFactory;
-        private readonly IWriteBlockFactory _writeBlockFactory;
+        private readonly IReadPeopleBlockFactory _readPeopleBlockFactory;
+        private readonly IWriteCsvBlockFactory _writeCsvBlockFactory;
         private readonly IProgressReportingBlockFactory _progressReportingBlockFactory;
         private readonly IStraightPipelineFactory _straightPipelineFactory;
 
-        public PipelineFactory(IReadBlockFactory readBlockFactory,
-                               IWriteBlockFactory writeBlockFactory,
+        public PipelineFactory(IReadPeopleBlockFactory readPeopleBlockFactory,
+                               IWriteCsvBlockFactory writeCsvBlockFactory,
                                IProgressReportingBlockFactory progressReportingBlockFactory,
                                IStraightPipelineFactory straightPipelineFactory)
         {
-            _readBlockFactory = readBlockFactory;
-            _writeBlockFactory = writeBlockFactory;
+            _readPeopleBlockFactory = readPeopleBlockFactory;
+            _writeCsvBlockFactory = writeCsvBlockFactory;
             _progressReportingBlockFactory = progressReportingBlockFactory;
             _straightPipelineFactory = straightPipelineFactory;
         }
@@ -40,8 +40,8 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             // TODO: Writing summary before people in the csv file
 
             // Create blocks
-            var readBlock = _readBlockFactory.Create(cancellation.Token);
-            var writeBlock = _writeBlockFactory.Create<Person>(targetFilePath, cancellation.Token);
+            var readBlock = _readPeopleBlockFactory.Create(cancellation.Token);
+            var writeBlock = _writeCsvBlockFactory.Create<Person>(targetFilePath, cancellation.Token);
             var progressBlock = _progressReportingBlockFactory.Create<DataBatch<Person>>("PeopleBatchProgress",
                                                                                          x => x.Number,
                                                                                          progress,
