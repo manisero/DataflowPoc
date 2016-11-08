@@ -5,7 +5,14 @@ using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
 
 namespace Manisero.DataflowPoc.Core.Pipelines
 {
-    public class StraightPipelineFactory
+    public interface IStraightPipelineFactory
+    {
+        StartableBlock<TData> Create<TData>(StartableBlock<TData> source,
+                                                            ProcessingBlock<TData>[] processors,
+                                                            CancellationTokenSource cancellationSource);
+    }
+
+    public class StraightPipelineFactory : IStraightPipelineFactory
     {
         public StartableBlock<TData> Create<TData>(StartableBlock<TData> source,
                                                    ProcessingBlock<TData>[] processors,

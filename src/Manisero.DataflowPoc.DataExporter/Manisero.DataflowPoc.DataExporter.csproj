@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.2.16.3.0\lib\net45\CsvHelper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
       <Private>True</Private>
@@ -54,9 +58,11 @@
   <ItemGroup>
     <Compile Include="Domain\Person.cs" />
     <Compile Include="Logic\PeopleBatchReader.cs" />
+    <Compile Include="Logic\PeopleBatchWriter.cs" />
     <Compile Include="Logic\PeopleCounter.cs" />
     <Compile Include="Logic\SqlConnectionResolver.cs" />
     <Compile Include="Pipeline\BlockFactories\ReadBlockFactory.cs" />
+    <Compile Include="Pipeline\BlockFactories\WriteBlockFactory.cs" />
     <Compile Include="Pipeline\Models\DataBatch.cs" />
     <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Program.cs" />

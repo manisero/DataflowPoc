@@ -17,7 +17,9 @@ namespace Manisero.DataflowPoc.DataExporter
 
             var sqlConnectionResolver = new SqlConnectionResolver(connectionString);
             var pipelineFactory = new PipelineFactory(new ReadBlockFactory(new PeopleCounter(sqlConnectionResolver),
-                                                                           new PeopleBatchReader(sqlConnectionResolver)));
+                                                                           new PeopleBatchReader(sqlConnectionResolver)),
+                                                      new WriteBlockFactory(new PeopleBatchWriter()),
+                                                      new StraightPipelineFactory());
             var pipelineExecutor = new PipelineExecutor();
 
             using (var cancellation = new CancellationTokenSource())
@@ -25,15 +27,11 @@ namespace Manisero.DataflowPoc.DataExporter
                 Task.Run(() => WaitForCancellation(cancellation));
 
                 var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
-                var pipeline = pipelineFactory.Create(cancellation);
+                var pipeline = pipelineFactory.Create(ConfigurationManager.AppSettings["PeopleTargetFilePath"], cancellation);
                 var executionResult = pipelineExecutor.Execute(pipeline).Result;
 
                 HandleExecutionResult(executionResult);
             }
-
-            // TODO:
-            // - read data (Dapper)
-            // - write to csv (CsvHelper)
         }
 
         private static void WaitForCancellation(CancellationTokenSource cancellationSource)
