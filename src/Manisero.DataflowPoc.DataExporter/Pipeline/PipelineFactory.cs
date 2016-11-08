@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
@@ -12,7 +13,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 {
     public interface IPipelineFactory
     {
-        StartableBlock<DataBatch<PeopleSummary>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation);
+        StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation);
     }
 
     public class PipelineFactory : IPipelineFactory
@@ -36,16 +37,37 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             _straightPipelineFactory = straightPipelineFactory;
         }
 
-        public StartableBlock<DataBatch<PeopleSummary>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
+        public StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
         {
             File.Create(targetFilePath).Dispose();
 
-            // TODO: Writing summary before people in the csv file
-
+            // Create pipelines
             var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
+            summaryPipeline.Output.IgnoreOutput();
+
             var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
 
-            return summaryPipeline;
+            // Link pipelines
+            summaryPipeline.Completion
+                           .ContinueWith(x =>
+                                             {
+                                                 if (x.IsFaulted)
+                                                 {
+                                                     peoplePipeline.Output.Fault(x.Exception);
+                                                 }
+                                                 else
+                                                 {
+                                                     peoplePipeline.Start();
+                                                 }
+                                             });
+
+            return new StartableBlock<DataBatch<Person>>
+                {
+                    Start = summaryPipeline.Start,
+                    Output = peoplePipeline.Output,
+                    EstimatedOutputCount = peoplePipeline.EstimatedOutputCount,
+                    Completion = peoplePipeline.Completion
+                };
         }
 
         private StartableBlock<DataBatch<PeopleSummary>> CreateSummaryPipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
