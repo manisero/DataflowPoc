@@ -8,7 +8,6 @@ namespace Manisero.DataflowPoc.DataExporter
         public static string ConnectionString => ConfigurationManager.ConnectionStrings["DataExporter"].ConnectionString;
         public static string PeopleTargetFilePath => GetSetting();
         public static int ReadingBatchSize => int.Parse(GetSetting());
-        public static int MaxDegreeOfParallelism => int.Parse(GetSetting());
 
         private static string GetSetting([CallerMemberName] string name = null)
         {
