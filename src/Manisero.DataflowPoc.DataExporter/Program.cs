@@ -14,9 +14,7 @@ namespace Manisero.DataflowPoc.DataExporter
     {
         static void Main(string[] args)
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["DataExporter"].ConnectionString;
-
-            var sqlConnectionResolver = new SqlConnectionResolver(connectionString);
+            var sqlConnectionResolver = new SqlConnectionResolver(Settings.ConnectionString);
             var pipelineFactory = new PipelineFactory(new ReadBlockFactory(new PeopleCounter(sqlConnectionResolver),
                                                                            new PeopleBatchReader(sqlConnectionResolver)),
                                                       new WriteBlockFactory(new PeopleBatchWriter()),
@@ -29,7 +27,7 @@ namespace Manisero.DataflowPoc.DataExporter
                 Task.Run(() => WaitForCancellation(cancellation));
 
                 var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
-                var pipeline = pipelineFactory.Create(ConfigurationManager.AppSettings["PeopleTargetFilePath"], progress, cancellation);
+                var pipeline = pipelineFactory.Create(Settings.PeopleTargetFilePath, progress, cancellation);
                 var executionResult = pipelineExecutor.Execute(pipeline).Result;
 
                 HandleExecutionResult(executionResult);

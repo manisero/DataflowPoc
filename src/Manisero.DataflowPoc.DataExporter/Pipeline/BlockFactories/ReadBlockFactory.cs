@@ -15,8 +15,6 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
 
     public class ReadBlockFactory : IReadBlockFactory
     {
-        private const int BATCH_SIZE = 100000;
-
         private readonly IPeopleCounter _peopleCounter;
         private readonly IPeopleBatchReader _peopleBatchReader;
 
@@ -29,8 +27,9 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
 
         public StartableBlock<DataBatch<Person>> Create(CancellationToken cancellation)
         {
+            var batchSize = Settings.ReadingBatchSize;
             var peopleCount = _peopleCounter.Count();
-            var batchesCount = peopleCount.CeilingOfDivisionBy(BATCH_SIZE);
+            var batchesCount = peopleCount.CeilingOfDivisionBy(batchSize);
 
             // Create blocks
             var bufferBlock = DataflowFacade.BufferBlock<DataBatch<Person>>(cancellation);
@@ -46,7 +45,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
 
             return new StartableBlock<DataBatch<Person>>
                 {
-                    Start = () => Start(BATCH_SIZE, batchesCount, bufferBlock),
+                    Start = () => Start(batchSize, batchesCount, bufferBlock),
                     Output = readBlock,
                     Completion = readBlock.Completion,
                     EstimatedOutputCount = batchesCount

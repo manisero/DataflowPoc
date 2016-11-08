@@ -1,1 +1,1 @@
-﻿TRUNCATE TABLE [Person]
+﻿TRUNCATE TABLE [Person];
