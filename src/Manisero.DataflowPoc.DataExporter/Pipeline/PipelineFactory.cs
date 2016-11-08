@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
@@ -34,11 +35,13 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 
         public StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
         {
+            File.Create(targetFilePath).Dispose();
+
             // TODO: Writing summary before people in the csv file
 
             // Create blocks
             var readBlock = _readBlockFactory.Create(cancellation.Token);
-            var writeBlock = _writeBlockFactory.Create(targetFilePath, cancellation.Token);
+            var writeBlock = _writeBlockFactory.Create<Person>(targetFilePath, cancellation.Token);
             var progressBlock = _progressReportingBlockFactory.Create<DataBatch<Person>>("PeopleBatchProgress",
                                                                                          x => x.Number,
                                                                                          progress,

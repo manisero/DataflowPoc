@@ -17,7 +17,7 @@ namespace Manisero.DataflowPoc.DataExporter
             var sqlConnectionResolver = new SqlConnectionResolver(Settings.ConnectionString);
             var pipelineFactory = new PipelineFactory(new ReadBlockFactory(new PeopleCounter(sqlConnectionResolver),
                                                                            new PeopleBatchReader(sqlConnectionResolver)),
-                                                      new WriteBlockFactory(new PeopleBatchWriter()),
+                                                      new WriteBlockFactory(),
                                                       new ProgressReportingBlockFactory(),
                                                       new StraightPipelineFactory());
             var pipelineExecutor = new PipelineExecutor();
