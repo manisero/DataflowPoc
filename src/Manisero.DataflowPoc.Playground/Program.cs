@@ -19,12 +19,16 @@ namespace Manisero.DataflowPoc.Playground
             //Console.WriteLine();
 
             RunPeopleBatchesPipeline();
-            //RunPeoplePipeline();
-            //RunSynchronous();
+            RunSingleProcessingBlockPipeline();
+            RunPeoplePipeline();
+            RunSynchronous();
         }
 
         private static void RunPeopleBatchesPipeline()
         {
+            Console.WriteLine();
+            Console.WriteLine("PeopleBatchesPipeline");
+
             var peopleBatchesPipelineFactory = new PeopleBatchesPipelineFactory(new Pipelines.PeopleBatchesStream.BlockFactories.ReadingBlockFactory(new FileLinesCounter(),
                                                                                                                                                      new DataReader(new DataParser()),
                                                                                                                                                      new StreamLinesReader(),
@@ -55,8 +59,46 @@ namespace Manisero.DataflowPoc.Playground
             PrintDataPoolSize();
         }
 
+        private static void RunSingleProcessingBlockPipeline()
+        {
+            Console.WriteLine();
+            Console.WriteLine("SingleProcessingBlockPipeline");
+
+            var singleProcessingBlockPipelineFactory = new SingleProcessingBlockPipelineFactory(new Pipelines.PeopleBatchesStream.BlockFactories.ReadingBlockFactory(new FileLinesCounter(),
+                                                                                                                                                                     new DataReader(new DataParser()),
+                                                                                                                                                                     new StreamLinesReader(),
+                                                                                                                                                                     new DataParser()),
+                                                                                                new PersonValidator(),
+                                                                                                new PersonFieldsComputer(),
+                                                                                                new Pipelines.PeopleBatchesStream.BlockFactories.WritingBlockFactory(new DataWriter()),
+                                                                                                new ProgressReportingBlockFactory(),
+                                                                                                new StraightPipelineFactory());
+
+            var pipelineExecutor = new PipelineExecutor();
+
+            using (var cancellationSource = new CancellationTokenSource())
+            {
+                var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
+
+                var pipeline = singleProcessingBlockPipelineFactory.Create(Settings.PeopleJsonFilePath,
+                                                                           Settings.PeopleTargetFilePath,
+                                                                           progress,
+                                                                           cancellationSource);
+
+                Task.Run(() => WaitForCancellation(cancellationSource));
+
+                var executionResult = pipelineExecutor.Execute(pipeline).Result;
+                HandleExecutionResult(executionResult);
+            }
+
+            PrintDataPoolSize();
+        }
+
         private static void RunPeoplePipeline()
         {
+            Console.WriteLine();
+            Console.WriteLine("PeoplePipeline");
+
             var peoplePipelineFactory = new PeoplePipelineFactory(new Pipelines.PeopleStream.BlockFactories.ReadingBlockFactory(new FileLinesCounter(),
                                                                                                                                 new DataReader(new DataParser()),
                                                                                                                                 new StreamLinesReader(),
@@ -89,7 +131,8 @@ namespace Manisero.DataflowPoc.Playground
 
         private static void RunSynchronous()
         {
-            Console.WriteLine("Running synchronous...");
+            Console.WriteLine();
+            Console.WriteLine("Synchronous");
 
             var synchronousPeopleProcessor = new SynchronousPeopleProcessor(new FileLinesCounter(),
                                                                             new StreamLinesReader(),
