@@ -22,11 +22,11 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
         private readonly StraightPipelineFactory _straightPipelineFactory;
 
         public PeopleBatchesPipelineFactory(ReadingBlockFactory readingBlockFactory,
-                                     PersonValidator personValidator,
-                                     PersonFieldsComputer personFieldsComputer,
-                                     WritingBlockFactory writingBlockFactory,
-                                     ProgressReportingBlockFactory progressReportingBlockFactory,
-                                     StraightPipelineFactory straightPipelineFactory)
+                                            PersonValidator personValidator,
+                                            PersonFieldsComputer personFieldsComputer,
+                                            WritingBlockFactory writingBlockFactory,
+                                            ProgressReportingBlockFactory progressReportingBlockFactory,
+                                            StraightPipelineFactory straightPipelineFactory)
         {
             _readingBlockFactory = readingBlockFactory;
             _personValidator = personValidator;
