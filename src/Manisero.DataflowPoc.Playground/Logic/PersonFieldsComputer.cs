@@ -21,8 +21,6 @@ namespace Manisero.DataflowPoc.Playground.Logic
             if (Settings.SimulateTimeConsumingComputations)
             {
                 ComputationsHelper.PerformTimeConsumingOperation();
-                ComputationsHelper.PerformTimeConsumingOperation();
-                ComputationsHelper.PerformTimeConsumingOperation();
             }
         }
     }

@@ -20,7 +20,7 @@ namespace Manisero.DataflowPoc.Playground
 
             RunPeopleBatchesPipeline();
             RunSingleProcessingBlockPipeline();
-            RunPeoplePipeline();
+            //RunPeoplePipeline();
             RunSynchronous();
         }
 
