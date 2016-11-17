@@ -48,7 +48,7 @@ namespace Manisero.DataflowPoc.Playground
                 var pipeline = peopleBatchesPipelineFactory.Create(Settings.PeopleJsonFilePath,
                                                                    Settings.PeopleTargetFilePath,
                                                                    progress,
-                                                                   cancellationSource.Token);
+                                                                   cancellationSource);
 
                 Task.Run(() => WaitForCancellation(cancellationSource));
 
@@ -83,7 +83,7 @@ namespace Manisero.DataflowPoc.Playground
                 var pipeline = singleProcessingBlockPipelineFactory.Create(Settings.PeopleJsonFilePath,
                                                                            Settings.PeopleTargetFilePath,
                                                                            progress,
-                                                                           cancellationSource.Token);
+                                                                           cancellationSource);
 
                 Task.Run(() => WaitForCancellation(cancellationSource));
 

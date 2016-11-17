@@ -38,12 +38,12 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
         public StartableBlock<DataBatch> Create(string peopleJsonFilePath,
                                                 string targetFilePath,
                                                 IProgress<PipelineProgress> progress,
-                                                CancellationToken cancellation)
+                                                CancellationTokenSource cancellationSource)
         {
             var dataPool = new DataPool();
 
             // Create blocks
-            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, dataPool, cancellation);
+            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, dataPool, cancellationSource.Token);
             var processBlock = ProcessingBlock<DataBatch>.Create("Process",
                                                                  DataBatch.IdGetter,
                                                                  x =>
@@ -56,23 +56,23 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
                                                                              x.Data.ForEach(_ => ComputationsHelper.PerformTimeConsumingOperation());
                                                                          }
                                                                      },
-                                                                 cancellation,
+                                                                 cancellationSource.Token,
                                                                  Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
-            var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellation);
+            var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create("ReportProgress",
                                                                       DataBatch.IdGetter,
                                                                       progress,
                                                                       readBlock.EstimatedOutputCount,
                                                                       1,
-                                                                      cancellation);
+                                                                      cancellationSource.Token);
             var disposeBlock = ProcessingBlock<DataBatch>.Create("DisposeData",
                                                                  DataBatch.IdGetter,
                                                                  x => x.Data.ForEach(dataPool.Return),
-                                                                 cancellation);
+                                                                 cancellationSource.Token);
 
             return _straightPipelineFactory.Create(readBlock,
                                                    new[] { processBlock, writeBlock, progressBlock, disposeBlock },
-                                                   cancellation);
+                                                   cancellationSource);
         }
     }
 }
