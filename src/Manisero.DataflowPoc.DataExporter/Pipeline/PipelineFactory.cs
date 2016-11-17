@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
@@ -13,7 +12,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 {
     public interface IPipelineFactory
     {
-        StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation);
+        StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation);
     }
 
     public class PipelineFactory : IPipelineFactory
@@ -37,63 +36,54 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             _straightPipelineFactory = straightPipelineFactory;
         }
 
-        public StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
+        public StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
         {
             File.Create(targetFilePath).Dispose();
 
-            var summaryPipelineCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);
-            var peoplePipelineCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);
-
             // Create pipelines
-            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, summaryPipelineCancellation);
-            var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, peoplePipelineCancellation);
+            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
+            var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
 
             // TODO: New line between summary and people
 
             // Link pipelines
             summaryPipeline.ContinueWith(peoplePipeline);
 
-            var completion = peoplePipeline.Completion.ContinueWithStatusPropagation(_ =>
-                                                                                         {
-                                                                                             summaryPipelineCancellation.Dispose();
-                                                                                             peoplePipelineCancellation.Dispose();
-                                                                                         });
-
             return new StartableBlock<DataBatch<Person>>
                 {
                     Start = summaryPipeline.Start,
                     Output = peoplePipeline.Output,
                     EstimatedOutputCount = peoplePipeline.EstimatedOutputCount,
-                    Completion = completion
+                    Completion = peoplePipeline.Completion
                 };
         }
 
-        private StartableBlock<DataBatch<PeopleSummary>> CreateSummaryPipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
+        private StartableBlock<DataBatch<PeopleSummary>> CreateSummaryPipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
         {
-            var readBlock = _readSummaryBlockFactory.Create(cancellation.Token);
-            var writeBlock = _writeCsvBlockFactory.Create<PeopleSummary>(targetFilePath, true, cancellation.Token);
+            var readBlock = _readSummaryBlockFactory.Create(cancellation);
+            var writeBlock = _writeCsvBlockFactory.Create<PeopleSummary>(targetFilePath, true, cancellation);
             var progressBlock = _progressReportingBlockFactory.Create("PeopleSummaryProgress",
                                                                       DataBatch<PeopleSummary>.IdGetter,
                                                                       progress,
                                                                       readBlock.EstimatedOutputCount,
                                                                       1,
-                                                                      cancellation.Token);
+                                                                      cancellation);
 
             return _straightPipelineFactory.Create(readBlock,
                                                    new[] { writeBlock, progressBlock },
                                                    cancellation);
         }
 
-        private StartableBlock<DataBatch<Person>> CreatePeoplePipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationTokenSource cancellation)
+        private StartableBlock<DataBatch<Person>> CreatePeoplePipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
         {
-            var readBlock = _readPeopleBlockFactory.Create(cancellation.Token);
-            var writeBlock = _writeCsvBlockFactory.Create<Person>(targetFilePath, true, cancellation.Token);
+            var readBlock = _readPeopleBlockFactory.Create(cancellation);
+            var writeBlock = _writeCsvBlockFactory.Create<Person>(targetFilePath, true, cancellation);
             var progressBlock = _progressReportingBlockFactory.Create("PersonProgress",
                                                                       DataBatch<Person>.IdGetter,
                                                                       progress,
                                                                       readBlock.EstimatedOutputCount,
                                                                       1,
-                                                                      cancellation.Token);
+                                                                      cancellation);
 
             return _straightPipelineFactory.Create(readBlock,
                                                    new[] { writeBlock, progressBlock },

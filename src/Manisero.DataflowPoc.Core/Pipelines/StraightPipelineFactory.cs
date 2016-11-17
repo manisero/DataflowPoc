@@ -7,19 +7,17 @@ namespace Manisero.DataflowPoc.Core.Pipelines
 {
     public interface IStraightPipelineFactory
     {
-        StartableBlock<TData> Create<TData>(StartableBlock<TData> source,
-                                                            ProcessingBlock<TData>[] processors,
-                                                            CancellationTokenSource cancellationSource);
+        StartableBlock<TData> Create<TData>(StartableBlock<TData> source, ProcessingBlock<TData>[] processors, CancellationToken cancellation);
     }
 
     public class StraightPipelineFactory : IStraightPipelineFactory
     {
-        public StartableBlock<TData> Create<TData>(StartableBlock<TData> source,
-                                                   ProcessingBlock<TData>[] processors,
-                                                   CancellationTokenSource cancellationSource)
+        public StartableBlock<TData> Create<TData>(StartableBlock<TData> source, ProcessingBlock<TData>[] processors, CancellationToken cancellation)
         {
             // The pipeline looks like this:
             // source -> processor1 -> processor2 -> processor3 (output)
+
+            var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
 
             // Link blocks
             source.Output.LinkWithCompletion(processors[0].Processor);
@@ -29,9 +27,11 @@ namespace Manisero.DataflowPoc.Core.Pipelines
                 processors[i].Processor.LinkWithCompletion(processors[i + 1].Processor);
             }
 
-            // Create global completion
-            var completion = TaskExtensions.CreateGlobalCompletion(new[] { source.Completion }.Concat(processors.Select(x => x.Completion)),
-                                                                   cancellationSource);
+            // Create completion
+            var globalCompletion = TaskExtensions.CreateGlobalCompletion(new[] { source.Completion }.Concat(processors.Select(x => x.Completion)),
+                                                                         cancellationSource);
+
+            var completion = globalCompletion.ContinueWithStatusPropagation(_ => cancellationSource.Dispose());
 
             return new StartableBlock<TData>
                 {

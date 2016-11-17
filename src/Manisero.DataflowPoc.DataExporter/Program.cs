@@ -27,7 +27,7 @@ namespace Manisero.DataflowPoc.DataExporter
                 Task.Run(() => WaitForCancellation(cancellation));
 
                 var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
-                var pipeline = pipelineFactory.Create(Settings.PeopleTargetFilePath, progress, cancellation);
+                var pipeline = pipelineFactory.Create(Settings.PeopleTargetFilePath, progress, cancellation.Token);
                 var executionResult = pipelineExecutor.Execute(pipeline).Result;
 
                 HandleExecutionResult(executionResult);

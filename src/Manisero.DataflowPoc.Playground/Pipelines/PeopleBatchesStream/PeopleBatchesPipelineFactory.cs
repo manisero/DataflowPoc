@@ -39,49 +39,49 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
         public StartableBlock<DataBatch> Create(string peopleJsonFilePath,
                                                 string targetFilePath,
                                                 IProgress<PipelineProgress> progress,
-                                                CancellationTokenSource cancellationSource)
+                                                CancellationToken cancellation)
         {
             var dataPool = new DataPool();
 
             // Create blocks
-            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, dataPool, cancellationSource.Token);
+            var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, dataPool, cancellation);
             var validateBlock = ProcessingBlock<DataBatch>.Create("Validate",
                                                                   DataBatch.IdGetter,
                                                                   x => x.Data.Where(item => item.IsValid).ForEach(_personValidator.Validate),
-                                                                  cancellationSource.Token,
+                                                                  cancellation,
                                                                   Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
             var computeFieldsBlock = ProcessingBlock<DataBatch>.Create("ComputeFields",
                                                                        DataBatch.IdGetter,
                                                                        x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
-                                                                       cancellationSource.Token,
+                                                                       cancellation,
                                                                        Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
-            var extraProcessingBlocks = CreateExtraProcessingBlocks(cancellationSource);
-            var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
+            var extraProcessingBlocks = CreateExtraProcessingBlocks(cancellation);
+            var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellation);
             var progressBlock = _progressReportingBlockFactory.Create("ReportProgress",
                                                                       DataBatch.IdGetter,
                                                                       progress,
                                                                       readBlock.EstimatedOutputCount,
                                                                       1,
-                                                                      cancellationSource.Token);
+                                                                      cancellation);
             var disposeBlock = ProcessingBlock<DataBatch>.Create("DisposeData",
                                                                  DataBatch.IdGetter,
                                                                  x => x.Data.ForEach(dataPool.Return),
-                                                                 cancellationSource.Token);
+                                                                 cancellation);
 
             return _straightPipelineFactory.Create(readBlock,
                                                    new[] { validateBlock, computeFieldsBlock }.Concat(extraProcessingBlocks)
                                                                                               .Concat(new[] { writeBlock, progressBlock, disposeBlock })
                                                                                               .ToArray(),
-                                                   cancellationSource);
+                                                   cancellation);
         }
 
-        private IEnumerable<ProcessingBlock<DataBatch>> CreateExtraProcessingBlocks(CancellationTokenSource cancellationSource)
+        private IEnumerable<ProcessingBlock<DataBatch>> CreateExtraProcessingBlocks(CancellationToken cancellation)
         {
             return Enumerable.Range(1, Settings.ExtraProcessingBlocksCount)
                              .Select(x => ProcessingBlock<DataBatch>.Create($"ExtraProcessing {x}",
                                                                             DataBatch.IdGetter,
                                                                             batch => batch.Data.ForEach(_ => ComputationsHelper.PerformTimeConsumingOperation()),
-                                                                            cancellationSource.Token,
+                                                                            cancellation,
                                                                             Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1));
         }
     }
