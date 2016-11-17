@@ -11,14 +11,14 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
 {
     public interface IWriteCsvBlockFactory
     {
-        ProcessingBlock<DataBatch<TItem>> Create<TItem>(string targetFilePath, CancellationToken cancellation);
+        ProcessingBlock<DataBatch<TItem>> Create<TItem>(string targetFilePath, bool appendTargetFile, CancellationToken cancellation);
     }
 
     public class WriteCsvBlockFactory : IWriteCsvBlockFactory
     {
-        public ProcessingBlock<DataBatch<TItem>> Create<TItem>(string targetFilePath, CancellationToken cancellation)
+        public ProcessingBlock<DataBatch<TItem>> Create<TItem>(string targetFilePath, bool appendTargetFile, CancellationToken cancellation)
         {
-            var csvWriter = new Lazy<CsvWriter>(() => CreateCsvWriter(targetFilePath));
+            var csvWriter = new Lazy<CsvWriter>(() => CreateCsvWriter(targetFilePath, appendTargetFile));
 
             // Create blocks
             var writeBlock = DataflowFacade.TransformBlock($"Write{typeof(TItem).Name}",
@@ -36,9 +36,9 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
                 };
         }
 
-        private CsvWriter CreateCsvWriter(string targetFilePath)
+        private CsvWriter CreateCsvWriter(string targetFilePath, bool appendTargetFile)
         {
-            var targetWriter = new StreamWriter(targetFilePath, true);
+            var targetWriter = new StreamWriter(targetFilePath, appendTargetFile);
 
             return new CsvWriter(targetWriter);
         }
