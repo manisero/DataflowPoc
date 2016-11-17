@@ -41,21 +41,30 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
         {
             File.Create(targetFilePath).Dispose();
 
+            var summaryPipelineCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);
+            var peoplePipelineCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);
+
             // Create pipelines
-            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
-            var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
+            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, summaryPipelineCancellation);
+            var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, peoplePipelineCancellation);
 
             // TODO: New line between summary and people
 
             // Link pipelines
             summaryPipeline.ContinueWith(peoplePipeline);
 
+            var completion = peoplePipeline.Completion.ContinueWithStatusPropagation(_ =>
+                                                                                         {
+                                                                                             summaryPipelineCancellation.Dispose();
+                                                                                             peoplePipelineCancellation.Dispose();
+                                                                                         });
+
             return new StartableBlock<DataBatch<Person>>
                 {
                     Start = summaryPipeline.Start,
                     Output = peoplePipeline.Output,
                     EstimatedOutputCount = peoplePipeline.EstimatedOutputCount,
-                    Completion = peoplePipeline.Completion
+                    Completion = completion
                 };
         }
 
