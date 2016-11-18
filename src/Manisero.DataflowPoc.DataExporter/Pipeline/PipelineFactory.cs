@@ -43,21 +43,21 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 
             // Create pipelines
             var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
-            summaryPipeline.Completion = summaryPipeline.Completion
-                                                        .ContinueWithStatusPropagation(
-                                                            x =>
-                                                                {
-                                                                    if (!x.IsFaulted || x.IsCanceled)
-                                                                    {
-                                                                        File.AppendAllLines(targetFilePath, new[] { string.Empty });
-                                                                    }
-                                                                });
+
+            var writeEmptyLineBlock = StartableBlockExtensions.CreateStartOnlyBlock(
+                () =>
+                    {
+                        if (!summaryPipeline.Completion.IsFaulted && !summaryPipeline.Completion.IsCanceled)
+                        {
+                            File.AppendAllLines(targetFilePath, new[] { string.Empty });
+                        }
+                    });
 
             var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
 
             // Link pipelines
-            summaryPipeline.Output.IgnoreOutput();
-            summaryPipeline.Completion.ContinueWith(peoplePipeline);
+            summaryPipeline.ContinueWith(writeEmptyLineBlock);
+            writeEmptyLineBlock.ContinueWith(peoplePipeline);
 
             return new StartableBlock<DataBatch<Person>>
                 {

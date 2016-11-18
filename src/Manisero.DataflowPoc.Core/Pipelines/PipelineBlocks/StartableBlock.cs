@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Manisero.DataflowPoc.Core.Extensions;
 
 namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 {
@@ -17,26 +18,44 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 
     public static class StartableBlockExtensions
     {
-        public static void ContinueWith<TOutput>(this Task task, StartableBlock<TOutput> continuationBlock)
+        public static StartableBlock<object> CreateStartOnlyBlock(Action start)
         {
-            task.ContinueWith(x =>
-                                  {
-                                      if (x.IsFaulted)
-                                      {
-                                          continuationBlock.Output.Fault(x.Exception);
-                                      }
-                                      else
-                                      {
-                                          try
-                                          {
-                                              continuationBlock.Start();
-                                          }
-                                          catch (Exception ex)
-                                          {
-                                              continuationBlock.Output.Fault(ex);
-                                          }
-                                      }
-                                  });
+            var output = new BufferBlock<object>();
+
+            return new StartableBlock<object>
+                {
+                    Start = () =>
+                                {
+                                    start();
+                                    output.Complete();
+                                },
+                    Output = output,
+                    Completion = output.Completion
+                };
+        }
+
+        public static void ContinueWith<TOutput, TContinuationOutput>(this StartableBlock<TOutput> block, StartableBlock<TContinuationOutput> continuationBlock)
+        {
+            block.Output.IgnoreOutput();
+
+            block.Completion.ContinueWith(x =>
+                                              {
+                                                  if (x.IsFaulted)
+                                                  {
+                                                      continuationBlock.Output.Fault(x.Exception);
+                                                  }
+                                                  else
+                                                  {
+                                                      try
+                                                      {
+                                                          continuationBlock.Start();
+                                                      }
+                                                      catch (Exception ex)
+                                                      {
+                                                          continuationBlock.Output.Fault(ex);
+                                                      }
+                                                  }
+                                              });
         }
     }
 }
