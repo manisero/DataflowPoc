@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Manisero.DataflowPoc.Core.Extensions;
 
 namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 {
@@ -18,17 +17,6 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 
     public static class StartableBlockExtensions
     {
-        public static StartableBlock<TOutput> ContinueWith<TOutput>(this StartableBlock<TOutput> block, Action<Task> continuationAction)
-        {
-            return new StartableBlock<TOutput>
-                {
-                    Start = block.Start,
-                    Output = block.Output,
-                    EstimatedOutputCount = block.EstimatedOutputCount,
-                    Completion = block.Completion.ContinueWithStatusPropagation(continuationAction)
-                };
-        }
-
         public static void ContinueWith<TOutput>(this Task task, StartableBlock<TOutput> continuationBlock)
         {
             task.ContinueWith(x =>

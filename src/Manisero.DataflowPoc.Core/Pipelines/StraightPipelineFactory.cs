@@ -9,16 +9,14 @@ namespace Manisero.DataflowPoc.Core.Pipelines
     {
         StartableBlock<TData> Create<TData>(StartableBlock<TData> source,
                                             ProcessingBlock<TData>[] processors,
-                                            CancellationTokenSource cancellationSource,
-                                            bool disposeCancellationSource = false);
+                                            CancellationTokenSource cancellationSource);
     }
 
     public class StraightPipelineFactory : IStraightPipelineFactory
     {
         public StartableBlock<TData> Create<TData>(StartableBlock<TData> source,
                                                    ProcessingBlock<TData>[] processors,
-                                                   CancellationTokenSource cancellationSource,
-                                                   bool disposeCancellationSource = false)
+                                                   CancellationTokenSource cancellationSource)
         {
             // The pipeline looks like this:
             // source -> processor1 -> processor2 -> processor3 (output)
@@ -34,11 +32,6 @@ namespace Manisero.DataflowPoc.Core.Pipelines
             // Create global completion
             var completion = TaskExtensions.CreateGlobalCompletion(new[] { source.Completion }.Concat(processors.Select(x => x.Completion)),
                                                                    cancellationSource);
-
-            if (disposeCancellationSource)
-            {
-                completion = completion.ContinueWithStatusPropagation(_ => cancellationSource.Dispose());
-            }
 
             return new StartableBlock<TData>
                 {

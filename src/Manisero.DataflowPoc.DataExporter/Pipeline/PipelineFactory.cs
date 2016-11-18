@@ -43,13 +43,15 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 
             // Create pipelines
             var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
-            summaryPipeline = summaryPipeline.ContinueWith(x =>
-                                                               {
-                                                                   if (!x.IsFaulted || x.IsCanceled)
-                                                                   {
-                                                                       File.AppendAllLines(targetFilePath, new[] { string.Empty });
-                                                                   }
-                                                               });
+            summaryPipeline.Completion = summaryPipeline.Completion
+                                                        .ContinueWithStatusPropagation(
+                                                            x =>
+                                                                {
+                                                                    if (!x.IsFaulted || x.IsCanceled)
+                                                                    {
+                                                                        File.AppendAllLines(targetFilePath, new[] { string.Empty });
+                                                                    }
+                                                                });
 
             var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
 
@@ -80,10 +82,14 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
                                                                       1,
                                                                       cancellationSource.Token);
 
-            return _straightPipelineFactory.Create(readBlock,
-                                                   new[] { writeBlock, progressBlock },
-                                                   cancellationSource,
-                                                   true);
+            // Create pipeline
+            var pipeline = _straightPipelineFactory.Create(readBlock,
+                                                           new[] { writeBlock, progressBlock },
+                                                           cancellationSource);
+
+            pipeline.Completion = pipeline.Completion.ContinueWithStatusPropagation(_ => cancellationSource.Dispose());
+
+            return pipeline;
         }
 
         private StartableBlock<DataBatch<Person>> CreatePeoplePipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
@@ -100,10 +106,14 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
                                                                       1,
                                                                       cancellationSource.Token);
 
-            return _straightPipelineFactory.Create(readBlock,
-                                                   new[] { writeBlock, progressBlock },
-                                                   cancellationSource,
-                                                   true);
+            // Create pipeline
+            var pipeline = _straightPipelineFactory.Create(readBlock,
+                                                           new[] { writeBlock, progressBlock },
+                                                           cancellationSource);
+
+            pipeline.Completion = pipeline.Completion.ContinueWithStatusPropagation(_ => cancellationSource.Dispose());
+
+            return pipeline;
         }
     }
 }
