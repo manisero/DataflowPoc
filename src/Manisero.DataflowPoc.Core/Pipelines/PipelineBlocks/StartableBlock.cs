@@ -12,9 +12,9 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
         public int EstimatedOutputCount { get; }
         public Task Completion { get; private set; }
 
-        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount, Task customCompletion = null)
+        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount, Task customCompletion = null, bool isComposite = false)
         {
-            Start = WrapStart(start, output);
+            Start = isComposite ? start : WrapStart(start, output);
             Output = output;
             EstimatedOutputCount = estimatedOutputCount;
             Completion = customCompletion ?? output.Completion;
@@ -61,32 +61,29 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
         {
             Completion = Completion.ContinueWithStatusPropagation(continuationAction);
         }
-    }
 
-    public static class StartableBlockExtensions
-    {
-        public static void ContinueWith<TOutput, TContinuationOutput>(this StartableBlock<TOutput> block, StartableBlock<TContinuationOutput> continuationBlock)
+        public void ContinueWith<TContinuationOutput>(StartableBlock<TContinuationOutput> continuationBlock)
         {
-            block.Output.IgnoreOutput();
+            Output.IgnoreOutput();
 
-            block.Completion.ContinueWith(x =>
-                                              {
-                                                  if (x.IsFaulted)
-                                                  {
-                                                      continuationBlock.Output.Fault(x.Exception);
-                                                  }
-                                                  else
-                                                  {
-                                                      try
-                                                      {
-                                                          continuationBlock.Start();
-                                                      }
-                                                      catch (Exception ex)
-                                                      {
-                                                          continuationBlock.Output.Fault(ex);
-                                                      }
-                                                  }
-                                              });
+            Completion.ContinueWith(x =>
+                                        {
+                                            if (x.IsFaulted)
+                                            {
+                                                continuationBlock.Output.Fault(x.Exception);
+                                            }
+                                            else
+                                            {
+                                                try
+                                                {
+                                                    continuationBlock.Start();
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    continuationBlock.Output.Fault(ex);
+                                                }
+                                            }
+                                        });
         }
     }
 }
