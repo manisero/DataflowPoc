@@ -42,11 +42,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             File.Create(targetFilePath).Dispose();
 
             // Create pipelines
-            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation).ContinueWith(_ =>
-                                                                                                                 {
-                                                                                                                     throw new InvalidOperationException("test");
-                                                                                                                     File.AppendAllLines(targetFilePath, new[] { string.Empty });
-                                                                                                                 });
+            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation).ContinueWith(_ => File.AppendAllLines(targetFilePath, new[] { string.Empty }));
             var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
 
             // TODO: New line between summary and people

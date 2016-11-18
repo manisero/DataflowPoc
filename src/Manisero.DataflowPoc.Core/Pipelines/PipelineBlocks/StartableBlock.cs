@@ -18,14 +18,14 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 
     public static class StartableBlockExtensions
     {
-        public static StartableBlock<TOutput> ContinueWith<TOutput>(this StartableBlock<TOutput> block, Action<Task> continuationAction)
+        public static StartableBlock<TOutput> ContinueWith<TOutput>(this StartableBlock<TOutput> block, Action<Task> continuationAction, bool executeOnFault = true)
         {
             return new StartableBlock<TOutput>
                 {
                     Start = block.Start,
                     Output = block.Output,
                     EstimatedOutputCount = block.EstimatedOutputCount,
-                    Completion = block.Completion.ContinueWithStatusPropagation(continuationAction)
+                    Completion = block.Completion.ContinueWithStatusPropagation(continuationAction, executeOnFault)
                 };
         }
 

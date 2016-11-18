@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
 using Manisero.DataflowPoc.DataExporter.Logic;
@@ -51,8 +52,10 @@ namespace Manisero.DataflowPoc.DataExporter
 
             if (executionResult.Faulted)
             {
+                var exception = executionResult.Exception.FlattenIfAggregate();
+
                 Console.WriteLine("Faulted. Exception:");
-                Console.WriteLine(executionResult.Exception);
+                Console.WriteLine(exception);
             }
             else if (executionResult.Canceled)
             {
