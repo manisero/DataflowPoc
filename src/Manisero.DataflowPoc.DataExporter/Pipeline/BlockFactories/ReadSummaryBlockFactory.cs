@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks.Dataflow;
 using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
@@ -33,6 +34,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
                 {
                     Start = () =>
                                 {
+                                    throw new InvalidOperationException("test");
                                     readBlock.Post(new DataBatch<PeopleSummary>
                                         {
                                             Number = -1,
