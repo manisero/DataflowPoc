@@ -14,35 +14,63 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
         public int EstimatedOutputCount { get; set; }
 
         public Task Completion { get; set; }
+
+        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount, Task completion, bool isFirstBlock)
+        {
+            Start = isFirstBlock ? WrapStart(start, output) : start;
+            Output = output;
+            EstimatedOutputCount = estimatedOutputCount;
+            Completion = completion;
+        }
+
+        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount)
+        {
+            Start = WrapStart(start, output);
+            Output = output;
+            EstimatedOutputCount = estimatedOutputCount;
+            Completion = output.Completion;
+        }
+
+        public StartableBlock(Action start)
+        {
+            var output = new BufferBlock<TOutput>();
+
+            Start = WrapStart(() =>
+                                  {
+                                      start();
+                                      output.Complete();
+                                  },
+                              output);
+            Output = output;
+            Completion = output.Completion;
+        }
+
+        public StartableBlock(StartableBlock<TOutput> start, ProcessingBlock<TOutput> output, Task completion)
+        {
+            Start = start.Start;
+            Output = output.Processor;
+            EstimatedOutputCount = start.EstimatedOutputCount;
+            Completion = completion;
+        }
+
+        private Action WrapStart(Action start, ISourceBlock<TOutput> output)
+        {
+            return () =>
+                       {
+                           try
+                           {
+                               start();
+                           }
+                           catch (Exception ex)
+                           {
+                               output.Fault(ex);
+                           }
+                       };
+        }
     }
 
     public static class StartableBlockExtensions
     {
-        public static StartableBlock<object> CreateStartOnlyBlock(Action start) => CreateStartOnlyBlock<object>(start);
-
-        public static StartableBlock<TOutput> CreateStartOnlyBlock<TOutput>(Action start)
-        {
-            var output = new BufferBlock<TOutput>();
-
-            return new StartableBlock<TOutput>
-                {
-                    Start = () =>
-                                {
-                                    try
-                                    {
-                                        start();
-                                        output.Complete();
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        ((ISourceBlock<TOutput>)output).Fault(ex);
-                                    }
-                                },
-                    Output = output,
-                    Completion = output.Completion
-                };
-        }
-
         public static void ContinueWith<TOutput, TContinuationOutput>(this StartableBlock<TOutput> block, StartableBlock<TContinuationOutput> continuationBlock)
         {
             block.Output.IgnoreOutput();
