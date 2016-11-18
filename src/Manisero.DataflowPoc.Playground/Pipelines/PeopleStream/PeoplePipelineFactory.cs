@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
@@ -50,16 +51,16 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleStream
             // Create blocks
             // TODO: Progress reporting approach 1: before anything
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, dataPool, cancellationSource.Token);
-            var validateBlock = ProcessingBlock<Data>.Create("Validate",
-                                                             Data.IdGetter,
-                                                             x => _personValidator.Validate(x),
-                                                             cancellationSource.Token,
-                                                             Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
-            var computeFieldsBlock = ProcessingBlock<Data>.Create("ComputeFields",
-                                                                  Data.IdGetter,
-                                                                  x => _personFieldsComputer.Compute(x),
-                                                                  cancellationSource.Token,
-                                                                  Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
+            var validateBlock = new ProcessingBlock<Data>(DataflowFacade.TransformBlock("Validate",
+                                                                                        Data.IdGetter,
+                                                                                        x => _personValidator.Validate(x),
+                                                                                        cancellationSource.Token,
+                                                                                        Settings.DegreeOfParallelism));
+            var computeFieldsBlock = new ProcessingBlock<Data>(DataflowFacade.TransformBlock("ComputeFields",
+                                                                                             Data.IdGetter,
+                                                                                             x => _personFieldsComputer.Compute(x),
+                                                                                             cancellationSource.Token,
+                                                                                             Settings.DegreeOfParallelism));
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var throwBlock = Settings.ThrowTest
                                  ? _throwingBlockFactory.Create(Data.IdGetter, cancellationSource.Token)

@@ -37,11 +37,7 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream.BlockFac
             // Handle completion
             var completion = writeBlock.Completion.ContinueWithStatusPropagation(_ => writer.Dispose());
 
-            return new ProcessingBlock<DataBatch>
-                {
-                    Processor = writeBlock,
-                    Completion = completion
-                };
+            return new ProcessingBlock<DataBatch>(writeBlock, completion);
         }
     }
 }
