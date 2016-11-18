@@ -18,16 +18,25 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 
     public static class StartableBlockExtensions
     {
-        public static StartableBlock<object> CreateStartOnlyBlock(Action start)
-        {
-            var output = new BufferBlock<object>();
+        public static StartableBlock<object> CreateStartOnlyBlock(Action start) => CreateStartOnlyBlock<object>(start);
 
-            return new StartableBlock<object>
+        public static StartableBlock<TOutput> CreateStartOnlyBlock<TOutput>(Action start)
+        {
+            var output = new BufferBlock<TOutput>();
+
+            return new StartableBlock<TOutput>
                 {
                     Start = () =>
                                 {
-                                    start();
-                                    output.Complete();
+                                    try
+                                    {
+                                        start();
+                                        output.Complete();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        ((ISourceBlock<TOutput>)output).Fault(ex);
+                                    }
                                 },
                     Output = output,
                     Completion = output.Completion
