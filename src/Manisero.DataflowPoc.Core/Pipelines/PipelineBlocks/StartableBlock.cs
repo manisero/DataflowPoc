@@ -31,7 +31,14 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
                                        }
                                        else
                                        {
-                                           continuationBlock.Start();
+                                           try
+                                           {
+                                               continuationBlock.Start();
+                                           }
+                                           catch (Exception ex)
+                                           {
+                                               continuationBlock.Output.Fault(ex);
+                                           }
                                        }
                                    });
         }
