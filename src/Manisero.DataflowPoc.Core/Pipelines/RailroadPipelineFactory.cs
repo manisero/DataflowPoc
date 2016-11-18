@@ -47,13 +47,7 @@ namespace Manisero.DataflowPoc.Core.Pipelines
                                                                                               .Concat(new[] { errorHandler.Completion, output.Completion }),
                                                                    cancellationSource);
 
-            return new StartableBlock<TData>
-                {
-                    Start = source.Start,
-                    Output = output.Processor,
-                    EstimatedOutputCount = source.EstimatedOutputCount,
-                    Completion = completion
-                };
+            return new StartableBlock<TData>(source, output, completion);
         }
     }
 }

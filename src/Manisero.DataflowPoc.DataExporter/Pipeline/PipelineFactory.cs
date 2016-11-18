@@ -44,7 +44,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             // Create pipelines
             var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
 
-            var writeEmptyLineBlock = StartableBlockExtensions.CreateStartOnlyBlock(
+            var writeEmptyLineBlock = new StartableBlock<object>(
                 () =>
                     {
                         if (!summaryPipeline.Completion.IsFaulted && !summaryPipeline.Completion.IsCanceled)
@@ -87,7 +87,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
                                                            new[] { writeBlock, progressBlock },
                                                            cancellationSource);
 
-            pipeline.Completion = pipeline.Completion.ContinueWithStatusPropagation(_ => cancellationSource.Dispose());
+            pipeline.ContinueCompletionWith(_ => cancellationSource.Dispose());
 
             return pipeline;
         }
@@ -111,7 +111,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
                                                            new[] { writeBlock, progressBlock },
                                                            cancellationSource);
 
-            pipeline.Completion = pipeline.Completion.ContinueWithStatusPropagation(_ => cancellationSource.Dispose());
+            pipeline.ContinueCompletionWith(_ => cancellationSource.Dispose());
 
             return pipeline;
         }

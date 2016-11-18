@@ -33,13 +33,7 @@ namespace Manisero.DataflowPoc.Core.Pipelines
             var completion = TaskExtensions.CreateGlobalCompletion(new[] { source.Completion }.Concat(processors.Select(x => x.Completion)),
                                                                    cancellationSource);
 
-            return new StartableBlock<TData>
-                {
-                    Start = source.Start,
-                    Output = processors.Last().Processor,
-                    EstimatedOutputCount = source.EstimatedOutputCount,
-                    Completion = completion
-                };
+            return new StartableBlock<TData>(source, processors.Last(), completion);
         }
     }
 }

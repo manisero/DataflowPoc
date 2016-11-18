@@ -7,28 +7,17 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 {
     public class StartableBlock<TOutput>
     {
-        public Action Start { get; set; }
+        public Action Start { get; }
+        public ISourceBlock<TOutput> Output { get; }
+        public int EstimatedOutputCount { get; }
+        public Task Completion { get; private set; }
 
-        public ISourceBlock<TOutput> Output { get; set; }
-
-        public int EstimatedOutputCount { get; set; }
-
-        public Task Completion { get; set; }
-
-        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount, Task completion, bool isFirstBlock)
-        {
-            Start = isFirstBlock ? WrapStart(start, output) : start;
-            Output = output;
-            EstimatedOutputCount = estimatedOutputCount;
-            Completion = completion;
-        }
-
-        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount)
+        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount, Task customCompletion = null)
         {
             Start = WrapStart(start, output);
             Output = output;
             EstimatedOutputCount = estimatedOutputCount;
-            Completion = output.Completion;
+            Completion = customCompletion ?? output.Completion;
         }
 
         public StartableBlock(Action start)
@@ -66,6 +55,11 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
                                output.Fault(ex);
                            }
                        };
+        }
+
+        public void ContinueCompletionWith(Action<Task> continuationAction)
+        {
+            Completion = Completion.ContinueWithStatusPropagation(continuationAction);
         }
     }
 

@@ -47,21 +47,19 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream.BlockFac
             // Handle completion
             var completion = readBlock.Completion.ContinueWithStatusPropagation(_ => peopleJsonStream.Dispose());
 
-            return new StartableBlock<DataBatch>
-                {
-                    Start = () =>
-                                {
-                                    for (var i = 0; i < batchesCount; i++)
-                                    {
-                                        bufferBlock.Post(new DataBatch { IntendedSize = batchSize });
-                                    }
+            return new StartableBlock<DataBatch>(
+                () =>
+                    {
+                        for (var i = 0; i < batchesCount; i++)
+                        {
+                            bufferBlock.Post(new DataBatch { IntendedSize = batchSize });
+                        }
 
-                                    bufferBlock.Complete();
-                                },
-                    Output = readBlock,
-                    EstimatedOutputCount = batchesCount,
-                    Completion = completion
-                };
+                        bufferBlock.Complete();
+                    },
+                readBlock,
+                batchesCount,
+                completion);
         }
 
         private IPropagatorBlock<DataBatch, DataBatch> UseDataReader(StreamReader peopleJsonStream, DataPool dataPool, CancellationToken cancellation)
