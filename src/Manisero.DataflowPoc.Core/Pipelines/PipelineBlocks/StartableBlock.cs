@@ -20,6 +20,11 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
             Completion = customCompletion ?? output.Completion;
         }
 
+        public StartableBlock(StartableBlock<TOutput> source, ProcessingBlock<TOutput> output, Task completion)
+            : this(source.Start, output.Processor, source.EstimatedOutputCount, completion, true)
+        {
+        }
+
         public StartableBlock(Action start)
         {
             var output = new BufferBlock<TOutput>();
@@ -32,14 +37,6 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
                               output);
             Output = output;
             Completion = output.Completion;
-        }
-
-        public StartableBlock(StartableBlock<TOutput> start, ProcessingBlock<TOutput> output, Task completion)
-        {
-            Start = start.Start;
-            Output = output.Processor;
-            EstimatedOutputCount = start.EstimatedOutputCount;
-            Completion = completion;
         }
 
         private Action WrapStart(Action start, ISourceBlock<TOutput> output)
