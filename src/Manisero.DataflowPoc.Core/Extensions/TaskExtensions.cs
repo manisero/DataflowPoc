@@ -8,53 +8,7 @@ namespace Manisero.DataflowPoc.Core.Extensions
 {
     public static class TaskExtensions
     {
-        public static Task ContinueWithStatusPropagation(this Task task, Action<Task> continuationAction, bool executeOnFault = true)
-            => executeOnFault
-                   ? task.ContinueWithStatusPropagation_executeOnFault(continuationAction)
-                   : task.ContinueWithStatusPropagation_abortOnFault(continuationAction);
-
-        private static Task ContinueWithStatusPropagation_abortOnFault(this Task task, Action<Task> continuationAction)
-        {
-            var completionSource = new TaskCompletionSource<object>();
-
-            task.ContinueWith(x =>
-            {
-                Exception exception = null;
-
-                if (x.IsFaulted)
-                {
-                    exception = x.Exception;
-                }
-                else
-                {
-                    try
-                    {
-                        continuationAction(x);
-                    }
-                    catch (Exception ex)
-                    {
-                        exception = ex;
-                    }
-                }
-
-                if (exception != null)
-                {
-                    completionSource.SetException(exception);
-                }
-                else if (x.IsCanceled)
-                {
-                    completionSource.SetCanceled();
-                }
-                else
-                {
-                    completionSource.SetResult(null);
-                }
-            });
-
-            return completionSource.Task;
-        }
-
-        private static Task ContinueWithStatusPropagation_executeOnFault(this Task task, Action<Task> continuationAction)
+        public static Task ContinueWithStatusPropagation(this Task task, Action<Task> continuationAction)
         {
             var completionSource = new TaskCompletionSource<object>();
 
@@ -66,7 +20,7 @@ namespace Manisero.DataflowPoc.Core.Extensions
                 {
                     exceptions.Add(x.Exception);
                 }
-                
+
                 try
                 {
                     continuationAction(x);
