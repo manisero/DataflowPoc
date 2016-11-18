@@ -18,29 +18,37 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 
     public static class StartableBlockExtensions
     {
-        public static void ContinueWith<TOutput, TContinuationOutput>(this StartableBlock<TOutput> block, StartableBlock<TContinuationOutput> continuationBlock)
+        public static StartableBlock<TOutput> ContinueWith<TOutput>(this StartableBlock<TOutput> block, Action<Task> continuationAction)
         {
-            block.Output.IgnoreOutput();
+            return new StartableBlock<TOutput>
+                {
+                    Start = block.Start,
+                    Output = block.Output,
+                    EstimatedOutputCount = block.EstimatedOutputCount,
+                    Completion = block.Completion.ContinueWithStatusPropagation(continuationAction)
+                };
+        }
 
-            block.Completion
-                 .ContinueWith(x =>
-                                   {
-                                       if (x.IsFaulted)
-                                       {
-                                           continuationBlock.Output.Fault(x.Exception);
-                                       }
-                                       else
-                                       {
-                                           try
-                                           {
-                                               continuationBlock.Start();
-                                           }
-                                           catch (Exception ex)
-                                           {
-                                               continuationBlock.Output.Fault(ex);
-                                           }
-                                       }
-                                   });
+        public static void ContinueWith<TOutput>(this Task task, StartableBlock<TOutput> continuationBlock)
+        {
+            task.ContinueWith(x =>
+                                  {
+                                      if (x.IsFaulted)
+                                      {
+                                          continuationBlock.Output.Fault(x.Exception);
+                                      }
+                                      else
+                                      {
+                                          try
+                                          {
+                                              continuationBlock.Start();
+                                          }
+                                          catch (Exception ex)
+                                          {
+                                              continuationBlock.Output.Fault(ex);
+                                          }
+                                      }
+                                  });
         }
     }
 }

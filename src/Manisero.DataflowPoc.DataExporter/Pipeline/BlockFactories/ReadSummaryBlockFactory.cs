@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks.Dataflow;
 using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
@@ -26,7 +27,11 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
         {
             var readBlock = DataflowFacade.TransformBlock<DataBatch<PeopleSummary>>("ReadPeopleSummary",
                                                                                     DataBatch<PeopleSummary>.IdGetter,
-                                                                                    x => x.Data = new[] { _peopleSummaryReader.Read() },
+                                                                                    x =>
+                                                                                        {
+                                                                                            throw new InvalidOperationException("read error");
+                                                                                            x.Data = new[] { _peopleSummaryReader.Read() };
+                                                                                        },
                                                                                     cancellation);
 
             return new StartableBlock<DataBatch<PeopleSummary>>

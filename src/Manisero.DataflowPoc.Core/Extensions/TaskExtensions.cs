@@ -8,24 +8,34 @@ namespace Manisero.DataflowPoc.Core.Extensions
 {
     public static class TaskExtensions
     {
-        public static Task ContinueWithStatusPropagation(this Task task, Action<Task> continuationAction)
+        public static Task ContinueWithStatusPropagation(this Task task, Action<Task> continuationAction, bool executeOnFault = true)
         {
             var completionSource = new TaskCompletionSource<object>();
 
             task.ContinueWith(x =>
                                   {
-                                      continuationAction(x);
+                                      var exceptions = new List<Exception>(2);
 
                                       if (x.IsFaulted)
                                       {
+                                          exceptions.Add(x.Exception);
+                                      }
+
+                                      if (!x.IsFaulted || executeOnFault)
+                                      {
                                           try
                                           {
-                                              throw x.Exception;
+                                              continuationAction(x);
                                           }
-                                          catch (Exception e)
+                                          catch (Exception ex)
                                           {
-                                              completionSource.SetException(e);
+                                              exceptions.Add(ex);
                                           }
+                                      }
+
+                                      if (exceptions.Count != 0)
+                                      {
+                                          completionSource.SetException(new AggregateException(exceptions));
                                       }
                                       else if (x.IsCanceled)
                                       {

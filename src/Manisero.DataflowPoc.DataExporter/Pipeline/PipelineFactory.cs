@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
@@ -41,13 +42,18 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             File.Create(targetFilePath).Dispose();
 
             // Create pipelines
-            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
+            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation).ContinueWith(_ =>
+                                                                                                                 {
+                                                                                                                     throw new InvalidOperationException("test");
+                                                                                                                     File.AppendAllLines(targetFilePath, new[] { string.Empty });
+                                                                                                                 });
             var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
 
             // TODO: New line between summary and people
 
             // Link pipelines
-            summaryPipeline.ContinueWith(peoplePipeline);
+            summaryPipeline.Output.IgnoreOutput();
+            summaryPipeline.Completion.ContinueWith(peoplePipeline);
 
             return new StartableBlock<DataBatch<Person>>
                 {
