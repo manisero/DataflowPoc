@@ -29,23 +29,20 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
                                                                                     x => x.Data = new[] { _peopleSummaryReader.Read() },
                                                                                     cancellation);
 
-            return new StartableBlock<DataBatch<PeopleSummary>>
-                {
-                    Start = () =>
-                                {
-                                    readBlock.Post(new DataBatch<PeopleSummary>
-                                        {
-                                            Number = -1,
-                                            DataOffset = 0,
-                                            IntendedSize = 1
-                                        });
+            return new StartableBlock<DataBatch<PeopleSummary>>(
+                () =>
+                    {
+                        readBlock.Post(new DataBatch<PeopleSummary>
+                            {
+                                Number = -1,
+                                DataOffset = 0,
+                                IntendedSize = 1
+                            });
 
-                                    readBlock.Complete();
-                                },
-                    Output = readBlock,
-                    Completion = readBlock.Completion,
-                    EstimatedOutputCount = 1
-                };
+                        readBlock.Complete();
+                    },
+                readBlock,
+                1);
         }
     }
 }

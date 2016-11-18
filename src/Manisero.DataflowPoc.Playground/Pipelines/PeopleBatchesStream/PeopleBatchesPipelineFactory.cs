@@ -45,16 +45,16 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
 
             // Create blocks
             var readBlock = _readingBlockFactory.Create(peopleJsonFilePath, dataPool, cancellationSource.Token);
-            var validateBlock = ProcessingBlock<DataBatch>.Create("Validate",
-                                                                  DataBatch.IdGetter,
-                                                                  x => x.Data.Where(item => item.IsValid).ForEach(_personValidator.Validate),
-                                                                  cancellationSource.Token,
-                                                                  Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
-            var computeFieldsBlock = ProcessingBlock<DataBatch>.Create("ComputeFields",
-                                                                       DataBatch.IdGetter,
-                                                                       x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
-                                                                       cancellationSource.Token,
-                                                                       Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1);
+            var validateBlock = new ProcessingBlock<DataBatch>(DataflowFacade.TransformBlock("Validate",
+                                                                                             DataBatch.IdGetter,
+                                                                                             x => x.Data.Where(item => item.IsValid).ForEach(_personValidator.Validate),
+                                                                                             cancellationSource.Token,
+                                                                                             Settings.DegreeOfParallelism));
+            var computeFieldsBlock = new ProcessingBlock<DataBatch>(DataflowFacade.TransformBlock("ComputeFields",
+                                                                                                  DataBatch.IdGetter,
+                                                                                                  x => x.Data.Where(item => item.IsValid).ForEach(_personFieldsComputer.Compute),
+                                                                                                  cancellationSource.Token,
+                                                                                                  Settings.DegreeOfParallelism));
             var extraProcessingBlocks = CreateExtraProcessingBlocks(cancellationSource);
             var writeBlock = _writingBlockFactory.Create(targetFilePath, cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create("ReportProgress",
@@ -63,10 +63,10 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
                                                                       readBlock.EstimatedOutputCount,
                                                                       1,
                                                                       cancellationSource.Token);
-            var disposeBlock = ProcessingBlock<DataBatch>.Create("DisposeData",
-                                                                 DataBatch.IdGetter,
-                                                                 x => x.Data.ForEach(dataPool.Return),
-                                                                 cancellationSource.Token);
+            var disposeBlock = new ProcessingBlock<DataBatch>(DataflowFacade.TransformBlock("DisposeData",
+                                                                                            DataBatch.IdGetter,
+                                                                                            x => x.Data.ForEach(dataPool.Return),
+                                                                                            cancellationSource.Token));
 
             return _straightPipelineFactory.Create(readBlock,
                                                    new[] { validateBlock, computeFieldsBlock }.Concat(extraProcessingBlocks)
@@ -78,11 +78,11 @@ namespace Manisero.DataflowPoc.Playground.Pipelines.PeopleBatchesStream
         private IEnumerable<ProcessingBlock<DataBatch>> CreateExtraProcessingBlocks(CancellationTokenSource cancellationSource)
         {
             return Enumerable.Range(1, Settings.ExtraProcessingBlocksCount)
-                             .Select(x => ProcessingBlock<DataBatch>.Create($"ExtraProcessing {x}",
-                                                                            DataBatch.IdGetter,
-                                                                            batch => batch.Data.ForEach(_ => ComputationsHelper.PerformTimeConsumingOperation()),
-                                                                            cancellationSource.Token,
-                                                                            Settings.ProcessInParallel ? Settings.MaxDegreeOfParallelism : 1));
+                             .Select(x => new ProcessingBlock<DataBatch>(DataflowFacade.TransformBlock($"ExtraProcessing {x}",
+                                                                                                       DataBatch.IdGetter,
+                                                                                                       batch => batch.Data.ForEach(_ => ComputationsHelper.PerformTimeConsumingOperation()),
+                                                                                                       cancellationSource.Token,
+                                                                                                       Settings.DegreeOfParallelism)));
         }
     }
 }

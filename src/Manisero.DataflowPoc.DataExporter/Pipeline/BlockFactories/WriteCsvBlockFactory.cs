@@ -29,11 +29,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
             // Handle completion
             var completion = writeBlock.Completion.ContinueWithStatusPropagation(_ => csvWriter.ValueIfCreated()?.Dispose());
 
-            return new ProcessingBlock<DataBatch<TItem>>
-                {
-                    Processor = writeBlock,
-                    Completion = completion
-                };
+            return new ProcessingBlock<DataBatch<TItem>>(writeBlock, completion);
         }
 
         private CsvWriter CreateCsvWriter(string targetFilePath, bool appendTargetFile)

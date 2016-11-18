@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
@@ -44,7 +43,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             // Create pipelines
             var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
 
-            var writeEmptyLineBlock = StartableBlockExtensions.CreateStartOnlyBlock(
+            var writeEmptyLineBlock = new StartableBlock<object>(
                 () =>
                     {
                         if (!summaryPipeline.Completion.IsFaulted && !summaryPipeline.Completion.IsCanceled)
@@ -59,13 +58,12 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             summaryPipeline.ContinueWith(writeEmptyLineBlock);
             writeEmptyLineBlock.ContinueWith(peoplePipeline);
 
-            return new StartableBlock<DataBatch<Person>>
-                {
-                    Start = summaryPipeline.Start,
-                    Output = peoplePipeline.Output,
-                    EstimatedOutputCount = peoplePipeline.EstimatedOutputCount,
-                    Completion = peoplePipeline.Completion
-                };
+            return new StartableBlock<DataBatch<Person>>(
+                summaryPipeline.Start,
+                peoplePipeline.Output,
+                peoplePipeline.EstimatedOutputCount,
+                peoplePipeline.Completion,
+                true);
         }
 
         private StartableBlock<DataBatch<PeopleSummary>> CreateSummaryPipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
@@ -87,7 +85,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
                                                            new[] { writeBlock, progressBlock },
                                                            cancellationSource);
 
-            pipeline.Completion = pipeline.Completion.ContinueWithStatusPropagation(_ => cancellationSource.Dispose());
+            pipeline.ContinueCompletionWith(_ => cancellationSource.Dispose());
 
             return pipeline;
         }
@@ -111,7 +109,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
                                                            new[] { writeBlock, progressBlock },
                                                            cancellationSource);
 
-            pipeline.Completion = pipeline.Completion.ContinueWithStatusPropagation(_ => cancellationSource.Dispose());
+            pipeline.ContinueCompletionWith(_ => cancellationSource.Dispose());
 
             return pipeline;
         }

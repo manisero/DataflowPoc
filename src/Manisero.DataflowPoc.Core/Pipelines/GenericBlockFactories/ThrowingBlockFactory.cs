@@ -19,11 +19,7 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
                     },
                 cancellation);
 
-            return new ProcessingBlock<TData>
-                {
-                    Processor = throwBlock,
-                    Completion = throwBlock.Completion
-                };
+            return new ProcessingBlock<TData>(throwBlock);
         }
     }
 }

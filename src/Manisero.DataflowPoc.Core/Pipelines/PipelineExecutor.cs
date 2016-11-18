@@ -21,18 +21,7 @@ namespace Manisero.DataflowPoc.Core.Pipelines
 
             // Execute
             pipelineExecutionResult.StartTs = DateTime.UtcNow;
-
-            try
-            {
-                pipeline.Start();
-            }
-            catch (Exception e)
-            {
-                pipelineExecutionResult.FinishTs = DateTime.UtcNow;
-                pipelineExecutionResult.Exception = e;
-
-                return pipelineExecutionResult;
-            }
+            pipeline.Start();
 
             return await completionHandler;
         }

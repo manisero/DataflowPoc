@@ -14,6 +14,7 @@ namespace Manisero.DataflowPoc.Playground
         public static int ExtraProcessingBlocksCount => int.Parse(GetSetting());
         public static bool SimulateTimeConsumingComputations => bool.Parse(GetSetting());
         public static bool ProcessInParallel => bool.Parse(GetSetting());
+        public static int DegreeOfParallelism => ProcessInParallel ? MaxDegreeOfParallelism : 1;
         public static int MaxDegreeOfParallelism => int.Parse(GetSetting());
         public static bool SplitReadingIntoTwoSteps => bool.Parse(GetSetting());
         public static bool ThrowTest => bool.Parse(GetSetting());

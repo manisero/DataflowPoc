@@ -42,13 +42,10 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
             // Link blocks
             bufferBlock.LinkWithCompletion(readBlock);
 
-            return new StartableBlock<DataBatch<Person>>
-                {
-                    Start = () => Start(batchSize, batchesCount, bufferBlock),
-                    Output = readBlock,
-                    Completion = readBlock.Completion,
-                    EstimatedOutputCount = batchesCount
-                };
+            return new StartableBlock<DataBatch<Person>>(
+                () => Start(batchSize, batchesCount, bufferBlock),
+                readBlock,
+                batchesCount);
         }
 
         private void Start(int batchSize, int batchesCount, ITargetBlock<DataBatch<Person>> inputBlock)

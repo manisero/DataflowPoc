@@ -49,11 +49,7 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
                         }
                     });
 
-            return new ProcessingBlock<TData>
-                {
-                    Processor = reportBlock,
-                    Completion = completion
-                };
+            return new ProcessingBlock<TData>(reportBlock, completion);
         }
 
         private void TryReport(State state, int inputPerReport, int estimatedItemsCount, IProgress<PipelineProgress> progress)

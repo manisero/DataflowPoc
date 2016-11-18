@@ -7,64 +7,73 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
 {
     public class StartableBlock<TOutput>
     {
-        public Action Start { get; set; }
+        public Action Start { get; }
+        public ISourceBlock<TOutput> Output { get; }
+        public int EstimatedOutputCount { get; }
+        public Task Completion { get; private set; }
 
-        public ISourceBlock<TOutput> Output { get; set; }
+        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount, Task customCompletion = null, bool isComposite = false)
+        {
+            Start = isComposite ? start : WrapStart(start, output);
+            Output = output;
+            EstimatedOutputCount = estimatedOutputCount;
+            Completion = customCompletion ?? output.Completion;
+        }
 
-        public int EstimatedOutputCount { get; set; }
+        public StartableBlock(StartableBlock<TOutput> source, ProcessingBlock<TOutput> output, Task completion)
+            : this(source.Start, output.Processor, source.EstimatedOutputCount, completion, true)
+        {
+        }
 
-        public Task Completion { get; set; }
-    }
-
-    public static class StartableBlockExtensions
-    {
-        public static StartableBlock<object> CreateStartOnlyBlock(Action start) => CreateStartOnlyBlock<object>(start);
-
-        public static StartableBlock<TOutput> CreateStartOnlyBlock<TOutput>(Action start)
+        public StartableBlock(Action start)
         {
             var output = new BufferBlock<TOutput>();
 
-            return new StartableBlock<TOutput>
-                {
-                    Start = () =>
-                                {
-                                    try
-                                    {
-                                        start();
-                                        output.Complete();
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        ((ISourceBlock<TOutput>)output).Fault(ex);
-                                    }
-                                },
-                    Output = output,
-                    Completion = output.Completion
-                };
+            Start = WrapStart(() =>
+                                  {
+                                      start();
+                                      output.Complete();
+                                  },
+                              output);
+            Output = output;
+            Completion = output.Completion;
         }
 
-        public static void ContinueWith<TOutput, TContinuationOutput>(this StartableBlock<TOutput> block, StartableBlock<TContinuationOutput> continuationBlock)
+        private Action WrapStart(Action start, ISourceBlock<TOutput> output)
         {
-            block.Output.IgnoreOutput();
+            return () =>
+                       {
+                           try
+                           {
+                               start();
+                           }
+                           catch (Exception ex)
+                           {
+                               output.Fault(ex);
+                           }
+                       };
+        }
 
-            block.Completion.ContinueWith(x =>
-                                              {
-                                                  if (x.IsFaulted)
-                                                  {
-                                                      continuationBlock.Output.Fault(x.Exception);
-                                                  }
-                                                  else
-                                                  {
-                                                      try
-                                                      {
-                                                          continuationBlock.Start();
-                                                      }
-                                                      catch (Exception ex)
-                                                      {
-                                                          continuationBlock.Output.Fault(ex);
-                                                      }
-                                                  }
-                                              });
+        public void ContinueCompletionWith(Action<Task> continuationAction)
+        {
+            Completion = Completion.ContinueWithStatusPropagation(continuationAction);
+        }
+
+        public void ContinueWith<TContinuationOutput>(StartableBlock<TContinuationOutput> continuationBlock)
+        {
+            Output.IgnoreOutput();
+
+            Completion.ContinueWith(x =>
+                                        {
+                                            if (x.IsFaulted)
+                                            {
+                                                continuationBlock.Output.Fault(x.Exception);
+                                            }
+                                            else
+                                            {
+                                                continuationBlock.Start();
+                                            }
+                                        });
         }
     }
 }

@@ -11,11 +11,7 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
             // Create blocks
             var emptyBlock = DataflowFacade.BufferBlock<TData>(cancellation, 1);
 
-            return new ProcessingBlock<TData>
-                {
-                    Processor = emptyBlock,
-                    Completion = emptyBlock.Completion
-                };
+            return new ProcessingBlock<TData>(emptyBlock);
         }
     }
 }
