@@ -23,6 +23,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
     {
         private readonly IReadSummaryBlockFactory _readSummaryBlockFactory;
         private readonly IReadPeopleBlockFactory _readPeopleBlockFactory;
+        private readonly ISingleItemSourceBlockFactory _singleItemSourceBlockFactory;
         private readonly IPeopleSummaryBuilder _peopleSummaryBuilder;
         private readonly IWriteCsvBlockFactory _writeCsvBlockFactory;
         private readonly IProgressReportingBlockFactory _progressReportingBlockFactory;
@@ -30,6 +31,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 
         public PipelineFactory(IReadSummaryBlockFactory readSummaryBlockFactory,
                                IReadPeopleBlockFactory readPeopleBlockFactory,
+                               ISingleItemSourceBlockFactory singleItemSourceBlockFactory,
                                IPeopleSummaryBuilder peopleSummaryBuilder,
                                IWriteCsvBlockFactory writeCsvBlockFactory,
                                IProgressReportingBlockFactory progressReportingBlockFactory,
@@ -37,6 +39,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
         {
             _readSummaryBlockFactory = readSummaryBlockFactory;
             _readPeopleBlockFactory = readPeopleBlockFactory;
+            _singleItemSourceBlockFactory = singleItemSourceBlockFactory;
             _peopleSummaryBuilder = peopleSummaryBuilder;
             _writeCsvBlockFactory = writeCsvBlockFactory;
             _progressReportingBlockFactory = progressReportingBlockFactory;
@@ -144,21 +147,14 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
 
             // Create blocks
-            var sourceBuffer = DataflowFacade.BufferBlock<DataBatch<PeopleSummary>>(cancellationSource.Token);
-            var sourceBlock = new StartableBlock<DataBatch<PeopleSummary>>(() =>
-                                                                               {
-                                                                                   sourceBuffer.Post(new DataBatch<PeopleSummary>
-                                                                                                         {
-                                                                                                             Number = -1,
-                                                                                                             DataOffset = 0,
-                                                                                                             IntendedSize = 1,
-                                                                                                             Data = new[] { aggregatedSummary }
-                                                                                                         });
-
-                                                                                   sourceBuffer.Complete();
-                                                                               },
-                                                                           sourceBuffer,
-                                                                           1);
+            var sourceBlock = _singleItemSourceBlockFactory.Create(() => new DataBatch<PeopleSummary>
+                                                                       {
+                                                                           Number = -1,
+                                                                           DataOffset = 0,
+                                                                           IntendedSize = 1,
+                                                                           Data = new[] { aggregatedSummary }
+                                                                       },
+                                                                   cancellationSource.Token);
             var writeBlock = _writeCsvBlockFactory.Create<PeopleSummary>(targetFilePath, true, cancellationSource.Token);
             var progressBlock = _progressReportingBlockFactory.Create("PeopleSummaryProgress",
                                                                       DataBatch<PeopleSummary>.IdGetter,

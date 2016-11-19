@@ -53,6 +53,7 @@
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Pipelines\GenericBlockFactories\EmptyBlockFactory.cs" />
     <Compile Include="Pipelines\GenericBlockFactories\ProgressReportingBlockFactory.cs" />
+    <Compile Include="Pipelines\GenericBlockFactories\SingleItemSourceBlockFactory.cs" />
     <Compile Include="Pipelines\GenericBlockFactories\ThrowingBlockFactory.cs" />
     <Compile Include="Pipelines\PipelineBlocks\ProcessingBlock.cs" />
     <Compile Include="Pipelines\PipelineBlocks\StartableBlock.cs" />

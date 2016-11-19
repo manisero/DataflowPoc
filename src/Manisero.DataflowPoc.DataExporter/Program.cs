@@ -18,6 +18,7 @@ namespace Manisero.DataflowPoc.DataExporter
             var pipelineFactory = new PipelineFactory(new ReadSummaryBlockFactory(new PeopleSummaryReader(sqlConnectionResolver)),
                                                       new ReadPeopleBlockFactory(new PeopleCounter(sqlConnectionResolver),
                                                                                  new PeopleBatchReader(sqlConnectionResolver)),
+                                                      new SingleItemSourceBlockFactory(),
                                                       new PeopleSummaryBuilder(),
                                                       new WriteCsvBlockFactory(),
                                                       new ProgressReportingBlockFactory(),
