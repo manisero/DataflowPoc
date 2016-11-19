@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
 using Manisero.DataflowPoc.DataExporter.Domain;
+using Manisero.DataflowPoc.DataExporter.Logic;
 using Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories;
 using Manisero.DataflowPoc.DataExporter.Pipeline.Models;
 
@@ -19,18 +22,21 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
     {
         private readonly IReadSummaryBlockFactory _readSummaryBlockFactory;
         private readonly IReadPeopleBlockFactory _readPeopleBlockFactory;
+        private readonly IPeopleSummaryBuilder _peopleSummaryBuilder;
         private readonly IWriteCsvBlockFactory _writeCsvBlockFactory;
         private readonly IProgressReportingBlockFactory _progressReportingBlockFactory;
         private readonly IStraightPipelineFactory _straightPipelineFactory;
 
         public PipelineFactory(IReadSummaryBlockFactory readSummaryBlockFactory,
                                IReadPeopleBlockFactory readPeopleBlockFactory,
+                               IPeopleSummaryBuilder peopleSummaryBuilder,
                                IWriteCsvBlockFactory writeCsvBlockFactory,
                                IProgressReportingBlockFactory progressReportingBlockFactory,
                                IStraightPipelineFactory straightPipelineFactory)
         {
             _readSummaryBlockFactory = readSummaryBlockFactory;
             _readPeopleBlockFactory = readPeopleBlockFactory;
+            _peopleSummaryBuilder = peopleSummaryBuilder;
             _writeCsvBlockFactory = writeCsvBlockFactory;
             _progressReportingBlockFactory = progressReportingBlockFactory;
             _straightPipelineFactory = straightPipelineFactory;
@@ -39,6 +45,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
         public StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
         {
             File.Create(targetFilePath).Dispose();
+            var aggregatedSummary = new PeopleSummary();
 
             // Create pipelines
             var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
@@ -52,7 +59,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
                         }
                     });
 
-            var peoplePipeline = CreatePeoplePipeline(targetFilePath, progress, cancellation);
+            var peoplePipeline = CreatePeoplePipeline(targetFilePath, aggregatedSummary, progress, cancellation);
 
             // Link pipelines
             summaryPipeline.ContinueWith(writeEmptyLineBlock);
@@ -90,13 +97,17 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             return pipeline;
         }
 
-        private StartableBlock<DataBatch<Person>> CreatePeoplePipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
+        private StartableBlock<DataBatch<Person>> CreatePeoplePipeline(string targetFilePath, PeopleSummary aggregatedSummary, IProgress<PipelineProgress> progress, CancellationToken cancellation)
         {
             var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
 
             // Create blocks
             var readBlock = _readPeopleBlockFactory.Create(cancellationSource.Token);
             var writeBlock = _writeCsvBlockFactory.Create<Person>(targetFilePath, true, cancellationSource.Token);
+            var buildSummaryBlock = new ProcessingBlock<DataBatch<Person>>(DataflowFacade.TransformBlock("BuildSummary",
+                                                                                                         DataBatch<Person>.IdGetter,
+                                                                                                         x => x.Data.ForEach(person => _peopleSummaryBuilder.Include(person, aggregatedSummary)),
+                                                                                                         cancellationSource.Token));
             var progressBlock = _progressReportingBlockFactory.Create("PersonProgress",
                                                                       DataBatch<Person>.IdGetter,
                                                                       progress,
@@ -106,7 +117,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
 
             // Create pipeline
             var pipeline = _straightPipelineFactory.Create(readBlock,
-                                                           new[] { writeBlock, progressBlock },
+                                                           new[] { writeBlock, buildSummaryBlock, progressBlock },
                                                            cancellationSource);
 
             pipeline.ContinueCompletionWith(_ => cancellationSource.Dispose());
