@@ -19,7 +19,8 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
 
             return new StartableBlock<TOutput>(() =>
                                                    {
-                                                       sourceBuffer.Post(itemGetter());
+                                                       var item = itemGetter();
+                                                       sourceBuffer.Post(item);
                                                        sourceBuffer.Complete();
                                                    },
                                                sourceBuffer,

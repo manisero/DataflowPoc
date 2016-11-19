@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks.Dataflow;
 using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
@@ -79,8 +77,9 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             // Link pipelines
             summaryFromDbPipeline.ContinueWith(writeEmptyLineBlock1);
             writeEmptyLineBlock1.ContinueWith(peoplePipeline);
-            peoplePipeline.ContinueWith(writeEmptyLineBlock2);
+            peoplePipeline.ContinueWith(writeEmptyLineBlock2, false);
             writeEmptyLineBlock2.ContinueWith(builtSummaryPipeline);
+            builtSummaryPipeline.Output.IgnoreOutput();
 
             return new StartableBlock<DataBatch<Person>>(
                 summaryFromDbPipeline.Start,

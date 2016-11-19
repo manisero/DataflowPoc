@@ -59,10 +59,13 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
             Completion = Completion.ContinueWithStatusPropagation(continuationAction);
         }
 
-        public void ContinueWith<TContinuationOutput>(StartableBlock<TContinuationOutput> continuationBlock)
+        public void ContinueWith<TContinuationOutput>(StartableBlock<TContinuationOutput> continuationBlock, bool ignoreSelfOutput = true)
         {
-            Output.IgnoreOutput();
-
+            if (ignoreSelfOutput)
+            {
+                Output.IgnoreOutput();
+            }
+            
             Completion.ContinueWith(x =>
                                         {
                                             if (x.IsFaulted)
