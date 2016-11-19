@@ -56,12 +56,11 @@ Done
   - no difference observed :(
 - Implement real-life scenario
   - exporting data from database to csv
+  - aggregaring read data and writing summary at the end
+    - i.e. build and pass state between pipelines
 
 To do
 ---
 
 - ProgressReportingBlock with dynamic EstimatedOutputCount setting
  - not while creating the block, e.g. inside StartableBlock.Start action
-- Implement real-life scenario
-  - Aggregaring read data and writing summary at the end
-    - I.e. build and pass state between pipelines
