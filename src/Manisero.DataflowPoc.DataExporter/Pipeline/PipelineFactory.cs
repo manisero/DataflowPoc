@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks.Dataflow;
 using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines;
 using Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories;
@@ -45,35 +46,48 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
         public StartableBlock<DataBatch<Person>> Create(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
         {
             File.Create(targetFilePath).Dispose();
-            var aggregatedSummary = new PeopleSummary();
+            var builtSummary = new PeopleSummary();
 
             // Create pipelines
-            var summaryPipeline = CreateSummaryPipeline(targetFilePath, progress, cancellation);
+            var summaryFromDbPipeline = CreateSummaryFormDbPipeline(targetFilePath, progress, cancellation);
 
-            var writeEmptyLineBlock = new StartableBlock<object>(
+            var writeEmptyLineBlock1 = new StartableBlock<object>(
                 () =>
                     {
-                        if (!summaryPipeline.Completion.IsFaulted && !summaryPipeline.Completion.IsCanceled)
+                        if (!summaryFromDbPipeline.Completion.IsFaulted && !summaryFromDbPipeline.Completion.IsCanceled)
                         {
                             File.AppendAllLines(targetFilePath, new[] { string.Empty });
                         }
                     });
 
-            var peoplePipeline = CreatePeoplePipeline(targetFilePath, aggregatedSummary, progress, cancellation);
+            var peoplePipeline = CreatePeoplePipeline(targetFilePath, builtSummary, progress, cancellation);
+
+            var writeEmptyLineBlock2 = new StartableBlock<object>(
+                () =>
+                    {
+                        if (!peoplePipeline.Completion.IsFaulted && !peoplePipeline.Completion.IsCanceled)
+                        {
+                            File.AppendAllLines(targetFilePath, new[] { string.Empty });
+                        }
+                    });
+
+            var builtSummaryPipeline = CreateBuiltSummaryPipeline(targetFilePath, builtSummary, progress, cancellation);
 
             // Link pipelines
-            summaryPipeline.ContinueWith(writeEmptyLineBlock);
-            writeEmptyLineBlock.ContinueWith(peoplePipeline);
+            summaryFromDbPipeline.ContinueWith(writeEmptyLineBlock1);
+            writeEmptyLineBlock1.ContinueWith(peoplePipeline);
+            peoplePipeline.ContinueWith(writeEmptyLineBlock2);
+            writeEmptyLineBlock2.ContinueWith(builtSummaryPipeline);
 
             return new StartableBlock<DataBatch<Person>>(
-                summaryPipeline.Start,
+                summaryFromDbPipeline.Start,
                 peoplePipeline.Output,
                 peoplePipeline.EstimatedOutputCount,
-                peoplePipeline.Completion,
+                builtSummaryPipeline.Completion,
                 true);
         }
 
-        private StartableBlock<DataBatch<PeopleSummary>> CreateSummaryPipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
+        private StartableBlock<DataBatch<PeopleSummary>> CreateSummaryFormDbPipeline(string targetFilePath, IProgress<PipelineProgress> progress, CancellationToken cancellation)
         {
             var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
 
@@ -97,7 +111,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             return pipeline;
         }
 
-        private StartableBlock<DataBatch<Person>> CreatePeoplePipeline(string targetFilePath, PeopleSummary aggregatedSummary, IProgress<PipelineProgress> progress, CancellationToken cancellation)
+        private StartableBlock<DataBatch<Person>> CreatePeoplePipeline(string targetFilePath, PeopleSummary builtSummary, IProgress<PipelineProgress> progress, CancellationToken cancellation)
         {
             var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
 
@@ -106,7 +120,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             var writeBlock = _writeCsvBlockFactory.Create<Person>(targetFilePath, true, cancellationSource.Token);
             var buildSummaryBlock = new ProcessingBlock<DataBatch<Person>>(DataflowFacade.TransformBlock("BuildSummary",
                                                                                                          DataBatch<Person>.IdGetter,
-                                                                                                         x => x.Data.ForEach(person => _peopleSummaryBuilder.Include(person, aggregatedSummary)),
+                                                                                                         x => x.Data.ForEach(person => _peopleSummaryBuilder.Include(person, builtSummary)),
                                                                                                          cancellationSource.Token));
             var progressBlock = _progressReportingBlockFactory.Create("PersonProgress",
                                                                       DataBatch<Person>.IdGetter,
@@ -118,6 +132,44 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             // Create pipeline
             var pipeline = _straightPipelineFactory.Create(readBlock,
                                                            new[] { writeBlock, buildSummaryBlock, progressBlock },
+                                                           cancellationSource);
+
+            pipeline.ContinueCompletionWith(_ => cancellationSource.Dispose());
+
+            return pipeline;
+        }
+
+        private StartableBlock<DataBatch<PeopleSummary>> CreateBuiltSummaryPipeline(string targetFilePath, PeopleSummary aggregatedSummary, IProgress<PipelineProgress> progress, CancellationToken cancellation)
+        {
+            var cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+
+            // Create blocks
+            var sourceBuffer = DataflowFacade.BufferBlock<DataBatch<PeopleSummary>>(cancellationSource.Token);
+            var sourceBlock = new StartableBlock<DataBatch<PeopleSummary>>(() =>
+                                                                               {
+                                                                                   sourceBuffer.Post(new DataBatch<PeopleSummary>
+                                                                                                         {
+                                                                                                             Number = -1,
+                                                                                                             DataOffset = 0,
+                                                                                                             IntendedSize = 1,
+                                                                                                             Data = new[] { aggregatedSummary }
+                                                                                                         });
+
+                                                                                   sourceBuffer.Complete();
+                                                                               },
+                                                                           sourceBuffer,
+                                                                           1);
+            var writeBlock = _writeCsvBlockFactory.Create<PeopleSummary>(targetFilePath, true, cancellationSource.Token);
+            var progressBlock = _progressReportingBlockFactory.Create("PeopleSummaryProgress",
+                                                                      DataBatch<PeopleSummary>.IdGetter,
+                                                                      progress,
+                                                                      sourceBlock.EstimatedOutputCount,
+                                                                      1,
+                                                                      cancellationSource.Token);
+
+            // Create pipeline
+            var pipeline = _straightPipelineFactory.Create(sourceBlock,
+                                                           new[] { writeBlock, progressBlock },
                                                            cancellationSource);
 
             pipeline.ContinueCompletionWith(_ => cancellationSource.Dispose());
