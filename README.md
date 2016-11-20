@@ -16,6 +16,8 @@ Done
   - Completion.ContinueWithStatusPropagation
 - Progress reporting
   - ProgressReportingBlockFactory
+  - dynamic EstimatedOutputCount setting
+    - not while creating the block, e.g. inside StartableBlock.Start action
 - Global completion
   - TaskExtensions.CreateGlobalCompletion
 - Cancellation
@@ -58,9 +60,3 @@ Done
   - exporting data from database to csv
   - aggregaring read data and writing summary at the end
     - i.e. build and pass state between pipelines
-
-To do
----
-
-- ProgressReportingBlock with dynamic EstimatedOutputCount setting
-  - not while creating the block, e.g. inside StartableBlock.Start action
