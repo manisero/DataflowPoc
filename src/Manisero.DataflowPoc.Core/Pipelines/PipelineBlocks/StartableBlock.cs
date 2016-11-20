@@ -9,15 +9,20 @@ namespace Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks
     {
         public Action Start { get; }
         public ISourceBlock<TOutput> Output { get; }
-        public int EstimatedOutputCount { get; }
+        public Lazy<int> EstimatedOutputCount { get; }
         public Task Completion { get; private set; }
 
-        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount, Task customCompletion = null, bool isComposite = false)
+        public StartableBlock(Action start, ISourceBlock<TOutput> output, Lazy<int> estimatedOutputCount, Task customCompletion = null, bool isComposite = false)
         {
             Start = isComposite ? start : WrapStart(start, output);
             Output = output;
             EstimatedOutputCount = estimatedOutputCount;
             Completion = customCompletion ?? output.Completion;
+        }
+
+        public StartableBlock(Action start, ISourceBlock<TOutput> output, int estimatedOutputCount, Task customCompletion = null, bool isComposite = false)
+            : this(start, output, new Lazy<int>(() => estimatedOutputCount), customCompletion, isComposite)
+        {
         }
 
         public StartableBlock(StartableBlock<TOutput> source, ProcessingBlock<TOutput> output, Task completion)

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks.Dataflow;
 using Manisero.DataflowPoc.Core.Extensions;
 using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
@@ -28,8 +29,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
         public StartableBlock<DataBatch<Person>> Create(CancellationToken cancellation)
         {
             var batchSize = Settings.ReadingBatchSize;
-            var peopleCount = _peopleCounter.Count();
-            var batchesCount = peopleCount.CeilingOfDivisionBy(batchSize);
+            var batchesCount = new Lazy<int>(() => GetBatchesCount(batchSize));
 
             // Create blocks
             var bufferBlock = DataflowFacade.BufferBlock<DataBatch<Person>>(cancellation);
@@ -43,9 +43,16 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline.BlockFactories
             bufferBlock.LinkWithCompletion(readBlock);
 
             return new StartableBlock<DataBatch<Person>>(
-                () => Start(batchSize, batchesCount, bufferBlock),
+                () => Start(batchSize, batchesCount.Value, bufferBlock),
                 readBlock,
                 batchesCount);
+        }
+
+        private int GetBatchesCount(int batchSize)
+        {
+            var peopleCount = _peopleCounter.Count();
+
+            return peopleCount.CeilingOfDivisionBy(batchSize);
         }
 
         private void Start(int batchSize, int batchesCount, ITargetBlock<DataBatch<Person>> inputBlock)
