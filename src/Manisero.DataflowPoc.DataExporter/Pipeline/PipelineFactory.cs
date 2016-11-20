@@ -96,7 +96,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
             // Create blocks
             var readBlock = _readSummaryBlockFactory.Create(cancellationSource.Token);
             var writeBlock = _writeCsvBlockFactory.Create<PeopleSummary>(targetFilePath, true, cancellationSource.Token);
-            var progressBlock = _progressReportingBlockFactory.Create("PeopleSummaryProgress",
+            var progressBlock = _progressReportingBlockFactory.Create("PeopleSummaryFromDbProgress",
                                                                       DataBatch<PeopleSummary>.IdGetter,
                                                                       progress,
                                                                       readBlock.EstimatedOutputCount,
@@ -155,7 +155,7 @@ namespace Manisero.DataflowPoc.DataExporter.Pipeline
                                                                        },
                                                                    cancellationSource.Token);
             var writeBlock = _writeCsvBlockFactory.Create<PeopleSummary>(targetFilePath, true, cancellationSource.Token);
-            var progressBlock = _progressReportingBlockFactory.Create("PeopleSummaryProgress",
+            var progressBlock = _progressReportingBlockFactory.Create("BuiltPeopleSummaryProgress",
                                                                       DataBatch<PeopleSummary>.IdGetter,
                                                                       progress,
                                                                       sourceBlock.EstimatedOutputCount,
