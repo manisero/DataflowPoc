@@ -63,4 +63,4 @@ To do
 ---
 
 - ProgressReportingBlock with dynamic EstimatedOutputCount setting
- - not while creating the block, e.g. inside StartableBlock.Start action
+  - not while creating the block, e.g. inside StartableBlock.Start action

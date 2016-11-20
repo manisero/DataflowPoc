@@ -13,6 +13,13 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
                                              int estimatedInputCount,
                                              int inputPerReport,
                                              CancellationToken cancellation);
+
+        ProcessingBlock<TData> Create<TData>(string name,
+                                             Func<TData, int> dataIdGetter,
+                                             IProgress<PipelineProgress> progress,
+                                             Lazy<int> estimatedInputCount,
+                                             int inputPerReport,
+                                             CancellationToken cancellation);
     }
 
     public class ProgressReportingBlockFactory : IProgressReportingBlockFactory
@@ -29,6 +36,14 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
                                                     int estimatedInputCount,
                                                     int inputPerReport,
                                                     CancellationToken cancellation)
+            => Create(name, dataIdGetter, progress, new Lazy<int>(() => estimatedInputCount), inputPerReport, cancellation);
+
+        public ProcessingBlock<TData> Create<TData>(string name,
+                                                    Func<TData, int> dataIdGetter,
+                                                    IProgress<PipelineProgress> progress,
+                                                    Lazy<int> estimatedInputCount,
+                                                    int inputPerReport,
+                                                    CancellationToken cancellation)
         {
             var state = new State();
 
@@ -36,23 +51,23 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
             var reportBlock = DataflowFacade.TransformBlock(
                 name,
                 dataIdGetter,
-                x => TryReport(state, inputPerReport, estimatedInputCount, progress),
+                x => TryReport(state, estimatedInputCount.Value, inputPerReport, progress),
                 cancellation);
 
             // Handle completion
             var completion = reportBlock.Completion.ContinueWithStatusPropagation(
-                x =>
-                    {
-                        if (!x.IsFaulted && !x.IsCanceled && !state.Reported100)
-                        {
-                            progress.Report(new PipelineProgress { Percentage = 100 });
-                        }
-                    });
+                                            x =>
+                                                {
+                                                    if (!x.IsFaulted && !x.IsCanceled && !state.Reported100)
+                                                    {
+                                                        progress.Report(new PipelineProgress { Percentage = 100 });
+                                                    }
+                                                });
 
             return new ProcessingBlock<TData>(reportBlock, completion);
         }
 
-        private void TryReport(State state, int inputPerReport, int estimatedItemsCount, IProgress<PipelineProgress> progress)
+        private void TryReport(State state, int estimatedInputCount, int inputPerReport, IProgress<PipelineProgress> progress)
         {
             if (state.Reported100)
             {
@@ -61,13 +76,13 @@ namespace Manisero.DataflowPoc.Core.Pipelines.GenericBlockFactories
 
             state.ItemsProcessed++;
 
-            if (state.ItemsProcessed >= estimatedItemsCount)
+            if (state.ItemsProcessed >= estimatedInputCount)
             {
                 Report(state, 100, progress);
             }
             else if (state.ItemsProcessed % inputPerReport == 0)
             {
-                var percentage = state.ItemsProcessed.PercentageOf(estimatedItemsCount);
+                var percentage = state.ItemsProcessed.PercentageOf(estimatedInputCount);
                 Report(state, percentage, progress);
             }
         }
