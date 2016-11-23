@@ -12,10 +12,14 @@ namespace Manisero.DataflowPoc.DataExporter
 {
     class Program
     {
+        private static IPipelineFactory _pipelineFactory;
+        private static IParallelPipelineFactory _parallelPipelineFactory;
+        private static IPipelineExecutor _pipelineExecutor;
+
         static void Main(string[] args)
         {
             var sqlConnectionResolver = new SqlConnectionResolver(Settings.ConnectionString);
-            var pipelineFactory = new PipelineFactory(new ReadSummaryBlockFactory(new PeopleSummaryReader(sqlConnectionResolver)),
+            _pipelineFactory = new PipelineFactory(new ReadSummaryBlockFactory(new PeopleSummaryReader(sqlConnectionResolver)),
                                                       new ReadPeopleBlockFactory(new PeopleCounter(sqlConnectionResolver),
                                                                                  new PeopleBatchReader(sqlConnectionResolver)),
                                                       new SingleItemSourceBlockFactory(),
@@ -23,15 +27,36 @@ namespace Manisero.DataflowPoc.DataExporter
                                                       new WriteCsvBlockFactory(),
                                                       new ProgressReportingBlockFactory(),
                                                       new StraightPipelineFactory());
-            var pipelineExecutor = new PipelineExecutor();
+            _parallelPipelineFactory = new ParallelPipelineFactory(_pipelineFactory);
+            _pipelineExecutor = new PipelineExecutor();
 
+            RunPipeline();
+            RunParallelPipeline();
+        }
+
+        private static void RunPipeline()
+        {
             using (var cancellation = new CancellationTokenSource())
             {
                 Task.Run(() => WaitForCancellation(cancellation));
 
                 var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
-                var pipeline = pipelineFactory.Create(Settings.PeopleTargetFilePath, progress, cancellation.Token);
-                var executionResult = pipelineExecutor.Execute(pipeline).Result;
+                var pipeline = _pipelineFactory.Create(Settings.PeopleTargetFilePath, progress, cancellation.Token);
+                var executionResult = _pipelineExecutor.Execute(pipeline).Result;
+
+                HandleExecutionResult(executionResult);
+            }
+        }
+
+        private static void RunParallelPipeline()
+        {
+            using (var cancellation = new CancellationTokenSource())
+            {
+                Task.Run(() => WaitForCancellation(cancellation));
+
+                var progress = new Progress<PipelineProgress>(x => Console.WriteLine($"{x.Percentage}% processed."));
+                var pipeline = _parallelPipelineFactory.Create(Settings.PeopleTargetFilePath, Settings.PeopleTargetFilePath2, progress, cancellation.Token);
+                var executionResult = _pipelineExecutor.Execute(pipeline).Result;
 
                 HandleExecutionResult(executionResult);
             }

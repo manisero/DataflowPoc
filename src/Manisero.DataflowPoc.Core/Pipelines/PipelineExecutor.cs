@@ -5,7 +5,12 @@ using Manisero.DataflowPoc.Core.Pipelines.PipelineBlocks;
 
 namespace Manisero.DataflowPoc.Core.Pipelines
 {
-    public class PipelineExecutor
+    public interface IPipelineExecutor
+    {
+        Task<PipelineExecutionResult> Execute<TData>(StartableBlock<TData> pipeline);
+    }
+
+    public class PipelineExecutor : IPipelineExecutor
     {
         public async Task<PipelineExecutionResult> Execute<TData>(StartableBlock<TData> pipeline)
         {

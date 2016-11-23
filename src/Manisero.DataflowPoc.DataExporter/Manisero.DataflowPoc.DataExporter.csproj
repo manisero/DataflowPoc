@@ -83,6 +83,7 @@
     <Compile Include="Pipeline\BlockFactories\ReadSummaryBlockFactory.cs" />
     <Compile Include="Pipeline\BlockFactories\WriteCsvBlockFactory.cs" />
     <Compile Include="Pipeline\Models\DataBatch.cs" />
+    <Compile Include="Pipeline\ParallelPipelineFactory.cs" />
     <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
